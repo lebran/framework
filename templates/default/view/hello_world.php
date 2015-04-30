@@ -1,0 +1,1 @@
+<center><?=$hello_world?></center>
