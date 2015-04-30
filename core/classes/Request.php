@@ -243,7 +243,8 @@ class Request {
         
         $controller = 'Controller_';
         if(!empty($params['directory'])){
-            $params['directory'] = ucfirst($params['directory']);
+            $params['directory'] = array_map('ucfirst', explode(DS, $params['directory']));
+            $params['directory'] = implode('_', $params['directory']);
             $controller .= $params['directory'].'_';
             $this->directory(Arr::extract($params, 'directory'));
         }
@@ -251,7 +252,11 @@ class Request {
         $this->controller($controller);
         
         $this->action(Arr::extract($params, 'action'));
-                        
+        
+        if(empty($this->_controller) or empty($this->_action)){
+            throw new Easy_Exception('Не задан контроллер или действие, проверьте правила маршрутизации!!!');
+        }
+                
         $this->params($params);
     }
     
