@@ -251,7 +251,7 @@ class Request {
         $controller .= ucfirst(Arr::extract($params, 'controller'));
         $this->controller($controller);
         
-        $this->action(Arr::extract($params, 'action'));
+        $this->action(Arr::extract($params, 'action').'_action');
         
         if(empty($this->_controller) or empty($this->_action)){
             throw new Easy_Exception('Не задан контроллер или действие, проверьте правила маршрутизации!!!');
