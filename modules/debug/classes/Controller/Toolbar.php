@@ -46,7 +46,7 @@ class Controller_Toolbar extends Controller_Layout{
     }
     
     public function messages(array $configs){
-        foreach (Debug::$_messages as $msg) {
+        foreach (Debug::get_msgs() as $msg) {
             $msgs[] = Debug_Var::dump($msg);
         }
         $this->layout->tabs[$configs['link']] = View::make('messages')->set('messages', $msgs)->render();
