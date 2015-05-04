@@ -20,10 +20,19 @@ class Debug_Var {
             case 'string': 
                 return self::str($var);
             case 'object': 
-                self::obj();
-            break;
+                return self::obj();
             case 'integer': 
-                return self::str($var);
+                return self::int($var);
+            case 'double': 
+                return self::dbl($var);
+            case 'boolean': 
+                return self::bool($var);
+            case 'resource': 
+                return self::res();
+            case 'NULL': 
+                return self::nul();
+            default: 
+                return self::unk();
         }
     }
     
@@ -40,6 +49,34 @@ class Debug_Var {
     
     protected static function str($str) {
         return '(string) "'.$str.'"';
+    }
+    
+    protected static function obj() {
+        return '(object)';
+    }
+    
+    protected static function int($num) {
+        return '(integer) '.$num;
+    }
+    
+    protected static function dbl($num) {
+        return '(double) '.$num;
+    }
+    
+    protected static function bool($bool) {
+        return $bool? 'TRUE' : 'FALSE';
+    }
+    
+    protected static function res() {
+        return '(resource)';
+    }
+    
+    protected static function nul() {
+        return 'NULL';
+    }
+    
+    protected static function unk() {
+        return '(unknown type)';
     }
     
     protected static function get_lvl_delim($plus = 0) {

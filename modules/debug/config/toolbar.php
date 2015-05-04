@@ -2,7 +2,7 @@
 
 return array(
         'enabled' => TRUE,
-        'template' => 'toolbar-default',
+        'template' => 'toolbar',
         'tabs' => array(
                 'messages' => array(
                         'name' => 'Messages',

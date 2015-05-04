@@ -13,13 +13,13 @@ class Debug {
      * 
      * @var type 
      */
-    public static $_e;
-    
+    protected static $_e;
+        
     /**
      * 
      * @var type 
      */
-    public static $_messages = array();
+    protected static $_msgs = array();
     
     
 
@@ -27,8 +27,8 @@ class Debug {
      * 
      */
     public static function init() {
-        set_exception_handler(function ($e) {
-            Debug::$_e = $e;
+        set_exception_handler(function (Easy_Exception $e) {
+            
         });
         
         set_error_handler(function ($errno, $errstr, $errfile, $errline) {
@@ -57,7 +57,10 @@ class Debug {
      * @param type $msg
      */
     public static function msg($msg) {
-        self::$_messages[] = $msg;
+        self::$_msgs[] = $msg;
     }
     
+    public static function get_msgs(){
+        return self::$_msgs;
+    }
 }
