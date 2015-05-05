@@ -21,8 +21,7 @@ class Controller_Toolbar extends Controller_Layout{
             return;
         }
         
-        Debug::msg($_SERVER);
-        
+        $tab_keys = array();
         $tabs = Config::get('toolbar.tabs');
         foreach ($tabs as $name => $tab) {
             $configs = array('link' => $name);
@@ -30,7 +29,9 @@ class Controller_Toolbar extends Controller_Layout{
                 $configs += $tab['configs'];
             }
             $this->{$tab['method']}($configs);
-            $tab_keys[$name] = $tab['name'];
+            $tab_keys[$name]['name'] = $tab['name'];
+            $tab_keys[$name]['logo'] = Html::href($tab['logo']);
+            $tab_keys[$name]['position'] = $tab['position'].'-tab';
         }
         $this->layout->set('tab_keys', $tab_keys); 
         
@@ -47,7 +48,11 @@ class Controller_Toolbar extends Controller_Layout{
     
     public function messages(array $configs){
         foreach (Debug::get_msgs() as $msg) {
-            $msgs[] = Debug_Var::dump($msg);
+            if(is_array($msg)){
+                $msgs[] = array('header' => 'Array', 'body' => substr(Debug_Var::dump($msg), 11));
+            }else{
+                $msgs[]['header'] = Debug_Var::dump($msg);
+            }
         }
         $this->layout->tabs[$configs['link']] = View::make('messages')->set('messages', $msgs)->render();
     }
