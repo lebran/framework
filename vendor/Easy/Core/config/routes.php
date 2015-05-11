@@ -4,7 +4,7 @@
                     'rout' => '(<controller>(/<action>(/<id>)))',
                     'default' => array(
                             'controller' => 'test',
-                            'action' => 'hello_world'
+                            'action' => 'helloWorld'
                     )
         )
     );

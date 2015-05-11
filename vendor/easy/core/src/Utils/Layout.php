@@ -1,14 +1,20 @@
 <?php
+namespace Easy\Core\Utils;
+
+use Easy\Core\Controller;
+
 /**
  * Класс помощник для создания шаблонов,
  * состоящих из нескольких маленьких(видов),
  * реализует принцип обвертки.
  * 
- * @package Helper
- * @author iToktor
- * @since 1.1
+ * @package    Core/Utils
+ * @version    2.0
+ * @author     Roman Kritskiy <itoktor@gmail.com>
+ * @license    GNU Lisence
+ * @copyright  2014 - 2015 Roman Kritskiy
  */
-abstract class Controller_Layout extends Controller {
+abstract class Layout extends Controller {
     
     /**
      * @var string имя обвертки.

@@ -1,4 +1,9 @@
 <?php
+namespace Easy\Core\Utils;
+
+use Easy\Core\Config;
+use Easy\Core\Request;
+
 /**
  *  Мини-шаблонизатор: передает данные в шаблон и рендерит их.
  * 
@@ -22,20 +27,22 @@
  *      // Кидаем наш вид в главный шаблон под псевдонимом content
  *      $this->layout->content = $view;
  * 
- * @package Base
- * @author iToktor
- * @since 1.2.5
+ * @package    Core\Utils
+ * @version    2.0
+ * @author     Roman Kritskiy <itoktor@gmail.com>
+ * @license    GNU Lisence
+ * @copyright  2014 - 2015 Roman Kritskiy
  */
 class View {
     /**
      * @var string полный путь к виду.
      */
-    protected $_view;
+    protected $view;
     	
     /**
      * @var array хранилище для переменных вида.
      */
-    protected $_vars = array() ;
+    protected $vars = array() ;
     
     /**
      * Фабрика для видов 
@@ -65,9 +72,9 @@ class View {
 	}
         
         if(empty($path)){
-            $this->_view = TPL_PATH.$template.DS.'view'.DS.trim($view, DS).'.php';
+            $this->view = TPL_PATH.$template.DS.'view'.DS.trim($view, DS).'.php';
         }else{
-            $this->_view = trim($path, DS).DS.trim($view, DS).'.php';
+            $this->view = trim($path, DS).DS.trim($view, DS).'.php';
         }
     }
 		
@@ -82,9 +89,9 @@ class View {
      */
     public function set( $var, $value = NULL ) {
         if( is_array( $var ) ) { 
-            Arr::merge($this->_vars, $var);
+            Arr::merge($this->vars, $var);
         } else {
-            $this->_vars[ $var ] = $value ;
+            $this->vars[ $var ] = $value ;
 	}
         
         return $this;
@@ -101,13 +108,13 @@ class View {
     public function render() {			
         $prefix = Config::get('system.view_prefix');
         if(empty($prefix)){
-            extract( $this->_vars) ;
+            extract( $this->vars) ;
         }else{
-            extract( $this->_vars, EXTR_PREFIX_ALL, $prefix) ;
+            extract( $this->vars, EXTR_PREFIX_ALL, $prefix) ;
         }
         
         ob_start();
-        include $this->_view;
+        include $this->view;
 	$view = ob_get_clean();
                
         return $view;		
@@ -120,7 +127,7 @@ class View {
      * @param string $value - значение
      */
     public function __set($name, $value) {
-        $this->_vars[$name] = $value;   
+        $this->vars[$name] = $value;   
     }
     
     /**
@@ -129,7 +136,7 @@ class View {
      * @param string $name - имя переменной 
      */
     public function &__get($name) {
-        return $this->_vars[$name];
+        return $this->vars[$name];
     }
     
     /**
@@ -138,7 +145,7 @@ class View {
      * @param string $name - имя удаляемой ячейки.
      */
     public function __unset($name) {
-        unset($this->_vars[$name]);
+        unset($this->vars[$name]);
     }
     
 }

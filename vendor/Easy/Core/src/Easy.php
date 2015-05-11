@@ -1,4 +1,7 @@
 <?php
+namespace Easy\Core;
+
+use Easy\Core\Utils\Arr;
 
 /**
  *                  ЯДРО СИСТЕМЫ
@@ -12,26 +15,29 @@
  * 
  * Имеет методы-помощники низкого уровня.
  *  
- * @package Base
- * @author iToktor
- * @since 1.2
+ * @package    Core
+ * @version    2.0
+ * @author     Roman Kritskiy <itoktor@gmail.com>
+ * @license    GNU Lisence
+ * @copyright  2014 - 2015 Roman Kritskiy
  */
-abstract class Easy_Core{ 
+abstract class Easy
+{ 
      
     /**
      * @var array пути для поиска файлов.
      */
-    protected static $_path = array();
+    protected static $path = array(CORE_PATH, APP_PATH);
 
     /**
      * @var array запущеные модули. 
      */
-    protected static $_modules = array();
+    protected static $modules = array();
     
     /**
      * @var boolean показует был ли запущен init().
      */
-    protected static $_init = FALSE;
+    protected static $init = FALSE;
 
     /**
      * Инициализация ядра, установка первоначальных настроек.
@@ -39,37 +45,26 @@ abstract class Easy_Core{
      * @uses Config::get() 
      * @uses Config::read() 
      */
-    public static function init() {
+    public static function init() 
+    {
         //Метод может быть запущен 1 раз
-        if (self::$_init){
+        if (self::$init){
             return;
 	}
-        self::$_init = TRUE;
-        
-        // Добавляем путь к главным файлам системы
-        self::include_path(array(CORE_PATH, APP_PATH), TRUE);
-             
-        // Временно регистрируем автозагрузчик
-        spl_autoload_register(array('Easy_Core', 'autoload'));
-        
+        self::$init = TRUE;
+                
         // Загружаем файл базовых настроек
-        $config = Config::read('system');
-        
-        // Устанавливаем автозагрузчик
-        if(!empty($config['autoload'])){ 
-            spl_autoload_unregister(array('Easy_Core', 'autoload'));
-            spl_autoload_register($config['autoload']);
-        }        
+        $config = Config::read('system');        
         
         // Устанавливаем обработчик исключений
         if(empty($config['exception_handler'])){
-            $config['exception_handler'] = array('Easy_Core', 'exception_handler');
+            $config['exception_handler'] = array(self, 'exceptionHandler');
         } 
         set_exception_handler($config['exception_handler']);
 
         // Устанавливаем обработчик ошибок
         if(empty($config['error_handler'])){
-            $config['error_handler'] = array('Easy_Core', 'error_handler');
+            $config['error_handler'] = array(self, 'errorHandler');
         } 
         set_error_handler($config['error_handler']);
         
@@ -90,7 +85,7 @@ abstract class Easy_Core{
             $config['template'] = 'default';
         }
         
-        // Проверка на наличие префикса для переменнх шаблона
+        // Проверка на наличие префикса для переменных шаблона
         if(empty($config['view_prefix'])){
             $config['view_prefix'] = '';
         }
@@ -106,29 +101,22 @@ abstract class Easy_Core{
         // Задаем замещающий символ на случай, когда кодировка входных данных задана неверно
         // или код символа не существует в кодировке выходных данных. 
         mb_substitute_character('none');
-
+        
+        //
+        Autoloader::addNamespace('Easy\\App', APP_PATH.'src');
+        
         // Инициализируем модули
         self::modules(Config::read('modules'));
-               
+        
         // Добавляем пути к пользовательским файлам
-        if(isset($config['include_path']) and is_array($config['include_path'])){
-            self::include_path($config['include_path']);
+        if(isset($config['path']) and is_array($config['path'])){
+            self::path($config['path']);
         }
         
         // Устанавливаем обработаные настройки
         Config::set('system', $config);
     }    
-    
-    /**
-     * Авто-загрузчик классов.
-     * 
-     * @param string $class - имя класса. 
-     */
-    public static function autoload($class){
-        $file = str_replace('_', DS, $class);
-        require_once self::find_file('classes',$file);
-    }
-        
+            
     /**
      * Метод добавления новых путей для поиска файлов или
      * если ничего не передавать работает как геттер.
@@ -138,20 +126,21 @@ abstract class Easy_Core{
      * @return array
      * @uses Arr::merge()
      */
-    public static function include_path($path = NULL, $delete = FALSE) {
+    public static function path($path = null, $delete = false) 
+    {
         if(empty($path)){    
-            return self::$_path;
-        }else if($delete === TRUE){
+            return self::$path;
+        }else if($delete){
             if(is_array($path)){    
-                self::$_path = $path;
+                self::$path = $path;
             }else{
-                self::$_path = array($path);
+                self::$path = array($path);
             }
         }else{
             if(is_array($path)){
-                self::$_path = Arr::merge($path, self::$_path);
+                Arr::merge(self::$path, $path, true);
             }else{
-                array_unshift(self::$_path, $path);
+                array_unshift(self::$path, $path);
             }
         }
     }
@@ -159,21 +148,21 @@ abstract class Easy_Core{
     /**
      * Ищет файл по заданым параметрам.
      * 
-     *      Easy_Core::find_file('images', 'header', TRUE, 'jpeg');
+     *      Easy::findFile('images', 'header', TRUE, 'jpeg');
      *      Пути подходящие под эти параметры:
      *          - core/images/header.jpeg,    
      *          - modules/test/images/header.jpeg. // Если инициализизирован модуль "Test"
      * 
      * @param string $subfolder - под-папка в которой искать.
      * @param string $name - имя файла.
-     * @param bool $return_all - возвращать все найденые файли или первый(по умочанию - первый).
      * @param string $extension - тип файла.
+     * @param bool $return_all - возвращать все найденые файли или первый.
      * @return mixed полный путь на найденый файл(ы) или False.
      */
-    public static function find_file($subfolder, $name,$return_all = FALSE, $extension = 'php') {
+    public static function findFile($subfolder, $name, $extension = 'php', $return_all = FALSE) {
         $fname = $name.'.'.$extension;
         $found_files = array();
-        foreach (self::include_path() as $folder){
+        foreach (self::path() as $folder){
             $file = trim($folder, DS).DS.trim($subfolder, DS).DS.$fname;
             if (file_exists($file)){	
                 $found_files[] = $file;
@@ -210,25 +199,25 @@ abstract class Easy_Core{
      * @return array массив модулей
      * @throws Easy_Exception
      */
-    public static function modules(array $modules = NULL){
+    public static function modules(array $modules = null){
         if ($modules === NULL){
-            return self::$_modules;
+            return self::$modules;
 	}
         
-        self::include_path(CORE_PATH, TRUE);
+        self::path(CORE_PATH, TRUE);
         
 	foreach ($modules as $name => $path){
             if (is_dir($path)){
-                self::include_path($path); 
-                self::$_modules[$name] = $path;
+                self::path($path); 
+                self::$modules[$name] = $path;
             }else{
-                throw new Easy_Exception('Неправильный путь к модулю '.$name.' или его не существует!!!');
+                throw new Exception('Неправильный путь к модулю '.$name.' или его не существует!!!');
             }
 	}
         
-        self::include_path(APP_PATH);
+        self::path(APP_PATH);
         
-	foreach (self::$_modules as $path)	{
+	foreach (self::$modules as $path)	{
             $init = trim($path,DS).DS.'init.php';
 
             if (is_file($init)){
@@ -242,7 +231,7 @@ abstract class Easy_Core{
      * 
      * @param Easy_Exception $e - исключение.
      */
-    public static function exception_handler(Exception $e){
+    public static function exceptionHandler(\Exception $e){
         echo '<center>'.$e->getMessage().'</center>';
         echo '<center> В файле: '.$e->getFile().'</center>';
         echo '<center> Строка: '.$e->getLine().'</center>';
@@ -257,7 +246,7 @@ abstract class Easy_Core{
      * @param int $errline - содержит номер строки, в которой произошла ошибка.
      * @throws ErrorException
      */
-    public static function error_handler($errno, $errstr, $errfile, $errline){     
-        throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
+    public static function errorHandler($errno, $errstr, $errfile, $errline){     
+        throw new \ErrorException($errstr, 0, $errno, $errfile, $errline);
     }
 }

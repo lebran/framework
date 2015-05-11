@@ -1,13 +1,10 @@
 <?php
     return array(
-        // Автозагрузчик
-        'autoload' => array('Easy_Core', 'autoload'),
-        
         // Обработчик исключений
-        'exception_handler' => array('Easy_Core', 'exception_handler'),
+        'exception_handler' => array('Easy\\Core\\Easy', 'exceptionHandler'),
         
         // Обработчик ошибок 
-        'error_handler' => array('Easy_Core', 'error_handler'),
+        'error_handler' => array('Easy\\Core\\Easy', 'errorHandler'),
         
         // Базовый URL
         'base_url' => '/',
@@ -22,5 +19,5 @@
         'charset' => 'utf-8',
         
         // Пользовательськие пути 
-        'include_path' => array()
+        'path' => array()
     );

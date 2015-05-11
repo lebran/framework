@@ -1,10 +1,16 @@
 <?php
+namespace Easy\Core\Utils;
+
+use Easy\Core\Config;
+
 /**
  * Cодержит методы, которые помогают работать с HTML.
  *
- * @package Helpers
- * @author Selfless
- * @since 1.2
+ * @package    Core\Utils
+ * @version    2.0
+ * @author     Roman Kritskiy <itoktor@gmail.com>
+ * @license    GNU Lisence
+ * @copyright  2014 - 2015 Roman Kritskiy
  */
 
 abstract class Html{

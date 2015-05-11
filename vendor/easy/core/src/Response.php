@@ -1,24 +1,28 @@
 <?php
+namespace Easy\Core;
+
 /**
  * Обрабатывает ответ, который отправляется обратно клиенту.
- * 
- * @package Base
- * @author iToktor
- * @since 1.0
+ *
+ * @package    Core
+ * @version    2.0
+ * @author     Roman Kritskiy <itoktor@gmail.com>
+ * @license    GNU Lisence
+ * @copyright  2014 - 2015 Roman Kritskiy
  */
 class Response{
 	
     /**
      * @var array хранилище для заголовков.
      */
-    protected $_headers = array(
+    protected $headers = array(
 	'Content-Type: text/html; charset=utf-8'
     );
 
     /** 
      * @var string тело ответа.
      */
-    protected $_body;
+    protected $body;
 
     /**
      * Добавление заголовков.
@@ -26,8 +30,8 @@ class Response{
      * @param string $header - контент заголовка.
      * @return Response
      */
-    public function add_header($header) {
-        $this->_headers[] = $header;
+    public function addHeader($header) {
+        $this->headers[] = $header;
         return $this;
     }
 
@@ -40,7 +44,7 @@ class Response{
         $url = trim($url, DS);
         $base = Config::get('system.base_url');
         $url = $base.$url;
-        $this->add_header("Location:{$url}");
+        $this->addHeader("Location:{$url}");
     }
 
     /**
@@ -48,8 +52,8 @@ class Response{
      *
      * @return Response
      */
-    public function send_headers() {
-        foreach ($this->_headers as $header){
+    public function sendHeaders() {
+        foreach ($this->headers as $header){
             header($header);
         }
         return $this;
@@ -64,10 +68,15 @@ class Response{
      */
     public function body($body = NULL) {
     	if($body !== NULL){
-            $this->_body = $body;
+            $this->body = $body;
         }else{
-            return $this->_body;
+            return $this->body;
         }
+    }
+    
+    public function __toString() 
+    {
+        return $this->sendHeaders()->body();
     }
 
 }

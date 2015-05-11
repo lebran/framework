@@ -1,4 +1,6 @@
 <?php
+namespace Easy\Core;
+
 /**
  *                      РОУТИНГ
  * Правила записываются в файл routes в папке core/config.
@@ -23,9 +25,11 @@
  *          - admin/yoyoy
  *          - admin
  *
- * @package Base
- * @author iToktor
- * @since 1.1  
+ * @package    Core
+ * @version    2.0
+ * @author     Roman Kritskiy <itoktor@gmail.com>
+ * @license    GNU Lisence
+ * @copyright  2014 - 2015 Roman Kritskiy
  */
 class Route {
     
@@ -42,7 +46,7 @@ class Route {
     /**
      * @var string хранилище правили роутинга. 
      */
-    protected static $_routes = NULL;
+    protected static $routes = NULL;
     
     /**
      * Геттер для правил.
@@ -50,15 +54,16 @@ class Route {
      * @param string $name - имя правила(по умолчанию все).
      * @return string|array правило(а)
      */    
-    public static function get($name = NULL){
-        if(empty(self::$_routes)){
+    public static function get($name = NULL)
+    {
+        if(empty(self::$routes)){
             new Route;
         }
         if(!empty($name)){
-            return self::$_routes[$name];
+            return self::$routes[$name];
         }
         
-        return self::$_routes;
+        return self::$routes;
         
     }
     
@@ -70,7 +75,8 @@ class Route {
      * 
      * @uses Config::read() 
      */
-    private function __construct(){
+    private function __construct()
+    {
         $config = Config::read('routes');
         
         foreach ($config as $name => $val){
@@ -84,7 +90,7 @@ class Route {
                 if( array_key_exists ( 'default' , $val )){    
                     $default = $val['default'];
                 }
-                self::$_routes[$name] = array(
+                self::$routes[$name] = array(
                     'rout' => $rout,
                     'default' => $default
                 );
@@ -101,7 +107,8 @@ class Route {
      * @uses Route::REGEX_ESCAPE
      * @uses Route::REGEX_SEGMENT
      */
-    public static function compile($uri, $regex){
+    public static function compile($uri, $regex)
+    {
         $expression = preg_replace('#'.Route::REGEX_ESCAPE.'#', '\\\\$0', $uri);
 
         if (strpos($expression, '(') !== FALSE){

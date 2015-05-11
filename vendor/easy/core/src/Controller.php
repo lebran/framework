@@ -1,11 +1,14 @@
 <?php
+namespace Easy\Core;
 
 /**
  * Базовый контролллер.
- * 
- * @package Base
- * @author iToktor
- * @since 1.0
+ *
+ * @package    Core
+ * @version    2.0
+ * @author     Roman Kritskiy <itoktor@gmail.com>
+ * @license    GNU Lisence
+ * @copyright  2014 - 2015 Roman Kritskiy
  */
 abstract class Controller {
     /**
@@ -46,7 +49,7 @@ abstract class Controller {
         if(method_exists($this, $action)){
             $this->{$action}();
         }else{
-            throw new Easy_Exception('Не найден метод '. $action);
+            throw new Exception('Не найден метод '. $action);
         }
         
         $this->last();

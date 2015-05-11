@@ -9,20 +9,32 @@ define( 'DS', '/' ) ;
  * Полный путь к директории приложения
  * @var string
  */
-define( 'APP_PATH', $_SERVER['DOCUMENT_ROOT'] . DS . 'application' . DS) ;
-	
+define( 'APP_PATH', $_SERVER['DOCUMENT_ROOT'].DS.'application'.DS) ;
+
 /**
  * Полный путь к директории ядра 
  * @var string
  */
-define( 'CORE_PATH', $_SERVER['DOCUMENT_ROOT'] . DS . 'core' . DS) ;
+define( 'VENDOR_PATH', $_SERVER['DOCUMENT_ROOT'].DS.'vendor'.DS) ;
 
 /**
- * Полный путь к директории модулей
+ * Полный путь к директории ядра 
  * @var string
  */
-define( 'MOD_PATH', $_SERVER['DOCUMENT_ROOT'] . DS . 'modules' . DS) ;
-    
+define( 'EASY_PATH', VENDOR_PATH.'easy'.DS) ;
+
+/**
+ * Полный путь к директории ядра 
+ * @var string
+ */
+define( 'CORE_PATH', EASY_PATH.'core'.DS) ;
+
+/**
+ * Полный путь к директории ядра 
+ * @var string
+ */
+define( 'CORE_SRC_PATH', CORE_PATH.'src'.DS) ;
+   
 /**
  * Полный путь к директории шаблонов
  * @var string
@@ -30,22 +42,23 @@ define( 'MOD_PATH', $_SERVER['DOCUMENT_ROOT'] . DS . 'modules' . DS) ;
 define( 'TPL_PATH', $_SERVER['DOCUMENT_ROOT'] . DS . 'templates' . DS) ;
 	
 //
-//  Подключаем ядро системы	
+//  Регистрация автолоадера
 //
     
-    require CORE_PATH.'classes'.DS.'Easy'.DS.'Core.php';
-    
+    require CORE_PATH.'src'.DS.'Autoloader.php';
+    Easy\Core\Autoloader::register();
+        
 //
 //  Инициализация ядра
 //  
     
-    Easy_Core::init();
+    Easy\Core\Easy::init();
 	
 //  
 //  Передаем управление избранному контроллеру 
 //
     
-echo Request::make()
-        ->execute()
-        ->send_headers()
-        ->body();
+echo Easy\Core\Request::make()
+        ->execute();
+        //->send_headers()
+        //->body();

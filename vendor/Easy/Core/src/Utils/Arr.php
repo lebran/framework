@@ -1,11 +1,14 @@
 <?php
+namespace Easy\Core\Utils;
 
 /**
  * Cодержит методы, которые помогают работать с масивами.
  *
- * @package Helpers
- * @author iToktor
- * @since 1.1
+ * @package    Core/Utils
+ * @version    2.0
+ * @author     Roman Kritskiy <itoktor@gmail.com>
+ * @license    GNU Lisence
+ * @copyright  2014 - 2015 Roman Kritskiy
  */
 class Arr{
 
@@ -16,7 +19,8 @@ class Arr{
      * @param string $key - Ключ массива
      * @return mixed 
      */
-    public static function extract( &$arr, $key){
+    public static function extract( &$arr, $key )
+    {
         $val = $arr[$key];
         unset($arr[$key]);
         return $val;
@@ -27,10 +31,12 @@ class Arr{
      * 
      * @param array $arr1 - исходный массив.
      * @param array $arr2 - присоединяемый массив.
+     * @param bool $prepend - добавить в начало.
      * @return array
      */
-    public static function merge(&$arr1, $arr2) {
-        $arr1 = array_merge($arr1, $arr2);
+    public static function merge( &$arr1, $arr2 , $prepend = FALSE) 
+    {
+        $arr1 = ($prepend)? array_merge($arr2, $arr1): array_merge($arr1, $arr2);
         return $arr1;
     }
 }

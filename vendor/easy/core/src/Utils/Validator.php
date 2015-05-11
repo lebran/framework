@@ -1,4 +1,8 @@
 <?php
+namespace Easy\Core\Utils;
+
+use Easy\Core\Config;
+use Easy\Core\Exception;
 
 /**
  *                                     ВАЛИДАТОР
@@ -25,31 +29,34 @@
  *           - float             - bool                     - length
  *           - url               - alpha                    - exact_length
  *
- * @package Helpers
- * @author iToktor
- * @since 1.0
+ * 
+ * @package    Core\Utils
+ * @version    2.0
+ * @author     Roman Kritskiy <itoktor@gmail.com>
+ * @license    GNU Lisence
+ * @copyright  2014 - 2015 Roman Kritskiy
  */
 class Validator {
     
     /**
      * @var array массив данных на валидацию.
      */
-    protected $_data = array();
+    protected $data = array();
         
     /**
      * @var array правила валидации.
      */
-    protected $_rules = array();
+    protected $rules = array();
     
     /**
      * @var array хранилище для ошибок.
      */
-    protected $_errors = array();
+    protected $errors = array();
     
     /**
      * @var array настройки для ошибок(сообщения).
      */
-    protected $_error_configs = NULL;
+    protected $error_configs = NULL;
     
     /**
      * Фабрика для валидации
@@ -69,8 +76,8 @@ class Validator {
      */
     public function __construct(array $values) {
         $this->data($values);
-        if(empty($this->_error_configs)){
-            $this->_error_configs = Config::read('validation');
+        if(empty($this->error_configs)){
+            $this->error_configs = Config::read('validation');
         }
     }
     
@@ -105,7 +112,7 @@ class Validator {
 	if(is_array($field)){
             foreach ($field as $row){
                 if ( ! isset($row['field']) OR ! isset($row['rules'])){
-                    throw new Easy_Exception('Правила валидации заданы не верно. Проверьте входящие данные.');
+                    throw new Exception('Правила валидации заданы не верно. Проверьте входящие данные.');
 		}
                 
                 $label = (isset($row['lable'])) ? $row['lable'] : NULL;
@@ -115,11 +122,11 @@ class Validator {
         }
 		
 	if ( ! is_string($field) OR  ! is_array($rules)){		
-            throw new Easy_Exception('Правила валидации заданы не верно. Проверьте входящие данные.');
+            throw new Exception('Правила валидации заданы не верно. Проверьте входящие данные.');
         }
 
 	$label = (empty($label)) ? $field : $label;
-	$this->_rules[] = array(
+	$this->rules[] = array(
                         'field' => $field, 
                         'rules' => $rules,
                         'label' => $label
@@ -135,15 +142,15 @@ class Validator {
      * @throws Easy_Exception
      */
     public function check(){
-        if(empty($this->_rules)){
-            throw new Easy_Exception('Правила валидации не заданы.');
+        if(empty($this->rules)){
+            throw new Exception('Правила валидации не заданы.');
         }
 		
-	foreach ($this->_rules as $row){
-            $this->_check_rule($row);	
+	foreach ($this->rules as $row){
+            $this->checkRule($row);	
 	}
 		
-	if(empty($this->_errors)){
+	if(empty($this->errors)){
             return TRUE;
         }else{
             return FALSE;                    
@@ -156,9 +163,9 @@ class Validator {
      * @param array $field - правила для текущего поля. 
      * @throws Easy_Exception
      */
-    protected function _check_rule($field){
-        if(!isset($this->_data[$field['field']])){
-            throw new Easy_Exception('Данные '.$field['field'].' не найдены.');
+    protected function checkRule($field){
+        if(!isset($this->data[$field['field']])){
+            throw new Exception('Данные '.$field['field'].' не найдены.');
         }
         
 	foreach($field['rules'] as $rule){
@@ -172,20 +179,20 @@ class Validator {
                         
             if(!method_exists($this, $rule)){
 		if(function_exists($rule)){
-                    $result = $rule($this->_data[$field['field']]);
+                    $result = $rule($this->data[$field['field']]);
 			
                     if(!is_bool($result)){ 
-                        $this->_data[$field['field']] = $result; 
+                        $this->data[$field['field']] = $result; 
                     }						
 		}
             }else{
-                $result = $this->$rule($this->_data[$field['field']],$param);
+                $result = $this->$rule($this->data[$field['field']],$param);
                 if($result === FALSE){
-                    if(empty($this->_error_configs['messages'][$rule])){
-                        throw new Easy_Exception('Сообщение об ошибки для '.$rule.' не найдено');
+                    if(empty($this->error_configs['messages'][$rule])){
+                        throw new Exception('Сообщение об ошибке для '.$rule.' не найдено');
                     }
-                    $error = strtr($this->_error_configs['messages'][$rule],array(':label' => $field['label']));
-                    $this->_errors[] = $error;
+                    $error = strtr($this->error_configs['messages'][$rule],array(':label' => $field['label']));
+                    $this->errors[] = $error;
                 }
 			
             }
@@ -204,11 +211,11 @@ class Validator {
      */
     public function data($data = NULL) {
         if($data === NULL){
-            return $this->_data;
+            return $this->data;
         }else if(is_array($data)){
-            Arr::merge($this->_data, $data);
+            Arr::merge($this->data, $data);
         }else{
-            return $this->_data[$data];
+            return $this->data[$data];
         }
         
         return $this;
@@ -226,9 +233,9 @@ class Validator {
     public function messages(array $messages) {
         foreach ($messages as $key => $val) {
             if(!stripos($val, ':label')){
-                throw new Easy_Exception('Сообщения заданы не верно!!!');
+                throw new Exception('Сообщения заданы не верно!!!');
             }else{
-                $this->_error_configs['messages'][$key] = $val;
+                $this->error_configs['messages'][$key] = $val;
             }
         }
         
@@ -240,8 +247,8 @@ class Validator {
      * 
      * @return array
      */
-    public function as_array(){
-        return $this->_errors;
+    public function asArray(){
+        return $this->errors;
     }
     
     /**
@@ -252,21 +259,21 @@ class Validator {
      * @param string $suffix - разделитель слева.
      * @return string
      */
-    public function as_string($prefix = NULL, $suffix = NULL) {
-        if (count($this->_errors) === 0){
+    public function asString($prefix = NULL, $suffix = NULL) {
+        if (count($this->errors) === 0){
             return '';
 	}
         
         if (empty($prefix)){
-            $prefix = $this->_error_configs['delimiters']['prefix'];
+            $prefix = $this->error_configs['delimiters']['prefix'];
     	}
 
 	if (empty($suffix)){
-            $suffix = $this->_error_configs['delimiters']['suffix'];
+            $suffix = $this->error_configs['delimiters']['suffix'];
     	}
 	
         $str = '';
-	foreach ($this->_errors as $error){
+	foreach ($this->errors as $error){
             $str .= $prefix.$error.$suffix."\n";
 			
 	}
