@@ -9,8 +9,10 @@ use Easy\Core\Utils\View;
  *
  * @author iToktor
  */
-class TestController extends Layout{    
-    public function helloWorldAction() {
+class TestController extends Layout
+{    
+    public function helloWorldAction()
+    {
         $view = View::make('hello_world')->set('hello_world', 'Hello World!!!')->render();
         $this->layout->index = $view;
     }

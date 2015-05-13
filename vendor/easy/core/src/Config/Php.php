@@ -4,7 +4,8 @@ namespace Easy\Core\Config;
 use Easy\Core\Easy;
 
 /**
- *  
+ * Драйвер для php конфигов
+ *
  * @package    Core\Config
  * @version    2.0
  * @author     Roman Kritskiy <itoktor@gmail.com>
@@ -17,7 +18,7 @@ class Php implements ConfigInterface
     
     /**
      * Метод для загрузки конфигурационных файлов.
-     * Обьединяет настройки с одинаковыми названиями.
+     * При нахождении нескольких файлов с одинаковым названием - рекурсивно обьединяет в 1 конфиг.
      * 
      * @param string $name - имя файла.
      * @return array
@@ -25,9 +26,9 @@ class Php implements ConfigInterface
     public static function read($name) 
     {
         $configs = array();
-        if(($settings = Easy::findFile('config', $name, self::$extension, TRUE))){    
+        if (($settings = Easy::findFile('config', $name, self::$extension, TRUE))) {
             foreach ($settings as $config) {
-                $configs += include_once $config;
+                $configs = array_merge_recursive(include_once $config, $configs);
             }
         } 
         return $configs;

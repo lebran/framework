@@ -2,7 +2,8 @@
 namespace Easy\Core\Config;
 
 /**
- *  
+ * Методы, которые должны быть в каждом драйвере конфигов.
+ *
  * @package    Core\Config
  * @version    2.0
  * @author     Roman Kritskiy <itoktor@gmail.com>
@@ -12,9 +13,9 @@ namespace Easy\Core\Config;
 interface ConfigInterface 
 {            
     /**
-     * 
+     * Метод для загрузки конфигурационных файлов.
+     *
      * @param type $name
-     * @param type $set
      */
     public static function read($name);
     
