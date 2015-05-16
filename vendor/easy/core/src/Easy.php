@@ -43,7 +43,7 @@ abstract class Easy
      *
      * @var boolean 
      */
-    protected static $init = FALSE;
+    protected static $init = false;
 
     /**
      * Инициализация ядра, установка необходимых первоначальных настроек.

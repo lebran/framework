@@ -1,16 +1,16 @@
 <?php
-namespace Easy\Core\Config;
+namespace Easy\Core\Http;
 
 use Easy\Core\Exception;
 
 /**
- * Исключения для Config.
+ * Исключения для Http.
  *
  * @package    Core
- * @subpackage Config
+ * @subpackage Http
  * @version    2.0
  * @author     Roman Kritskiy <itoktor@gmail.com>
  * @license    GNU Lisence
  * @copyright  2014 - 2015 Roman Kritskiy
  */
-class ConfigException extends Exception {}
+class HttpException extends Exception {}

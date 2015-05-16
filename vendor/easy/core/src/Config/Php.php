@@ -6,7 +6,8 @@ use Easy\Core\Easy;
 /**
  * Драйвер для php конфигов
  *
- * @package    Core\Config
+ * @package    Core
+ * @subpackage Config
  * @version    2.0
  * @author     Roman Kritskiy <itoktor@gmail.com>
  * @license    GNU Lisence

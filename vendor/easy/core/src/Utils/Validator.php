@@ -30,7 +30,8 @@ use Easy\Core\Exception;
  *           - url               - alpha                    - exact_length
  *
  * 
- * @package    Core\Utils
+ * @package    Core
+ * @subpackage Utils
  * @version    2.0
  * @author     Roman Kritskiy <itoktor@gmail.com>
  * @license    GNU Lisence

@@ -6,7 +6,8 @@ use Easy\Core\Config;
 /**
  * Cодержит методы, которые помогают работать с HTML.
  *
- * @package    Core\Utils
+ * @package    Core
+ * @subpackage Utils
  * @version    2.0
  * @author     Roman Kritskiy <itoktor@gmail.com>
  * @license    GNU Lisence

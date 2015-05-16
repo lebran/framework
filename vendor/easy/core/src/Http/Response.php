@@ -1,5 +1,7 @@
 <?php
-namespace Easy\Core;
+namespace Easy\Core\Http;
+
+use Easy\Core\Config;
 
 /**
  * Обрабатывает ответ, который отправляется обратно клиенту.
@@ -22,7 +24,7 @@ class Response{
     /** 
      * @var string тело ответа.
      */
-    protected $body;
+    protected $body = '';
 
     /**
      * Добавление заголовков.
@@ -76,7 +78,7 @@ class Response{
     
     public function __toString() 
     {
-        return $this->sendHeaders()->body();
+        return $this->body();
     }
 
 }

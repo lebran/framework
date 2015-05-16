@@ -1,6 +1,9 @@
 <?php
 namespace Easy\Core;
 
+use Easy\Core\Http\Request;
+use Easy\Core\Http\Response;
+
 /**
  * Базовый контролллер.
  *
@@ -45,7 +48,7 @@ abstract class Controller {
     public function run() {
         $this->first();
         
-        $action = $this->request->action();
+        $action = $this->request->getAction();
         if(method_exists($this, $action)){
             $this->{$action}();
         }else{

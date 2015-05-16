@@ -8,7 +8,8 @@ use Easy\Core\Controller;
  * состоящих из нескольких маленьких(видов),
  * реализует принцип обвертки.
  * 
- * @package    Core/Utils
+ * @package    Core
+ * @subpackage Utils
  * @version    2.0
  * @author     Roman Kritskiy <itoktor@gmail.com>
  * @license    GNU Lisence

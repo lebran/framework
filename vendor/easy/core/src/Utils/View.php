@@ -27,7 +27,8 @@ use Easy\Core\Request;
  *      // Кидаем наш вид в главный шаблон под псевдонимом content
  *      $this->layout->content = $view;
  * 
- * @package    Core\Utils
+ * @package    Core
+ * @subpackage Utils
  * @version    2.0
  * @author     Roman Kritskiy <itoktor@gmail.com>
  * @license    GNU Lisence

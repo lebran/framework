@@ -4,7 +4,8 @@ namespace Easy\Core\Utils;
 /**
  * Cодержит методы, которые помогают работать с масивами.
  *
- * @package    Core/Utils
+ * @package    Core
+ * @subpackage Utils
  * @version    2.0
  * @author     Roman Kritskiy <itoktor@gmail.com>
  * @license    GNU Lisence

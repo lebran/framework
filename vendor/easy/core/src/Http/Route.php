@@ -1,5 +1,7 @@
 <?php
-namespace Easy\Core;
+namespace Easy\Core\Http;
+
+use Easy\Core\Config;
 
 /**
  *                      РОУТИНГ
@@ -26,6 +28,7 @@ namespace Easy\Core;
  *          - admin
  *
  * @package    Core
+ * @subpackage Http
  * @version    2.0
  * @author     Roman Kritskiy <itoktor@gmail.com>
  * @license    GNU Lisence
@@ -44,27 +47,41 @@ class Route {
     const REGEX_ESCAPE  = '[.\\+*?[^\\]${}=!|]';
     
     /**
-     * @var string хранилище правили роутинга. 
+     * Хранилище правил роутинга.
+     *
+     * @var array
      */
-    protected static $routes = NULL;
+    protected static $routes = false;
     
     /**
-     * Геттер для правил.
+     * Проверяет соответствует ли uri правилам маршрутизации.
      * 
-     * @param string $name - имя правила(по умолчанию все).
-     * @return string|array правило(а)
+     * @param string $uri Адрес запроса.
+     * @return boolean|array Если соответствует - сегменты uri, нет - false.
      */    
-    public static function get($name = NULL)
+    public static function check($uri)
     {
-        if(empty(self::$routes)){
-            new Route;
+        if(!self::$routes){
+            self::init();
         }
-        if(!empty($name)){
-            return self::$routes[$name];
+        $matches = array();
+
+        foreach (self::$routes as $rout) {
+            if(preg_match($rout['rout'], $uri, $matches)){
+                $default = $rout['default'];
+                break;
+            }
         }
+
+        foreach ($matches as $key => $value) {
+            if (is_int($key)) {
+                continue;
+            }
+            $params[$key] = $value;
+        }
+        $params += $default;
         
-        return self::$routes;
-        
+        return empty($params)? false : $params;
     }
     
     /**
@@ -72,24 +89,24 @@ class Route {
      *      - загружает файл с правилами
      *      - отпраляет их на компиляцию 
      *      - сохраняет в хранилище
-     * 
+     *
+     * @return void
      * @uses Config::read() 
      */
-    private function __construct()
+    protected static function init()
     {
         $config = Config::read('routes');
-        
-        foreach ($config as $name => $val){
-            if(is_array($val) AND array_key_exists ( 'rout' , $val )){    
-                if(!isset($val['regex'])){
-                    $val['regex'] = NULL;
+        if (empty($config)) {
+            throw new HttpException('Правила маршрутизации не найдены. Проверьте файл config/routes.php');
+        }
+        foreach ($config as $name => $val) {
+            if (is_array($val) AND array_key_exists ('rout' , $val)) {
+                if (!isset($val['regex'])) {
+                    $val['regex'] = null;
                 }
-                $rout = Route::compile($val['rout'], $val['regex']);
+                $rout = self::compile($val['rout'], $val['regex']);
                 
-                $default = NULL;
-                if( array_key_exists ( 'default' , $val )){    
-                    $default = $val['default'];
-                }
+                $default = array_key_exists( 'default' , $val )? $val['default'] : null;
                 self::$routes[$name] = array(
                     'rout' => $rout,
                     'default' => $default
@@ -99,28 +116,28 @@ class Route {
     }
     
     /**
-     * Компилирует правила роутинга.
+     * Компилирует правило роутинга(превращает в правило регулярного выражения).
      * 
-     * @param string $uri - правило.
-     * @param array $regex - регулярніе выражения.
-     * @return string скомпилированое правило
+     * @param string $rout Правило.
+     * @param array $regex Регулярные выражения.
+     * @return string Скомпилированное правило.
      * @uses Route::REGEX_ESCAPE
      * @uses Route::REGEX_SEGMENT
      */
-    public static function compile($uri, $regex)
+    public static function compile($rout, $regex)
     {
-        $expression = preg_replace('#'.Route::REGEX_ESCAPE.'#', '\\\\$0', $uri);
+        $expression = preg_replace('#'.self::REGEX_ESCAPE.'#', '\\\\$0', $rout);
 
         if (strpos($expression, '(') !== FALSE){
             $expression = str_replace(array('(', ')'), array('(?:', ')?'), $expression);
         }
             
-	$expression = str_replace(array('<', '>'), array('(?P<', '>'.Route::REGEX_SEGMENT.')'), $expression);
+	$expression = str_replace(array('<', '>'), array('(?P<', '>'.self::REGEX_SEGMENT.')'), $expression);
 		
-        if (is_array($regex)){
+        if (is_array($regex)) {
             $search = $replace = array();
-            foreach ($regex as $key => $value){
-            	$search[]  = "<$key>".Route::REGEX_SEGMENT;
+            foreach ($regex as $key => $value) {
+            	$search[]  = "<$key>".self::REGEX_SEGMENT;
 		$replace[] = "<$key>$value";
             }
 

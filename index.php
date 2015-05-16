@@ -72,5 +72,6 @@ define( 'TPL_PATH', $_SERVER['DOCUMENT_ROOT'] . DS . 'templates' . DS) ;
 //  Передаем управление избранному контроллеру 
 //
     
-    echo Easy\Core\Request::make()
-        ->execute();
+    echo Easy\Core\Http\Request::make()
+        ->execute()
+        ->sendHeaders();

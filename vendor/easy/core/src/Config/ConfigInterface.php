@@ -4,7 +4,8 @@ namespace Easy\Core\Config;
 /**
  * Методы, которые должны быть в каждом драйвере конфигов.
  *
- * @package    Core\Config
+ * @package    Core
+ * @subpackage Config
  * @version    2.0
  * @author     Roman Kritskiy <itoktor@gmail.com>
  * @license    GNU Lisence
