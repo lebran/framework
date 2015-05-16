@@ -40,29 +40,37 @@ use Easy\Core\Exception;
 class Validator {
     
     /**
-     * @var array массив данных на валидацию.
+     * Массив данных на валидацию.
+     *
+     * @var array
      */
     protected $data = array();
         
     /**
-     * @var array правила валидации.
+     * Правила валидации.
+     *
+     * @var array Правила валидации.
      */
     protected $rules = array();
     
     /**
-     * @var array хранилище для ошибок.
+     * Хранилище для ошибок.
+     *
+     * @var array
      */
     protected $errors = array();
     
     /**
-     * @var array настройки для ошибок(сообщения).
+     * Настройки для ошибок(сообщения).
+     *
+     * @var array
      */
     protected $error_configs = NULL;
     
     /**
      * Фабрика для валидации
      * 
-     * @param array $values - данные на проверку.
+     * @param array $values Данные на проверку.
      * @return Validator
      */
     public static function make(array $values) {
@@ -72,12 +80,13 @@ class Validator {
     /**
      * Сохранение данных локально, загрузка настроек для ошибок.
      * 
-     * @param array $values - данные на проверку.
+     * @param array $values Данные на проверку.
+     * @return void
      * @uses Config::read() 
      */
     public function __construct(array $values) {
         $this->data($values);
-        if(empty($this->error_configs)){
+        if (empty($this->error_configs)) {
             $this->error_configs = Config::read('validation');
         }
     }
@@ -102,17 +111,17 @@ class Validator {
      *         ->rules($rules)
      *  
      * 
-     * @param string|array $field - название поля или массив с правилами.
-     * @param array $rules - правила валидации.
-     * @param type $label - псевдоним для поля.
+     * @param string|array $field Название поля или массив с правилами.
+     * @param array $rules Правила валидации.
+     * @param type $label Псевдоним для поля.
      * @return Validator
-     * @throws Easy_Exception
+     * @throws Exception
      */
     public function rules($field, $rules = NULL, $label = NULL){
 		
-	if(is_array($field)){
-            foreach ($field as $row){
-                if ( ! isset($row['field']) OR ! isset($row['rules'])){
+	if (is_array($field)) {
+            foreach ($field as $row) {
+                if (!isset($row['field']) OR ! isset($row['rules'])) {
                     throw new Exception('Правила валидации заданы не верно. Проверьте входящие данные.');
 		}
                 
@@ -122,11 +131,11 @@ class Validator {
             return $this;
         }
 		
-	if ( ! is_string($field) OR  ! is_array($rules)){		
+	if (!is_string($field) OR  ! is_array($rules)) {
             throw new Exception('Правила валидации заданы не верно. Проверьте входящие данные.');
         }
 
-	$label = (empty($label)) ? $field : $label;
+	$label = (empty($label))? $field : $label;
 	$this->rules[] = array(
                         'field' => $field, 
                         'rules' => $rules,
@@ -139,57 +148,54 @@ class Validator {
     /**
      * Проверка данных, используя заданные правила валидации.
      * 
-     * @return boolean
-     * @throws Easy_Exception
+     * @return boolean True - прошла, false - нет.
+     * @throws Exception
      */
     public function check(){
-        if(empty($this->rules)){
+        if (empty($this->rules)) {
             throw new Exception('Правила валидации не заданы.');
         }
 		
-	foreach ($this->rules as $row){
+	foreach ($this->rules as $row) {
             $this->checkRule($row);	
 	}
-		
-	if(empty($this->errors)){
-            return TRUE;
-        }else{
-            return FALSE;                    
-        }
+
+        return empty($this->errors)? true: false;
     }
     
     /**
      * Проверка одного поля.
      * 
-     * @param array $field - правила для текущего поля. 
-     * @throws Easy_Exception
+     * @param array $field Правила для текущего поля.
+     * @return void
+     * @throws Exception
      */
     protected function checkRule($field){
-        if(!isset($this->data[$field['field']])){
+        if (!isset($this->data[$field['field']])) {
             throw new Exception('Данные '.$field['field'].' не найдены.');
         }
         
-	foreach($field['rules'] as $rule){
-            $param = NULL;
+	foreach ($field['rules'] as $rule) {
+            $param = null;
             $match = array();
             
-            if (preg_match("/(.*?)\((.*?)\)/", $rule, $match)){
+            if (preg_match("/(.*?)\((.*?)\)/", $rule, $match)) {
 		$rule = $match[1]; //Правило валидации
 		$param = $match[2]; //Параметры
             }
                         
-            if(!method_exists($this, $rule)){
-		if(function_exists($rule)){
+            if (!method_exists($this, $rule)) {
+		if (function_exists($rule)) {
                     $result = $rule($this->data[$field['field']]);
 			
-                    if(!is_bool($result)){ 
+                    if (!is_bool($result)) {
                         $this->data[$field['field']] = $result; 
                     }						
 		}
-            }else{
+            } else {
                 $result = $this->$rule($this->data[$field['field']],$param);
-                if($result === FALSE){
-                    if(empty($this->error_configs['messages'][$rule])){
+                if ($result === false) {
+                    if (empty($this->error_configs['messages'][$rule])) {
                         throw new Exception('Сообщение об ошибке для '.$rule.' не найдено');
                     }
                     $error = strtr($this->error_configs['messages'][$rule],array(':label' => $field['label']));
@@ -207,15 +213,15 @@ class Validator {
      * 
      *      $validator->data('id'); // получим значение в ячейке 'id'
      * 
-     * @param mixed $data - массив данных или ключ.
-     * @return mixed
+     * @param mixed $data Массив данных или ключ.
+     * @return mixed 
      */
     public function data($data = NULL) {
-        if($data === NULL){
+        if ($data === NULL) {
             return $this->data;
-        }else if(is_array($data)){
+        } else if(is_array($data)) {
             Arr::merge($this->data, $data);
-        }else{
+        } else {
             return $this->data[$data];
         }
         
@@ -227,15 +233,15 @@ class Validator {
      * 
      *      ->messages(array('required' => 'Ай-йа-йай, а поле ":label" то пустое!!!'))
      * 
-     * @param array $messages - сообщения.
+     * @param array $messages Сообщения.
      * @return Validator
-     * @throws Easy_Exception
+     * @throws Exception
      */
     public function messages(array $messages) {
         foreach ($messages as $key => $val) {
-            if(!stripos($val, ':label')){
+            if (!stripos($val, ':label')) {
                 throw new Exception('Сообщения заданы не верно!!!');
-            }else{
+            } else {
                 $this->error_configs['messages'][$key] = $val;
             }
         }
@@ -246,7 +252,7 @@ class Validator {
     /**
      * Возвращает ошибки в виде массива. 
      * 
-     * @return array
+     * @return array Массив ошибок.
      */
     public function asArray(){
         return $this->errors;
@@ -256,16 +262,16 @@ class Validator {
      * Возвращает ошибки в виде строки. 
      * Присутствует возможность задавать разделители(префикс и суфикс) 
      * 
-     * @param string $prefix - разделитель справа.
-     * @param string $suffix - разделитель слева.
-     * @return string
+     * @param string $prefix Разделитель справа.
+     * @param string $suffix Разделитель слева.
+     * @return string Ошибки в виде строки.
      */
     public function asString($prefix = NULL, $suffix = NULL) {
-        if (count($this->errors) === 0){
+        if (!count($this->errors)) {
             return '';
 	}
         
-        if (empty($prefix)){
+        if (empty($prefix)) {
             $prefix = $this->error_configs['delimiters']['prefix'];
     	}
 
@@ -274,7 +280,7 @@ class Validator {
     	}
 	
         $str = '';
-	foreach ($this->errors as $error){
+	foreach ($this->errors as $error) {
             $str .= $prefix.$error.$suffix."\n";
 			
 	}
@@ -285,11 +291,11 @@ class Validator {
     /**
      * Проверяет, что значение является не пустым.
      *
-     * @param string $str - значение на проверку.
+     * @param string $str Значение на проверку.
      * @return boolean
      */
     protected function required($str){
-        return ! in_array($str, array(NULL, FALSE, '', array()), TRUE);
+        return !in_array($str, array(null, false, '', array()), true);
     }
     
     /**
@@ -300,18 +306,18 @@ class Validator {
      *      integer(1) - значение не меньше 1
      *      integer(,5) - значение не больше 5
      * 
-     * @param string $str - значение на проверку.
-     * @param string $params - параметры в виде строки
+     * @param string $str Значение на проверку.
+     * @param string $params Параметры в виде строки
      * @return boolean
      */
-    protected function integer($str, $params = NULL){
-        if(!empty($params)){
+    protected function integer($str, $params = null){
+        if (!empty($params)) {
             $params = explode(',', $params);
-            if(!empty($params['0'])){
+            if (!empty($params['0'])) {
                 $params += array('min_range' => $params['0']);
             }
             
-            if(!empty($params['1'])){
+            if (!empty($params['1'])) {
                 $params += array('max_range' => $params['1']);
             }
         }
@@ -324,11 +330,11 @@ class Validator {
      *
      *      float(.) - проверка является ли "." десятичным разделителем 
      * 
-     * @param string $str - значение на проверку.
-     * @param string $params - параметры в виде строки.
+     * @param string $str Значение на проверку.
+     * @param string $params Параметры в виде строки.
      * @return boolean
      */
-    protected function float($str, $params = NULL){
+    protected function float($str, $params = null){
         if(!empty($params)){
             $params = array('decimal' => trim($params));
         }
@@ -340,7 +346,7 @@ class Validator {
     /**
      * Проверяет значение на корректность URL.
      *
-     * @param string $str - значение на проверку.
+     * @param string $str Значение на проверку.
      * @return boolean
      */
     protected function url($str){
@@ -351,7 +357,7 @@ class Validator {
     /**
      * Проверяет, что значение является корректным e-mail.
      *
-     * @param string $str - значение на проверку.
+     * @param string $str Значение на проверку.
      * @return boolean
      */
     protected function email($str){
@@ -362,7 +368,7 @@ class Validator {
     /**
      * Проверяет, что значение является корректным IP-адресом.
      *
-     * @param string $str - значение на проверку.
+     * @param string $str Значение на проверку.
      * @return boolean
      */
     protected function ip($str){
@@ -373,7 +379,7 @@ class Validator {
      * Возвращает TRUE для значений "1", "true", "on" и "yes".
      * Иначе - FALSE.
      *
-     * @param string $str - значение на проверку.
+     * @param string $str Значение на проверку.
      * @return boolean
      */
     protected function bool($str){
@@ -386,22 +392,22 @@ class Validator {
      * 
      *      alpha(/, _, #) - подходят строки с латинскими буквами и "/", "_", "#"
      *
-     * @param string $str - значение на проверку.
-     * @param string $params - параметры в виде строки.
+     * @param string $str Значение на проверку.
+     * @param string $params Параметры в виде строки.
      * @return boolean
      */		
     protected function alpha($str, $params = NULL){
         $str = trim($str);
-        if(empty($params)){
+        if (empty($params)) {
             $params = '';
-        }else{
+        } else {
             $params = explode(',', $params);
             foreach ($params as &$param) {
                 $param = preg_quote(trim($param), '/');
             }
             $params = implode($params);
         }
-	return (!preg_match("/^([a-z".$params."])+$/i", $str)) ? FALSE : TRUE;
+	return (!preg_match("/^([a-z".$params."])+$/i", $str)) ? false : true;
     }
     
     /**
@@ -410,30 +416,30 @@ class Validator {
      *      matches(password, confirm_password) - проверка на еквивалентность значениям
      *                                            полей password, confirm_pasword
      *
-     * @param string $str - значение на проверку.
-     * @param string $params - параметры в виде строки.
+     * @param string $str Значение на проверку.
+     * @param string $params Параметры в виде строки.
      * @return boolean
      */		
-    protected function matches($str, $params = NULL){
+    protected function matches($str, $params = null){
         $params = explode(',', $params);
         $str = trim($str);
-        foreach($params as $param){
+        foreach ($params as $param) {
             $param = trim($param);
-            if(trim($this->_data[$param]) !== $str){
-                return FALSE;
+            if (trim($this->_data[$param]) !== $str) {
+                return false;
             }
         }
-	return TRUE;
+	return true;
     }
 	
     /**
      * Проверяет дату на корректность.
      *
-     * @param string $str - значение на проверку.
+     * @param string $str Значение на проверку.
      * @return boolean
      */
     protected function date($str){
-	return (strtotime($str) !== FALSE);
+	return (strtotime($str) !== false);
     }
         
     /**
@@ -443,50 +449,50 @@ class Validator {
      *      length(4) - строка не меньше 4 символов,
      *      length(,5) - строка не больше 5 символов.
      *
-     * @param string $str - значение на проверку.
-     * @param string $params - параметры в виде строки.
+     * @param string $str Значение на проверку.
+     * @param string $params Параметры в виде строки.
      * @return boolean
      */	  
-    protected function length($str, $params = NULL){
-        if(!empty($params)){
+    protected function length($str, $params = null){
+        if (!empty($params)) {
             $params = explode(',', $params);
             foreach ($params as &$value) {
                 $value = trim($value);
             }
             $str = trim($str);
-            if(!empty($params[0]) and (strlen($str) < $params[0])){
-                return FALSE; 
+            if (!empty($params[0]) and (strlen($str) < $params[0])) {
+                return false;
             }
 
-            if(!empty($params[1]) and (strlen($str) > $params[1])){
-                return FALSE; 
+            if (!empty($params[1]) and (strlen($str) > $params[1])) {
+                return false;
             }
         }
-        return TRUE;
+        return true;
     }
 
     /**
      * Проверяет длину значения.
      * 
-     *      exact_length(4) - строка должна быть равна 4 символам,
-     *      exact_length(2,5,56) - строка должна быть равно 2 или 5 или 56 символам.
+     *      exact_length(4) - строка должна быть длиной 4 символа,
+     *      exact_length(2,5,56) - строка должна быть длиной 2 или 5 или 56 символов.
      *
-     * @param string $str - значение на проверку.
-     * @param string $params - параметры в виде строки.
+     * @param string $str Значение на проверку.
+     * @param string $params Параметры в виде строки.
      * @return boolean
      */
-    protected function exact_length($str, $params = NULL){
-        if (!empty($params)){
+    protected function exact_length($str, $params = null){
+        if (!empty($params)) {
             $params = explode(',', $params);
             $str = trim($str);
-            foreach ($params as $param){
+            foreach ($params as $param) {
                 if (strlen($str) === (int)(trim($param))){
-                    return TRUE;
+                    return true;
 		}
             }
-            return FALSE;
+            return false;
         }
         
-	return TRUE;
+	return true;
     }
 }

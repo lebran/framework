@@ -16,19 +16,21 @@ use Easy\Core\Config;
 abstract class Cookie {
     
     /**
-     * @var array параметры для кук. 
+     * Параметры для кук.
+     *
+     * @var array
      */
-    public static $params = NULL;
+    public static $params = null;
     
     /**
      * Возвращает значение куки по ключу или дефолтное, если куки не найден.
      *
-     * @param string $key - имя куки.  
-     * @param mixed $default - значение, которое вернется, если куки не найден.
-     * @return mixed
+     * @param string $key Имя куки.
+     * @param mixed $default Значение, которое вернется, если куки не найден.
+     * @return mixed Значение по ключу или default
      */
-    public static function get($key, $default = NULL){
-    	if ( ! isset($_COOKIE[$key])){
+    public static function get($key, $default = null){
+    	if (!isset($_COOKIE[$key])) {
             return $default;
         }
 	
@@ -41,27 +43,28 @@ abstract class Cookie {
      *      Cookie::set('test', array('1' => '1', '2' => '2'),
      *                  array('path' = > '/test/test', 'expiration' => 3600));
      * 
-     * @param string $name - имя куки.
-     * @param mixed $value - значение или масив.
-     * @param array $params - параметры.
+     * @param string $name Имя куки.
+     * @param mixed $value Значение или масив.
+     * @param array $params Параметры.
+     * @return void
      */
     public static function set($name, $value, $params = array()){
-        if(empty(self::$params)){
+        if (empty(self::$params)) {
             self::$params = Config::read('cookie');
         }
         
-        foreach(self::$params as $key => $val){
-            if(empty($params[$key])){
+        foreach (self::$params as $key => $val) {
+            if (empty($params[$key])) {
                 $params[$key] = $val;
             }
         }
-        if ($params['expiration'] != 0){
+        if ($params['expiration'] != 0) {
             $params['expiration'] += time();
         }
                 
-        if(!is_array($value)){
+        if (!is_array($value)) {
             setcookie($name, $value, $params['expiration'] , $params['path'], $params['domain'],$params['secure'], $params['httponly']);
-        }else{
+        } else {
             foreach ($value as $k => $v) {
                 setcookie($name.'['.$k.']', $v, $params['expiration'] , $params['path'], $params['domain'],$params['secure'], $params['httponly']);
             }
@@ -71,20 +74,21 @@ abstract class Cookie {
     /**
      * Удаление куки по ключу.
      * 
-     * @param string $name - имя куки.
-     * @param array $params - параметры с которыми обьявляли куки.
+     * @param string $name Имя куки.
+     * @param array $params Параметры с которыми обьявляли куки.
+     * @return void
      */
     public static function delete($name, $params = array()){
-        if(!isset($_COOKIE[$name])){
+        if (!isset($_COOKIE[$name])) {
             return;
         }
         
-        $value = NULL;
-        if(!is_array($_COOKIE[$name])){
+        $value = null;
+        if (!is_array($_COOKIE[$name])) {
             unset($_COOKIE[$name]);
-        }else{
+        } else {
             foreach ($_COOKIE[$name] as $k => &$v) {
-                $value[$k] = NULL;
+                $value[$k] = null;
                 unset($v); 
             }
         }

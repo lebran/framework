@@ -132,7 +132,7 @@ abstract class Easy
         // Добавляем пути и псевдонимы классам
         $autoload = Config::read('autoload');
         Autoloader::addClasses($autoload['classes']);
-        Autoloader::addAlias($autoload['aliases']);
+        Autoloader::addAliases($autoload['aliases']);
     }    
             
     /**

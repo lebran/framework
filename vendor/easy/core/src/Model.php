@@ -17,17 +17,17 @@ class Model{
      *
      *     $model = Model::make($name);
      *
-     * @param string  $name - имя модели
+     * @param string  $name Имя модели
      * @return Model
      */
     public static function make($name){
         foreach (array_keys(Autoloader::getNamespaces()) as $key) {
-            if(class_exists($key.'Model\\'.ucfirst($name).'Model')){
+            if (class_exists($key.'Model\\'.ucfirst($name).'Model')) {
                 $model = $key.'Model\\'.ucfirst($name).'Model';
             }    
         }
-        if(empty($model)){
-            throw new Exception('Не найдена модель') ;
+        if (empty($model)) {
+            throw new Exception('Модель не найдена.') ;
         } else {
             return new $model;
         }

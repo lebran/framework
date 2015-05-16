@@ -55,6 +55,7 @@ class Request {
 
     /**
      * Геттер для текущего запроса.
+     * 
      * @return Request
      */
     public static function current()
@@ -64,6 +65,7 @@ class Request {
 
     /**
      * Геттер для инициализирующего запроса.
+     *
      * @return Request
      */
     public static function initial()
@@ -72,32 +74,44 @@ class Request {
     }
 
     /**
-     * @var Response хранилище для ответа.
+     * Хранилище для ответа.
+     *
+     * @var Response
      */
     protected $response;
 
     /**
-     * @var string контроллер.
+     * Контроллер.
+     *
+     * @var string
      */
     protected $controller;
 
     /**
-     * @var string действие.
+     * Действие.
+     *
+     * @var string 
      */
     protected $action;
 
     /**
-     * @var array параметры.
+     * Параметры.
+     *
+     * @var array 
      */
     protected $params = array();
 
     /**
-     * @var string директория.
+     * Директория.
+     *
+     * @var string 
      */
     protected $directory = NULL;
 
     /**
-     * @var string адресс запроса.
+     * Адресс запроса.
+     *
+     * @var string 
      */
     protected $uri = NULL;
 
@@ -154,11 +168,8 @@ class Request {
             }
         }
 
-        if (empty($controller) 
-            or !method_exists($controller, 'run')
-            or !method_exists($controller, $this->action)
-        ) {
-            $this->response->addHeader('HTTP/1.1 404 Not Found');
+        if (empty($controller) or !method_exists($controller, 'run') or !method_exists($controller, $this->action)) {
+            $this->response->setStatusCode(404);
         } else {
             $controller->run();
         }

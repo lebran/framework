@@ -65,6 +65,7 @@ class Route {
             self::init();
         }
         $matches = array();
+        $params = array();
 
         foreach (self::$routes as $rout) {
             if(preg_match($rout['rout'], $uri, $matches)){

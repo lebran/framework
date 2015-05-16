@@ -17,7 +17,9 @@ use Easy\Core\Config;
 abstract class Html{
     
     /**
-     * @var array массив с параметрами в правильной последовательности для сортировки. 
+     * Массив с параметрами в правильной последовательности для сортировки.
+     *
+     * @var array 
      */
     public static $attribute_order = array(
 		'action',
@@ -53,8 +55,8 @@ abstract class Html{
     /**
      * Выбор и установка пути.
      * 
-     * @param string $name - папка и имя/имя файла на который нужно установить путь.
-     * @return string 
+     * @param string $name Папка и имя/имя файла на который нужно установить путь.
+     * @return string Полная ссылка.
      * @uses Config::get()
      */
     public static function href($name){
@@ -62,7 +64,7 @@ abstract class Html{
         $name = preg_replace('~^[-a-z0-9+.]++://[^/]++/?~', '', trim($name,DS));
         $base_url = Config::get('system.base_url');
         
-        if(strpos($name,'.') === FALSE){
+        if(strpos($name,'.') === false){
             $result = $base_url.$name;
         }else{
             $tpl = Config::get('system.template');
@@ -77,8 +79,8 @@ abstract class Html{
      * 
      *      Html::style(css/style.css) или Html::style(/styles/style.css).
      * 
-     * @param string $name - папка хранения стиля внутри шаблона и название стиля.
-     * @return string 
+     * @param string $name Папка хранения стиля внутри шаблона и название стиля.
+     * @return string Собраная тег подключения стиля.
      */
     public static function style($name){
         $attr = array('href' => self::href($name), 'rel' => 'stylesheet', 'type' => 'text/css');
@@ -91,8 +93,8 @@ abstract class Html{
      * 
      *      Html::style(js/script.js) или Html::script(/scripts/script.js).
      * 
-     * @param string $name - папка хранения крипта внутри шаблона и название скрипта.
-     * @return string 
+     * @param string $name Папка хранения крипта внутри шаблона и название скрипта.
+     * @return string Собраная тег подключения скрипта.
      */
     public static function script($name){
         $attr = array('src' => self::href($name), 'type' => 'text/javascript');
@@ -105,8 +107,8 @@ abstract class Html{
      * 
      *      Html::img(img/1.img) или Html::img(/images/2.PNG).
      * 
-     * @param string $name - папка хранения изображения внутри шаблона и название изображения.
-     * @return string 
+     * @param string $name Папка хранения изображения внутри шаблона и название изображения.
+     * @return string Собраная тег подключения изображения.
      */
     public static function img($name){
         $attr = array('src' => self::href($name));
@@ -119,9 +121,9 @@ abstract class Html{
      * 
      *      HTML::link('home','Домашняя страница') - будет написан текст "Домашняя страница" c ccылкой на контроллер "home".
      * 
-     * @param string $link - ссылка.
-     * @param string $title - выводимый на сраницу текст.
-     * @return string 
+     * @param string $link Ссылка.
+     * @param string $title Выводимый на сраницу текст.
+     * @return string Собраная тег подключения ссылки.
      */
     public static function link($link, $title, $attr = array()){
         $attr += array('href' => self::href($link));
@@ -133,42 +135,36 @@ abstract class Html{
      * Составляет массив HTML атрибутов в строку, а также 
      * сортирует с помощью Html::$attribute_order для последовательности.
      * 
-     * @param array $attr - список параметров.
-     * @return string
+     * @param array $attr Список параметров.
+     * @return string Скомпилированные параметры.
      */
-    public static function attr(array $attr = NULL){
- 	if (empty($attr)){
+    public static function attr(array $attr = null){
+ 	if (empty($attr)) {
             return '';
         }
         
 	$sorted = array();
-	foreach (self::$attribute_order as $key){
-            if (isset($attr[$key])){
-		// Добавляем атрибуты до сортировочного листа.
+	foreach (self::$attribute_order as $key) {
+            if (isset($attr[$key])) {
 		$sorted[$key] = $attr[$key];
             }
 	}
 
-	// Совмещаем отсортированые атрибуты.
 	$attr = $sorted + $attr;
 
 	$compiled = '';
-	foreach ($attr as $key => $value){
-            if ($value === NULL){
+	foreach ($attr as $key => $value) {
+            if ($value === null) {
 		// Пропускаем атрибуты,значени которых равно NULL.
 		continue;
             }
 
-            if (is_int($key)){
+            if (is_int($key)) {
 		$key = $value;
             }
-
-            // Добавляем ключ атрибута.
             $compiled .= ' '.$key;
-
-            if ($value){
-            // Добавляем значение атрибута.
-            $compiled .= '="'.$value.'"';
+            if ($value) {
+                $compiled .= '="'.$value.'"';
             }
 	}
         return $compiled;       

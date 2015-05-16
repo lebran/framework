@@ -16,8 +16,8 @@ class Arr{
     /**
      * Извлекает значение из массива по ключу.
      * 
-     * @param array &$arr - Массив
-     * @param string $key - Ключ массива
+     * @param array &$arr Массив
+     * @param string $key Ключ массива
      * @return mixed 
      */
     public static function extract( &$arr, $key )
@@ -30,12 +30,12 @@ class Arr{
     /**
      * Присоединяет массив arr2 к arr1 в конец.
      * 
-     * @param array $arr1 - исходный массив.
-     * @param array $arr2 - присоединяемый массив.
-     * @param bool $prepend - добавить в начало.
+     * @param array $arr1 Исходный массив.
+     * @param array $arr2 Присоединяемый массив.
+     * @param bool $prepend Добавить в начало.
      * @return array
      */
-    public static function merge( &$arr1, $arr2 , $prepend = FALSE) 
+    public static function merge( &$arr1, $arr2 , $prepend = false)
     {
         $arr1 = ($prepend)? array_merge($arr2, $arr1): array_merge($arr1, $arr2);
         return $arr1;

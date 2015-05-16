@@ -15,22 +15,30 @@ use Easy\Core\Http\Response;
  */
 abstract class Controller {
     /**
-     * @var Request хранилище для запроса.
+     * Хранилище для запроса.
+     *
+     * @var Request
      */
     public $request;
     
     /**
-     * @var Response хранилище для ответа.
+     * Хранилище для ответа.
+     *
+     * @var Response
      */
     public $response;
     
     /**
-     * @var string имя шаблона. 
+     * Имя шаблона.
+     *
+     * @var string
      */
     public $template = NULL;
     
     /**
      * Метод вызывается перед всеми действиями.
+     *
+     * @return void
      */
     public function first(){
         if(empty($this->template)){
@@ -42,7 +50,8 @@ abstract class Controller {
     
     /**
      * Метод запуска контроллера.
-     * 
+     *
+     * @return void
      * @throws Easy_Exception
      */
     public function run() {
@@ -61,8 +70,9 @@ abstract class Controller {
     /**
      * Конструктор
      * 
-     * @param Request $request - текущий запрос.
-     * @param Response $response - текущий ответ.
+     * @param Request $request Текущий запрос.
+     * @param Response $response Текущий ответ.
+     * @return void
      */
     public function __construct(Request $request, Response $response) {
         $this->request = $request;
@@ -71,16 +81,19 @@ abstract class Controller {
     
     /**
      * Метод вызывается после всех действий.
+     *
+     * @return void
      */
     public function last(){}
     
     /**
      * Редирект
      * 
-     * @param string $url - УРЛ редиректа.
+     * @param string $uri Ури редиректа.
+     * @return void
      */		
-    public function redirect( $url = '' ) {
-        $this->response->redirect($url);
+    public function redirect( $uri = '', $code = 302) {
+        $this->response->redirect($uri, $code);
     }
     
 }

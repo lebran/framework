@@ -36,31 +36,36 @@ use Easy\Core\Request;
  */
 class View {
     /**
-     * @var string полный путь к виду.
+     * Полный путь к виду.
+     *
+     * @var string
      */
     protected $view;
     	
     /**
-     * @var array хранилище для переменных вида.
+     * Хранилище для переменных вида.
+     *
+     * @var array
      */
     protected $vars = array() ;
     
     /**
      * Фабрика для видов 
      * 
-     * @param string $view - имя вида.
-     * @param  $path - путь.
+     * @param string $view Имя вида.
+     * @param $path Путь.
      * @return View
      */
-    public static function make($view = NULL, $path = NULL){
+    public static function make($view = null, $path = null){
         return new View($view, $path);
     }
 
     /**
      * Подготовка полного пути для файла вида.
      * 
-     * @param string $view - имя вида.
-     * @param string $path - путь.
+     * @param string $view Имя вида.
+     * @param string $path Путь.
+     * @return void
      * @uses Config::get()
      * @uses Request::current()
      */
@@ -68,13 +73,13 @@ class View {
         
         $template = Config::get('system.template');
         
-        if(empty($view)) {
+        if (empty($view)) {
             $view = Request::current()->controller().DS.Request::current()->action() ;
 	}
         
-        if(empty($path)){
+        if (empty($path)) {
             $this->view = TPL_PATH.$template.DS.'view'.DS.trim($view, DS).'.php';
-        }else{
+        } else {
             $this->view = trim($path, DS).DS.trim($view, DS).'.php';
         }
     }
@@ -84,12 +89,12 @@ class View {
      * @param mixed $var
      *		1) если string, тогда имя переменной в виде,
      *		2) если array, то массив array( 'var' => 'value' )
-     * @param mixed $value - значение переменной вида для случая (1)
+     * @param mixed $value Значение переменной вида для случая (1).
      * @return View 
      * @uses Arr::merge()
      */
-    public function set( $var, $value = NULL ) {
-        if( is_array( $var ) ) { 
+    public function set($var, $value = null) {
+        if (is_array($var)) {
             Arr::merge($this->vars, $var);
         } else {
             $this->vars[ $var ] = $value ;
@@ -97,35 +102,32 @@ class View {
         
         return $this;
     }
-    
-    
-		
+    	
     /**
      * Рендеринг Вида
      * 
-     * @return string
+     * @return string Отрендеренный шаблон.
      * @uses Config::get()
      */
     public function render() {			
         $prefix = Config::get('system.view_prefix');
-        if(empty($prefix)){
+        if (empty($prefix)) {
             extract( $this->vars) ;
-        }else{
+        } else {
             extract( $this->vars, EXTR_PREFIX_ALL, $prefix) ;
         }
         
         ob_start();
-        include $this->view;
-	$view = ob_get_clean();
-               
-        return $view;		
+        include $this->view;             
+        return ob_get_clean();
     }
     
     /**
      * Сеттер
      * 
-     * @param string $name - имя переменной 
-     * @param string $value - значение
+     * @param string $name Имя переменной
+     * @param string $value Значение
+     * @return void
      */
     public function __set($name, $value) {
         $this->vars[$name] = $value;   
@@ -134,7 +136,8 @@ class View {
     /**
      * Геттер
      * 
-     * @param string $name - имя переменной 
+     * @param string $name Имя переменной
+     * @return void
      */
     public function &__get($name) {
         return $this->vars[$name];
@@ -143,7 +146,8 @@ class View {
     /**
      * Удаление несуществующих переменных.
      * 
-     * @param string $name - имя удаляемой ячейки.
+     * @param string $name Имя удаляемой ячейки.
+     * @return void
      */
     public function __unset($name) {
         unset($this->vars[$name]);

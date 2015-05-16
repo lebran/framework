@@ -114,7 +114,7 @@ class Autoloader
      * @param type $alias Псевдоним для класса.
      * @return void
      */
-    public static function addAlias($class, $alias = null)
+    public static function addAliases($class, $alias = null)
     {
         if (is_array($class)) {
             foreach ($class as $class => $alias) {
