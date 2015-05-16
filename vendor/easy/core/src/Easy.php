@@ -214,7 +214,7 @@ abstract class Easy
      * @throws \Exception
      */
     public static function modules(array $modules = null){
-        if ($modules === NULL) {
+        if ($modules === null) {
             return self::$modules;
 	}
         
@@ -224,6 +224,7 @@ abstract class Easy
             if (is_dir($path)) {
                 self::path($path); 
                 self::$modules[$name] = $path;
+                Autoloader::addNamespace('Easy\\'.ucfirst($name), $path.DS.'src');
             } else {
                 throw new Exception('Неправильный путь к модулю "'.$name.'" или его не существует!!!');
             }

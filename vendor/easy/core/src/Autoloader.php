@@ -2,7 +2,7 @@
 namespace Easy\Core;
 
 /**
- * 
+ * PSR - 4 Автолоадер
  *
  * @package    Core
  * @version    2.0
@@ -114,14 +114,9 @@ class Autoloader
      * @param type $alias Псевдоним для класса.
      * @return void
      */
-    public static function addAliases($class, $alias = null)
+    public static function addAliases(array $aliases)
     {
-        if (is_array($class)) {
-            foreach ($class as $class => $alias) {
-                self::addAlias($class, $alias);
-            }
-        }
-        if (is_string($alias) and is_string($class)) {
+        foreach ($aliases as $class => $alias) {
             class_alias($alias, $class);
         }
     }

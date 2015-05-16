@@ -1,13 +1,17 @@
 <?php
+namespace Easy\Debug;
 
 /**
- * Description of Debug
+ * 
  *
- * @package Debug
- * @author iToktor
- * @since 1.0
+ * @package    Debug
+ * @version    2.0
+ * @author     Roman Kritskiy <itoktor@gmail.com>
+ * @license    GNU Lisence
+ * @copyright  2014 - 2015 Roman Kritskiy
  */
-class Debug_Var {
+class Vr
+{
     
     protected static $delim = "&nbsp&nbsp&nbsp&nbsp";
     
@@ -37,18 +41,18 @@ class Debug_Var {
     }
     
     protected static function arr($arr) { 
-        $str = "Array<br />".self::get_lvl_delim()."(<br />";
+        $str = '<span style="color: blue">array</span>(<span style="color: orange">'.count($arr)."</span>)<br />".self::getLvlDelim()."{<br />";
         self::$lvl++;
         foreach ($arr as $key => $val) {
-            $str .= self::get_lvl_delim(-1)."[".$key.'] => '.self::dump($val)."<br />";
+            $str .= self::getLvlDelim(-1).'"<span style="color: green">'.$key.'</span>" => '.self::dump($val)."<br />";
         }
         self::$lvl--;
-        $str .= self::get_lvl_delim().')';
+        $str .= self::getLvlDelim().'}';
         return $str;
     }
     
     protected static function str($str) {
-        return '(string) "'.$str.'"';
+        return '<span style="color: blue">string</span>(<span style="color: orange">'.mb_strlen($str).'</span>) "<span style="color: green">'.$str.'</span>"';
     }
     
     protected static function obj() {
@@ -79,7 +83,7 @@ class Debug_Var {
         return '(unknown type)';
     }
     
-    protected static function get_lvl_delim($plus = 0) {
+    protected static function getLvlDelim($plus = 0) {
         $delim = '';
         $lvl = (self::$lvl*2)+$plus;
         for($i=0; $i < $lvl; $i++){

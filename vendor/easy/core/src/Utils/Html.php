@@ -59,14 +59,15 @@ abstract class Html{
      * @return string Полная ссылка.
      * @uses Config::get()
      */
-    public static function href($name){
+    public static function href($name)
+    {
         //Проверка на допустимые символы и обрезание слэшей.
         $name = preg_replace('~^[-a-z0-9+.]++://[^/]++/?~', '', trim($name,DS));
         $base_url = Config::get('system.base_url');
         
-        if(strpos($name,'.') === false){
+        if (strpos($name,'.') === false) {
             $result = $base_url.$name;
-        }else{
+        } else {
             $tpl = Config::get('system.template');
             $result = $base_url.'templates'.DS.$tpl.DS.$name;    
         }
@@ -82,7 +83,8 @@ abstract class Html{
      * @param string $name Папка хранения стиля внутри шаблона и название стиля.
      * @return string Собраная тег подключения стиля.
      */
-    public static function style($name){
+    public static function style($name)
+    {
         $attr = array('href' => self::href($name), 'rel' => 'stylesheet', 'type' => 'text/css');
         $result = '<link'.self::attr($attr).' />'."\n";   
         return $result;
@@ -96,7 +98,8 @@ abstract class Html{
      * @param string $name Папка хранения крипта внутри шаблона и название скрипта.
      * @return string Собраная тег подключения скрипта.
      */
-    public static function script($name){
+    public static function script($name)
+    {
         $attr = array('src' => self::href($name), 'type' => 'text/javascript');
         $result = '<script'.self::attr($attr).'></script>'."\n";
         return $result;
@@ -110,7 +113,8 @@ abstract class Html{
      * @param string $name Папка хранения изображения внутри шаблона и название изображения.
      * @return string Собраная тег подключения изображения.
      */
-    public static function img($name){
+    public static function img($name)
+    {
         $attr = array('src' => self::href($name));
         $result = '<img '.self::attr($attr).'/>' ;
         return $result;
@@ -125,7 +129,8 @@ abstract class Html{
      * @param string $title Выводимый на сраницу текст.
      * @return string Собраная тег подключения ссылки.
      */
-    public static function link($link, $title, $attr = array()){
+    public static function link($link, $title, $attr = array())
+    {
         $attr += array('href' => self::href($link));
         $result = '<a'.self::attr($attr).'>'.$title.'</a>' ; 
         return $result;
@@ -138,7 +143,8 @@ abstract class Html{
      * @param array $attr Список параметров.
      * @return string Скомпилированные параметры.
      */
-    public static function attr(array $attr = null){
+    public static function attr(array $attr = null)
+    {
  	if (empty($attr)) {
             return '';
         }

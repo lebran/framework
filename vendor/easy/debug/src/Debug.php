@@ -15,11 +15,7 @@ class Debug {
      */
     protected static $_e;
         
-    /**
-     * 
-     * @var type 
-     */
-    protected static $_msgs = array();
+    
     
     
 
@@ -52,13 +48,7 @@ class Debug {
         return Request::make('toolbar'.DS.'run')->execute()->body();
     }
     
-    /**
-     * 
-     * @param type $msg
-     */
-    public static function msg($msg) {
-        self::$_msgs[] = $msg;
-    }
+    
     
     public static function get_msgs(){
         return self::$_msgs;
