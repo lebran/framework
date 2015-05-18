@@ -2,6 +2,7 @@
 namespace Easy\Core\Utils;
 
 use Easy\Core\Controller;
+use Easy\Core\View;
 
 /**
  * Класс помощник для создания шаблонов,
@@ -23,6 +24,13 @@ abstract class Layout extends Controller {
      * @var string 
      */
     public $layout = 'index';
+
+    /**
+     * Путь к папке templates.
+     *
+     * @var string
+     */
+    public $template_path = false;
     
     /**
      * Авто-рендеринг.
@@ -43,8 +51,7 @@ abstract class Layout extends Controller {
     public function first() {
         parent::first();
         if ($this->render === true) {
-            $path = TPL_PATH . $this->template;
-            $this->layout = View::make($this->layout, $path);
+            $this->layout = View::make($this->layout, $this->template_path, $this->template);
         } 
     }
     

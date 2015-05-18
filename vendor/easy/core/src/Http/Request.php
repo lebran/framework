@@ -169,12 +169,10 @@ class Request {
         }
 
         if (empty($controller) or !method_exists($controller, 'run') or !method_exists($controller, $this->action)) {
-            $this->response->setStatusCode(404);
+            throw new HttpException('Ошибка 404');
         } else {
-            $controller->run();
+            return $controller->run($this->action);
         }
-        
-        return $this->response;
     }  
   
     /**

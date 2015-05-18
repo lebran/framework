@@ -5,7 +5,7 @@
         ),
         'aliases' => array(
             'Vr' => 'Easy\\Debug\\Vr',
-            'Toolbar' => 'Easy\\Debug\\Toolbar'
+            'Toolbar' => 'Easy\\Debug\\Controller\\ToolbarController'
         )
     );
 

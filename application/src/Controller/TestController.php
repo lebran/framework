@@ -2,7 +2,7 @@
 namespace Easy\App\Controller;
 
 use Easy\Core\Utils\Layout;
-use Easy\Core\Utils\View;
+use Easy\Core\View;
 
 /**
  * Тестовый контроллер
@@ -13,7 +13,8 @@ class TestController extends Layout
 {    
     public function helloWorldAction()
     {
-        $view = View::make('hello_world')->set('hello_world', 'Hello World!!!')->render();
+        $view = View::make('views/hello_world')->set('hello_world', 'Hello World!!!')->render();
         $this->layout->index = $view;
+        \Toolbar::msg($_SERVER);
     }
 }

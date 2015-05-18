@@ -1,12 +1,11 @@
 <?php
 namespace Easy\Debug\Controller;
 
+use Easy\Debug\Vr;
 use Easy\Core\Config;
-use Easy\Core\Utils\View;
 use Easy\Core\Utils\Html;
 use Easy\Core\Utils\Layout;
-use Easy\Debug\Toolbar;
-use Easy\Debug\Vr;
+use Easy\Core\Http\Request;
 
 /**
  *
@@ -19,8 +18,50 @@ use Easy\Debug\Vr;
  */
 class ToolbarController extends Layout
 {
+    /**
+     *
+     * @var type
+     */
+    protected static $msgs = array();
+
+    /**
+     *
+     * @var type
+     */
+    protected static $configs;
+
+    /**
+     *
+     * @param type $msg
+     */
+    public static function msg($msg) {
+        self::$msgs[] = $msg;
+    }
+
+    /**
+     *
+     * @return type
+     */
+    public static function render(){
+        self::$configs = Config::read('toolbar');
+        if(!self::$configs['enabled']){
+            return;
+        }
+        return Request::make('toolbar'.DS.'run')->execute()->body();
+    }
+
+    /**
+     *
+     * @var type 
+     */
+    public $html;
+
+    /**
+     *
+     */
     public function first() {
-        $this->template = Config::get('toolbar.template');
+        $this->template = self::$configs['template'];
+        $this->template_path = EASY_PATH.'debug';
         parent::first();
     }
 
@@ -28,49 +69,51 @@ class ToolbarController extends Layout
      *
      */
     public function runAction() {
-        if(!Config::get('toolbar.enabled')){
-            $this->render = false;
-            return;
-        }
+        $this->html = new Html($this->layout->getLayoutPath());
 
-        $this->layout->template = $this->template;
+        $this->layout->set('html', $this->html);
 
         $tab_keys = array();
-        $tabs = Config::get('toolbar.tabs');
-        foreach ($tabs as $name => $tab) {
+        foreach (self::$configs['tabs'] as $name => $tab) {
             $configs = array('link' => $name);
             if(isset($tab['configs'])){
                 $configs += $tab['configs'];
             }
             $this->{$tab['method']}($configs);
             $tab_keys[$name]['name'] = $tab['name'];
-            $tab_keys[$name]['logo'] = Html::href($tab['logo']);
+            $tab_keys[$name]['logo'] = $tab['logo'];
             $tab_keys[$name]['position'] = $tab['position'].'-tab';
         }
         $this->layout->set('tab_keys', $tab_keys);
 
-        //$style_path = EASY_PATH.'debug'.DS.'templates'.DS.$this->template.DS.'css'.DS.'tabulous.css';
-        $style_path = TPL_PATH.$this->template.DS.'css'.DS.'tabulous.css';
-        $files = "<style".Html::attr(array('type'=>'text/css')).">".file_get_contents($style_path)."</style>\n";
-        $files .= Html::script('js'.DS.'jquery-2.1.3.min.js');
-        $files .= Html::script('js'.DS.'tabulous.js');
+        $files = $this->html->styleContent('css'.DS.'tabulous.css');
+        $files .= $this->html->script('js'.DS.'jquery-2.1.3.min.js');
+        $files .= $this->html->script('js'.DS.'tabulous.js');
         $this->layout->set('files', $files);
     }
 
+    /**
+     *
+     * @param array $configs
+     */
     public function messages(array $configs){
         $msgs = array();
-        foreach (Toolbar::$msgs as $msg) {
+        foreach (self::$msgs as $msg) {
             if(is_array($msg)){
                 $msgs[] = array('header' => 'Array', 'body' => Vr::dump($msg));
             }else{
                 $msgs[]['header'] = Vr::dump($msg);
             }
         }
-        $this->layout->tabs[$configs['link']] = View::make('messages')->set('messages', $msgs)->render();
+        $this->layout->tabs[$configs['link']] = $this->layout->partial('views'.DS.'messages', array('messages' => $msgs));
     }
 
+    /**
+     *
+     * @param array $configs
+     */
     public function files(array $configs){
         $files = (array)get_included_files();
-        $this->layout->tabs[$configs['link']] = View::make('files')->set('files', $files)->render();
+        $this->layout->tabs[$configs['link']] = $this->layout->partial('views'.DS.'files', array('files' => $files));
     }
 }

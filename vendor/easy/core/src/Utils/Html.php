@@ -14,65 +14,69 @@ use Easy\Core\Config;
  * @copyright  2014 - 2015 Roman Kritskiy
  */
 
-abstract class Html{
+class Html{
     
     /**
      * Массив с параметрами в правильной последовательности для сортировки.
      *
      * @var array 
      */
-    public static $attribute_order = array(
-		'action',
-		'method',
-		'type',
-		'id',
-		'name',
-		'value',
-		'href',
-		'src',
-		'width',
-		'height',
-		'cols',
-		'rows',
-		'size',
-		'maxlength',
-		'rel',
-		'media',
-		'accept-charset',
-		'accept',
-		'tabindex',
-		'accesskey',
-		'alt',
-		'title',
-		'class',
-		'style',
-		'selected',
-		'checked',
-		'readonly',
-		'disabled',
-	);
-    
-    /**
-     * Выбор и установка пути.
-     * 
-     * @param string $name Папка и имя/имя файла на который нужно установить путь.
-     * @return string Полная ссылка.
-     * @uses Config::get()
-     */
-    public static function href($name)
+    public $attribute_order = array(
+        'action',
+	'method',
+	'type',
+	'id',
+	'name',
+	'value',
+	'href',
+	'src',
+	'width',
+	'height',
+	'cols',
+	'rows',
+	'size',
+	'maxlength',
+	'rel',
+	'media',
+	'accept-charset',
+	'accept',
+	'tabindex',
+	'accesskey',
+	'alt',
+	'title',
+	'class',
+	'style',
+	'selected',
+	'checked',
+	'readonly',
+	'disabled',
+    );
+
+    protected $path;
+
+    public static function make($path)
     {
-        //Проверка на допустимые символы и обрезание слэшей.
-        $name = preg_replace('~^[-a-z0-9+.]++://[^/]++/?~', '', trim($name,DS));
-        $base_url = Config::get('system.base_url');
-        
-        if (strpos($name,'.') === false) {
-            $result = $base_url.$name;
-        } else {
-            $tpl = Config::get('system.template');
-            $result = $base_url.'templates'.DS.$tpl.DS.$name;    
+        return new self($path);
+    }
+
+    public function __construct($path)
+    {
+        $this->path = trim($path, DS).DS;
+    }
+
+    public function getPath($name ,$tag)
+    {
+        $name = trim($name, DS);
+        switch ($tag) {
+            case 'link':
+                return Config::get('system.base_url').$name;
+            case 'img':
+            case 'script':
+                return Config::get('system.base_url').trim(substr($this->path, mb_strlen($_SERVER['DOCUMENT_ROOT'])), DS).DS.$name;
+            case 'style':
+            default:
+                return $this->path.$name;
         }
- 
-        return $result;
     }
 
     /**
@@ -83,13 +87,17 @@ abstract class Html{
      * @param string $name Папка хранения стиля внутри шаблона и название стиля.
      * @return string Собраная тег подключения стиля.
      */
-    public static function style($name)
+    public function style($name)
     {
-        $attr = array('href' => self::href($name), 'rel' => 'stylesheet', 'type' => 'text/css');
-        $result = '<link'.self::attr($attr).' />'."\n";   
-        return $result;
+        $attr = array('href' => $this->getPath($name, 'style'), 'rel' => 'stylesheet', 'type' => 'text/css');
+        return '<link'.$this->attr($attr).' />'."\n";
     }
-    
+
+    public function styleContent($name)
+    {
+        return '<style'.$this->attr(array('type'=>'text/css')).'>'.file_get_contents($this->getPath($name, 'style')).'</style>'."\n";
+    }
+
     /**
      * Подключение нужного скрипта.
      * 
@@ -98,11 +106,10 @@ abstract class Html{
      * @param string $name Папка хранения крипта внутри шаблона и название скрипта.
      * @return string Собраная тег подключения скрипта.
      */
-    public static function script($name)
+    public function script($name)
     {
-        $attr = array('src' => self::href($name), 'type' => 'text/javascript');
-        $result = '<script'.self::attr($attr).'></script>'."\n";
-        return $result;
+        $attr = array('src' => $this->getPath($name, 'script'), 'type' => 'text/javascript');
+        return '<script'.$this->attr($attr).'></script>'."\n";
     }
     
     /**
@@ -113,11 +120,10 @@ abstract class Html{
      * @param string $name Папка хранения изображения внутри шаблона и название изображения.
      * @return string Собраная тег подключения изображения.
      */
-    public static function img($name)
+    public function img($name, $attr = array())
     {
-        $attr = array('src' => self::href($name));
-        $result = '<img '.self::attr($attr).'/>' ;
-        return $result;
+        $attr += array('src' => $this->getPath($name, 'img'));
+        return '<img '.$this->attr($attr).'/>';
     }
     
     /**
@@ -129,11 +135,10 @@ abstract class Html{
      * @param string $title Выводимый на сраницу текст.
      * @return string Собраная тег подключения ссылки.
      */
-    public static function link($link, $title, $attr = array())
+    public function link($link, $title, $attr = array())
     {
-        $attr += array('href' => self::href($link));
-        $result = '<a'.self::attr($attr).'>'.$title.'</a>' ; 
-        return $result;
+        $attr += array('href' => $this->getPath($link, 'link'));
+        return '<a'.$this->attr($attr).'>'.$title.'</a>';
     }
     
     /**
@@ -143,14 +148,14 @@ abstract class Html{
      * @param array $attr Список параметров.
      * @return string Скомпилированные параметры.
      */
-    public static function attr(array $attr = null)
+    public function attr(array $attr = null)
     {
  	if (empty($attr)) {
             return '';
         }
         
 	$sorted = array();
-	foreach (self::$attribute_order as $key) {
+	foreach ($this->attribute_order as $key) {
             if (isset($attr[$key])) {
 		$sorted[$key] = $attr[$key];
             }
@@ -161,7 +166,6 @@ abstract class Html{
 	$compiled = '';
 	foreach ($attr as $key => $value) {
             if ($value === null) {
-		// Пропускаем атрибуты,значени которых равно NULL.
 		continue;
             }
 

@@ -33,7 +33,7 @@ abstract class Controller {
      *
      * @var string
      */
-    public $template = NULL;
+    public $template = null;
     
     /**
      * Метод вызывается перед всеми действиями.
@@ -54,17 +54,18 @@ abstract class Controller {
      * @return void
      * @throws Easy_Exception
      */
-    public function run() {
+    public function run($action) {
         $this->first();
         
-        $action = $this->request->getAction();
-        if(method_exists($this, $action)){
+        if (method_exists($this, $action)) {
             $this->{$action}();
-        }else{
+        } else {
             throw new Exception('Не найден метод '. $action);
         }
         
         $this->last();
+
+        return $this->response;
     }
     
     /**
