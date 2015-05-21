@@ -99,8 +99,8 @@ class ToolbarController extends Layout
     public function messages(array $configs){
         $msgs = array();
         foreach (self::$msgs as $msg) {
-            if(is_array($msg)){
-                $msgs[] = array('header' => 'Array', 'body' => Vr::dump($msg));
+            if(is_array($msg) or is_object($msg)){
+                $msgs[] = array('header' => strstr(Vr::dump($msg), '{', true), 'body' => strstr(Vr::dump($msg), '{'));
             }else{
                 $msgs[]['header'] = Vr::dump($msg);
             }

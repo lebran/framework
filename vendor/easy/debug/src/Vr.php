@@ -11,37 +11,32 @@ namespace Easy\Debug;
  * @copyright  2014 - 2015 Roman Kritskiy
  */
 class Vr
-{
-    
-    protected static $delim = "&nbsp&nbsp&nbsp&nbsp";
-    
-    protected static $lvl = 0;
-    
+{   
     public static function dump($var) {
         switch (gettype($var)){
             case 'array': 
                 return self::arr($var);
             case 'string': 
-                return self::str($var);
+                return self::string($var);
             case 'object': 
-                return self::obj();
+                return self::object($var);
             case 'integer': 
-                return self::int($var);
+                return self::integer($var);
             case 'double': 
-                return self::dbl($var);
+                return self::double($var);
             case 'boolean': 
-                return self::bool($var);
+                return self::boolean($var);
             case 'resource': 
                 return self::res();
             case 'NULL': 
-                return self::nul();
+                return self::null();
             default: 
-                return self::unk();
+                return self::unknown();
         }
     }
     
     protected static function arr($arr) { 
-        $str = '<span style="color: blue">array</span>(<span style="color: orange">'.count($arr)."</span>)<br />".self::getLvlDelim()."{<br />";
+        $str = '<span style="color: blue">array </span>(<span style="color: orange">'.count($arr)."</span>)<br />".self::getLvlDelim()."{<br />";
         self::$lvl++;
         foreach ($arr as $key => $val) {
             $str .= self::getLvlDelim(-1).'"<span style="color: green">'.$key.'</span>" => '.self::dump($val)."<br />";
@@ -51,38 +46,50 @@ class Vr
         return $str;
     }
     
-    protected static function str($str) {
-        return '<span style="color: blue">string</span>(<span style="color: orange">'.mb_strlen($str).'</span>) "<span style="color: green">'.$str.'</span>"';
+    protected static function string($str) {
+        return '<span style="color: blue">string </span>(<span style="color: orange">'.mb_strlen($str).'</span>) "<span style="color: green">'.$str.'</span>"';
     }
     
-    protected static function obj() {
-        return '(object)';
+    protected static function object($obj) {
+        $obj = (array)$obj;
+        $str = '<span style="color: blue">object </span>(<span style="color: orange">'.count($obj)."</span>)<br />".self::getLvlDelim()."{<br />";
+        self::$lvl++;
+        foreach ($obj as $key => $val) {
+            $str .= self::getLvlDelim(-1).'"<span style="color: green">'.$key.'</span>" => '.self::dump($val)."<br />";
+        }
+        self::$lvl--;
+        $str .= self::getLvlDelim().'}';
+        return $str;
     }
     
-    protected static function int($num) {
-        return '(integer) '.$num;
+    protected static function integer($num) {
+        return '<span style="color: blue">integer </span>('.$num.')';
     }
     
-    protected static function dbl($num) {
-        return '(double) '.$num;
+    protected static function double($num) {
+        return '<span style="color: blue">double </span>('.$num.')';
     }
     
-    protected static function bool($bool) {
-        return $bool? 'TRUE' : 'FALSE';
+    protected static function boolean($bool) {
+        return $bool? 'true' : 'false';
     }
     
     protected static function res() {
         return '(resource)';
     }
     
-    protected static function nul() {
-        return 'NULL';
+    protected static function null() {
+        return 'null';
     }
     
-    protected static function unk() {
+    protected static function unknown() {
         return '(unknown type)';
     }
     
+    protected static $delim = "&nbsp&nbsp&nbsp&nbsp";
+    
+    protected static $lvl = 0;
+
     protected static function getLvlDelim($plus = 0) {
         $delim = '';
         $lvl = (self::$lvl*2)+$plus;
