@@ -15,6 +15,13 @@
     color: #333;
 }
 
+#debug-toolbar #n-element { 
+    cursor: n-resize;
+    display: none;
+    height: 2px;
+    border: 1px solid #CCCCCC;
+    border-bottom: none;
+}
 
 #debug-toolbar-header {
     background: #dbdbdb;
@@ -33,7 +40,6 @@
     width: 22px;
     height: 22px;
     margin: -3px 3px 0 2px;
-    //cursor: pointer;
 }
 
 #debug-toolbar-header .logo {
@@ -51,6 +57,7 @@
     list-style:none;
     font-family: Verdana;
     font-size: 13px;
+    font-style: italic;
 }
 
 #debug-toolbar-header li.left-tab{
@@ -63,15 +70,37 @@
     border-left: 1px solid #CCCCCC;
 }
 
-#debug-toolbar-header #close {
-}
-
 #debug-toolbar-header li a{
     display: block;
     padding: 8px 14px 8px 5px;
     text-decoration: none;
     color: black;
     
+}
+
+#debug-toolbar-header li a .count{
+    display: inline;
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
+    margin-left: 2px;
+    padding: 4px 6px;
+    background: #b4ddb4; /* Old browsers */
+    background: -moz-linear-gradient(top, #b4ddb4 0%, #83c783 0%, #52b152 0%, #008a00 98%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#b4ddb4), color-stop(0%,#83c783), color-stop(0%,#52b152), color-stop(98%,#008a00)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top, #b4ddb4 0%,#83c783 0%,#52b152 0%,#008a00 98%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top, #b4ddb4 0%,#83c783 0%,#52b152 0%,#008a00 98%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top, #b4ddb4 0%,#83c783 0%,#52b152 0%,#008a00 98%); /* IE10+ */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#b4ddb4', endColorstr='#008a00',GradientType=0 );
+}
+
+#debug-toolbar-header li a:hover .count{
+    background: #dbdbdb;
+    background: -moz-linear-gradient(top, #dbdbdb 0%, #dbdbdb 26%, #eeeeee 54%, #eeeeee 84%, #eeeeee 100%);
+    background: -webkit-gradient(left top, left bottom, color-stop(0%, #dbdbdb), color-stop(26%, #dbdbdb), color-stop(54%, #eeeeee), color-stop(84%, #eeeeee), color-stop(100%, #eeeeee));
+    background: -webkit-linear-gradient(top, #dbdbdb 0%, #dbdbdb 26%, #eeeeee 54%, #eeeeee 84%, #eeeeee 100%);
+    background: -o-linear-gradient(top, #dbdbdb 0%, #dbdbdb 26%, #eeeeee 54%, #eeeeee 84%, #eeeeee 100%);
+    background: -ms-linear-gradient(top, #dbdbdb 0%, #dbdbdb 26%, #eeeeee 54%, #eeeeee 84%, #eeeeee 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#dbdbdb', endColorstr='#eeeeee', GradientType=0 );
 }
 
 #debug-toolbar-header li a.close {
@@ -88,6 +117,7 @@
 }
 
 #debug-toolbar-header li a:hover {
+    color: black;
     background: #b4ddb4; /* Old browsers */
     background: -moz-linear-gradient(top, #b4ddb4 0%, #83c783 0%, #52b152 0%, #008a00 98%); /* FF3.6+ */
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#b4ddb4), color-stop(0%,#83c783), color-stop(0%,#52b152), color-stop(98%,#008a00)); /* Chrome,Safari4+ */
@@ -114,6 +144,17 @@
     color: black;
 }
 
+#debug-toolbar-header li a.active .count{
+    background: #dbdbdb;
+    background: -moz-linear-gradient(top, #dbdbdb 0%, #dbdbdb 26%, #eeeeee 54%, #eeeeee 84%, #eeeeee 100%);
+    background: -webkit-gradient(left top, left bottom, color-stop(0%, #dbdbdb), color-stop(26%, #dbdbdb), color-stop(54%, #eeeeee), color-stop(84%, #eeeeee), color-stop(100%, #eeeeee));
+    background: -webkit-linear-gradient(top, #dbdbdb 0%, #dbdbdb 26%, #eeeeee 54%, #eeeeee 84%, #eeeeee 100%);
+    background: -o-linear-gradient(top, #dbdbdb 0%, #dbdbdb 26%, #eeeeee 54%, #eeeeee 84%, #eeeeee 100%);
+    background: -ms-linear-gradient(top, #dbdbdb 0%, #dbdbdb 26%, #eeeeee 54%, #eeeeee 84%, #eeeeee 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#dbdbdb', endColorstr='#eeeeee', GradientType=0 );
+    color: black;
+}
+
 #debug-toolbar-container {
     height: 200px;
     display: none;
@@ -122,6 +163,7 @@
     font-size: 13px;
     border: 1px solid #CCCCCC;
     border-top: none; 
+    position: relative;
 }
 
 #debug-toolbar-container ul{

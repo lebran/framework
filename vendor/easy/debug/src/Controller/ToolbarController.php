@@ -1,8 +1,8 @@
 <?php
 namespace Easy\Debug\Controller;
 
-use Easy\Debug\Vr;
 use Easy\Core\Config;
+use Easy\Debug\Variable;
 use Easy\Core\Utils\Html;
 use Easy\Core\Utils\Layout;
 use Easy\Core\Http\Request;
@@ -47,14 +47,8 @@ class ToolbarController extends Layout
         if(!self::$configs['enabled']){
             return;
         }
-        return Request::make('toolbar'.DS.'run')->execute()->body();
+        return Request::make('toolbar/run')->execute()->body();
     }
-
-    /**
-     *
-     * @var type 
-     */
-    public $html;
 
     /**
      *
@@ -69,9 +63,7 @@ class ToolbarController extends Layout
      *
      */
     public function runAction() {
-        $this->html = new Html($this->layout->getLayoutPath());
-
-        $this->layout->set('html', $this->html);
+        $this->layout->html = new Html($this->layout->getLayoutPath());
 
         $tab_keys = array();
         foreach (self::$configs['tabs'] as $name => $tab) {
@@ -86,9 +78,10 @@ class ToolbarController extends Layout
         }
         $this->layout->set('tab_keys', $tab_keys);
 
-        $files = $this->html->styleContent('css'.DS.'tabulous.css');
-        $files .= $this->html->script('js'.DS.'jquery-2.1.3.min.js');
-        $files .= $this->html->script('js'.DS.'tabulous.js');
+        $files = $this->layout->html->styleContent('css'.DS.'tabulous.css');
+        $files .= $this->layout->html->script('js'.DS.'jquery-2.1.3.min.js');
+        $files .= $this->layout->html->script('js'.DS.'jquery-ui.min.js');
+        $files .= $this->layout->html->script('js'.DS.'tabulous.js');
         $this->layout->set('files', $files);
     }
 
@@ -100,9 +93,9 @@ class ToolbarController extends Layout
         $msgs = array();
         foreach (self::$msgs as $msg) {
             if(is_array($msg) or is_object($msg)){
-                $msgs[] = array('header' => strstr(Vr::dump($msg), '{', true), 'body' => strstr(Vr::dump($msg), '{'));
+                $msgs[] = array('header' => strstr(Variable::dump($msg), '{', true), 'body' => strstr(Variable::dump($msg), '{'));
             }else{
-                $msgs[]['header'] = Vr::dump($msg);
+                $msgs[]['header'] = Variable::dump($msg);
             }
         }
         $this->layout->tabs[$configs['link']] = $this->layout->partial('views'.DS.'messages', array('messages' => $msgs));

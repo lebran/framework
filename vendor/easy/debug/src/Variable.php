@@ -10,7 +10,7 @@ namespace Easy\Debug;
  * @license    GNU Lisence
  * @copyright  2014 - 2015 Roman Kritskiy
  */
-class Vr
+class Variable
 {   
     public static function dump($var) {
         switch (gettype($var)){

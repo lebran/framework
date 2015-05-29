@@ -25,6 +25,7 @@ $(document).ready(function($) {
             var firstdiv = this.$elem.find('#debug-toolbar-container');
             
             var alldivs = this.$elem.find('#debug-toolbar-container div');
+            var res = this.$elem.find('#n-element');
 
             links.bind('click', {myOptions: this.options}, function(e) {
                 e.preventDefault();
@@ -34,10 +35,12 @@ $(document).ready(function($) {
                 
                 if(thislink === '#close'){
                     firstdiv.css({'display': 'none'});
+                    res.css({'display': 'none'});
                     links.removeClass('active');
                     alldivs.removeClass('active');
                 }else{
                     firstdiv.css({'display': 'block'});
+                    res.css({'display': 'block'});
                     links.removeClass('active');
                     mythis.addClass('active');
                     alldivs.removeClass('active');
@@ -56,3 +59,8 @@ $(document).ready(function($) {
 })( jQuery, window, document );
 
 
+$(function() {
+    $("#debug-toolbar-container").resizable({handles: {n: $("#n-element")}, minHeight: "200", maxHeight: "500"}).bind("resize", function (e, ui) {
+            $(this).css("top", "auto");
+    });
+});
