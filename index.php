@@ -1,5 +1,19 @@
 <?php
 /**
+ * Время запуска приложения.
+ * 
+ * @var string
+ */
+define('EASY_START_TIME', microtime(true));
+
+/**
+ * Количество памяти выделенной PHP
+ *
+ * @var string
+ */
+define('EASY_START_MEM', memory_get_usage());
+
+/**
  * Разделитель директорий ( '/', '\' ).
  * 
  * @var string

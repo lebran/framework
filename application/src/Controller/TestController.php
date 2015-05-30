@@ -15,6 +15,5 @@ class TestController extends Layout
     {
         $view = View::make('views/hello_world')->set('hello_world', 'Hello World!!!')->render();
         $this->layout->index = $view;
-        \Toolbar::msg($_SERVER);
     }
 }

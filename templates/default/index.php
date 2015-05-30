@@ -7,7 +7,6 @@
 
 <body>
     <?=$index?>
-    <?=Toolbar::render()?>
 </body>
 </html>
 

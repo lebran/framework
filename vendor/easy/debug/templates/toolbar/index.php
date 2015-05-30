@@ -5,12 +5,25 @@
     <div id="debug-toolbar-header">
         <ul>
             <li class="left-tab">
-                <?=$html->img('img/logo1.png', array('class' => 'logo'))?>
+                <?=$html->img('img/logo.png', array('class' => 'logo'))?>
             </li>
             <li class="right-tab" id="close">
                 <a class="close" href="#close" >
                     <?=$html->img('img/cancel.png', array('class' => 'tab-logo'))?>
-                </a></li>
+                </a>
+            </li>
+            <li class="right-tab" >
+                <a id="time">
+                    <?=$html->img('img/memory.png', array('class' => 'tab-logo'))?>
+                    <?=$memory?>
+                </a>
+            </li>
+            <li class="right-tab" >
+                <a id="time">
+                    <?=$html->img('img/time.png', array('class' => 'tab-logo'))?>
+                    <?=$time?>
+                </a>
+            </li>
             <?php foreach ($tab_keys as $link => $name): ?>
             <li class="<?=$name['position']?>-tab">
                 <a href="#<?=$link?>">

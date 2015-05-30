@@ -43,9 +43,9 @@
 }
 
 #debug-toolbar-header .logo {
-    width: 25px;
-    height: 25px;
-    margin: 3px 10px 0 10px;
+    width: 64px;
+    height: 26px;
+    margin: 3px 12px 0 10px;
 }
 
 #debug-toolbar-header ul { 
@@ -109,6 +109,10 @@
     padding: 8px 10px;
 }
 
+#debug-toolbar-header li a#time {
+    pointer-events: none;
+    cursor: default;
+}
 
 #debug-toolbar-header li a.close .tab-logo {
     width: 16px;
@@ -212,4 +216,44 @@
 }
 #debug-toolbar-container .spoiler > input:checked + label + .spoiler-body{
     display: block;
+}
+
+#debug-toolbar-container ol{
+    counter-reset: myCounter;
+    padding: 0;
+    margin: 0;
+}
+
+#debug-toolbar-container ol li{
+    list-style: none;
+}
+
+#debug-toolbar-container ol li:before {
+    counter-increment: myCounter;
+    content:counter(myCounter);
+    color: white;
+    background: #b4ddb4; /* Old browsers */
+    background: -moz-linear-gradient(top, #b4ddb4 0%, #83c783 0%, #52b152 0%, #008a00 98%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#b4ddb4), color-stop(0%,#83c783), color-stop(0%,#52b152), color-stop(98%,#008a00)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top, #b4ddb4 0%,#83c783 0%,#52b152 0%,#008a00 98%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top, #b4ddb4 0%,#83c783 0%,#52b152 0%,#008a00 98%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top, #b4ddb4 0%,#83c783 0%,#52b152 0%,#008a00 98%); /* IE10+ */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#b4ddb4', endColorstr='#008a00',GradientType=0 );
+    display: inline-block;
+    margin: 5px 10px 5px 0;
+    text-align: center;
+    line-height: 25px;
+    width: 25px;
+    height: 25px;
+}
+
+#debug-toolbar-container ol li:before:hover {
+    background: #dbdbdb;
+    background: -moz-linear-gradient(top, #dbdbdb 0%, #dbdbdb 26%, #eeeeee 54%, #eeeeee 84%, #eeeeee 100%);
+    background: -webkit-gradient(left top, left bottom, color-stop(0%, #dbdbdb), color-stop(26%, #dbdbdb), color-stop(54%, #eeeeee), color-stop(84%, #eeeeee), color-stop(100%, #eeeeee));
+    background: -webkit-linear-gradient(top, #dbdbdb 0%, #dbdbdb 26%, #eeeeee 54%, #eeeeee 84%, #eeeeee 100%);
+    background: -o-linear-gradient(top, #dbdbdb 0%, #dbdbdb 26%, #eeeeee 54%, #eeeeee 84%, #eeeeee 100%);
+    background: -ms-linear-gradient(top, #dbdbdb 0%, #dbdbdb 26%, #eeeeee 54%, #eeeeee 84%, #eeeeee 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#dbdbdb', endColorstr='#eeeeee', GradientType=0 );
+    color: black;
 }

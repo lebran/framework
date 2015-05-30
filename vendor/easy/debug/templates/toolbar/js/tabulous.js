@@ -70,7 +70,7 @@ $(document).ready(function($) {
 
 
 $(function() {
-    $("#debug-toolbar-container").resizable({handles: {n: $("#n-element")}, minHeight: "150", maxHeight: "500"}).bind("resize", function (e, ui) {
+    $("#debug-toolbar-container").resizable({handles: {n: $("#n-element")}, minHeight: "100", maxHeight: "500"}).bind("resize", function (e, ui) {
             $(this).css("top", "auto");
     });
 });

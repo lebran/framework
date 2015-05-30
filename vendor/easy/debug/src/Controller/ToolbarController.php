@@ -86,6 +86,9 @@ class ToolbarController extends Layout
         $files .= $this->layout->html->script('js'.DS.'jquery.cookie.js');
         $files .= $this->layout->html->script('js'.DS.'tabulous.js');
         $this->layout->set('files', $files);
+
+        $this->layout->set('memory', round(EASY_START_MEM/1048576,2).' MB');
+        $this->layout->set('time', round((microtime(true) - EASY_START_TIME), 4). ' s');
     }
 
     /**
@@ -101,8 +104,8 @@ class ToolbarController extends Layout
                 $msgs[]['header'] = Variable::dump($msg);
             }
         }
-
-        if (isset($configs['count']) and $configs['count'] == true) {
+        
+        if (isset($configs['count']) and $configs['count'] == true and count($msgs)) {
             $this->layout->tab_keys[$configs['link']]['info'] = count($msgs);
         }
 
@@ -115,9 +118,34 @@ class ToolbarController extends Layout
      */
     public function files(array $configs){
         $files = (array)get_included_files();
+        $files = array_map(
+            function($file)
+            {
+                return substr($file, mb_strlen($_SERVER['DOCUMENT_ROOT']) + 1);
+            }
+        , $files);
+
+        
+
         if (isset($configs['count']) and $configs['count'] == true) {
             $this->layout->tab_keys[$configs['link']]['info'] = count($files);
         }
         $this->layout->tabs[$configs['link']] = $this->layout->partial('views'.DS.'files', array('files' => $files));
+    }
+
+    /**
+     *
+     * @param array $configs
+     */
+    public function globals(array $configs){
+        $globals = array();
+        foreach ($configs['globals'] as $global) {
+            $global = '_'.strtoupper($global);
+            if (isset($GLOBALS[$global]) and empty($globals[$global])) {
+                $globals[substr($global, 1)] = strstr(Variable::dump($GLOBALS[$global]), '{');
+            }
+        }
+        
+        $this->layout->tabs[$configs['link']] = $this->layout->partial('views'.DS.'globals', array('globals' => $globals));
     }
 }

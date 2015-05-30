@@ -21,7 +21,23 @@ return array(
                         'configs' => array(
                                 'count' => true
                         )
-                )
+                ),
+                'globals' => array(
+                            'name' => 'Globals',
+                            'method' => 'globals',
+                            'logo' => 'img/globals.png',
+                            'position' => 'left',
+                            'configs' => array(
+                                    'globals' => array(
+                                            'post',
+                                            'cookie',
+                                            'session',
+                                            'server',
+                                            'request',
+                                            'get',
+                                    )
+                            )
+                    )
         ) 
 );
 
