@@ -27,13 +27,23 @@ $(document).ready(function($) {
             var alldivs = this.$elem.find('#debug-toolbar-container div');
             var res = this.$elem.find('#n-element');
 
+            if(typeof $.cookie('link') !== 'undefined'){
+                link($.cookie('link'), $('#debug-toolbar-header [href = "'+ $.cookie('link') +'"]'));
+            }
+
             links.bind('click', {myOptions: this.options}, function(e) {
                 e.preventDefault();
                 
                 var mythis = $(this);
                 var thislink = mythis.attr('href');
                 
-                if(thislink === '#close'){
+                $.cookie('link', thislink);
+                
+                link(thislink, mythis);
+            });
+            
+            function link(str, my){
+                if(str === '#close'){
                     firstdiv.css({'display': 'none'});
                     res.css({'display': 'none'});
                     links.removeClass('active');
@@ -42,11 +52,11 @@ $(document).ready(function($) {
                     firstdiv.css({'display': 'block'});
                     res.css({'display': 'block'});
                     links.removeClass('active');
-                    mythis.addClass('active');
+                    my.addClass('active');
                     alldivs.removeClass('active');
-                    firstdiv.find('div'+thislink).addClass('active');
+                    firstdiv.find('div'+str).addClass('active');
                 }
-            });
+            }
         }
     };
 
@@ -60,7 +70,7 @@ $(document).ready(function($) {
 
 
 $(function() {
-    $("#debug-toolbar-container").resizable({handles: {n: $("#n-element")}, minHeight: "200", maxHeight: "500"}).bind("resize", function (e, ui) {
+    $("#debug-toolbar-container").resizable({handles: {n: $("#n-element")}, minHeight: "150", maxHeight: "500"}).bind("resize", function (e, ui) {
             $(this).css("top", "auto");
     });
 });

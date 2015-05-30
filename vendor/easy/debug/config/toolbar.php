@@ -1,7 +1,7 @@
 <?php
 
 return array(
-        'enabled' => TRUE,
+        'enabled' => true,
         'template' => 'toolbar',
         'tabs' => array(
                 'messages' => array(
@@ -9,14 +9,18 @@ return array(
                         'method' => 'messages',
                         'logo' => 'img/mail.png',
                         'position' => 'left',
-                        'configs' => array()
+                        'configs' => array(
+                                'count' => true
+                        )
                 ),
                 'files' => array(
                         'name' => 'Files',
                         'method' => 'files',
                         'logo' => 'img/files.png',
                         'position' => 'left',
-                        'configs' => array()
+                        'configs' => array(
+                                'count' => true
+                        )
                 )
         ) 
 );

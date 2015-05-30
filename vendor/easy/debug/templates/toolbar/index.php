@@ -12,11 +12,11 @@
                     <?=$html->img('img/cancel.png', array('class' => 'tab-logo'))?>
                 </a></li>
             <?php foreach ($tab_keys as $link => $name): ?>
-            <li class="<?=$name['position']?>">
+            <li class="<?=$name['position']?>-tab">
                 <a href="#<?=$link?>">
                     <?=$html->img($name['logo'], array('class' => 'tab-logo'))?>
                     <?=$name['name']?>
-                    <span class="count">4</span>
+                    <?php if(isset($name['info'])):?><span class="count"><?=$name['info']?></span><?php endif;?>
                 </a>
             </li>
             <?php endforeach;?>

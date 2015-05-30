@@ -65,22 +65,25 @@ class ToolbarController extends Layout
     public function runAction() {
         $this->layout->html = new Html($this->layout->getLayoutPath());
 
-        $tab_keys = array();
         foreach (self::$configs['tabs'] as $name => $tab) {
             $configs = array('link' => $name);
             if(isset($tab['configs'])){
                 $configs += $tab['configs'];
             }
+
+            $tab_keys['name'] = $tab['name'];
+            $tab_keys['logo'] = $tab['logo'];
+            $tab_keys['position'] = $tab['position'];
+
+            $this->layout->tab_keys[$name] = $tab_keys;
+            
             $this->{$tab['method']}($configs);
-            $tab_keys[$name]['name'] = $tab['name'];
-            $tab_keys[$name]['logo'] = $tab['logo'];
-            $tab_keys[$name]['position'] = $tab['position'].'-tab';
         }
-        $this->layout->set('tab_keys', $tab_keys);
 
         $files = $this->layout->html->styleContent('css'.DS.'tabulous.css');
         $files .= $this->layout->html->script('js'.DS.'jquery-2.1.3.min.js');
         $files .= $this->layout->html->script('js'.DS.'jquery-ui.min.js');
+        $files .= $this->layout->html->script('js'.DS.'jquery.cookie.js');
         $files .= $this->layout->html->script('js'.DS.'tabulous.js');
         $this->layout->set('files', $files);
     }
@@ -98,6 +101,11 @@ class ToolbarController extends Layout
                 $msgs[]['header'] = Variable::dump($msg);
             }
         }
+
+        if (isset($configs['count']) and $configs['count'] == true) {
+            $this->layout->tab_keys[$configs['link']]['info'] = count($msgs);
+        }
+
         $this->layout->tabs[$configs['link']] = $this->layout->partial('views'.DS.'messages', array('messages' => $msgs));
     }
 
@@ -107,6 +115,9 @@ class ToolbarController extends Layout
      */
     public function files(array $configs){
         $files = (array)get_included_files();
+        if (isset($configs['count']) and $configs['count'] == true) {
+            $this->layout->tab_keys[$configs['link']]['info'] = count($files);
+        }
         $this->layout->tabs[$configs['link']] = $this->layout->partial('views'.DS.'files', array('files' => $files));
     }
 }
