@@ -30,7 +30,11 @@ $(document).ready(function($) {
             if(typeof $.cookie('link') !== 'undefined'){
                 link($.cookie('link'), $('#debug-toolbar-header [href = "'+ $.cookie('link') +'"]'));
             }
-
+            
+            if(typeof $.cookie('height') !== 'undefined'){
+                $('#debug-toolbar-container').height($.cookie('height'));
+            }
+            
             links.bind('click', {myOptions: this.options}, function(e) {
                 e.preventDefault();
                 
@@ -70,7 +74,12 @@ $(document).ready(function($) {
 
 
 $(function() {
-    $("#debug-toolbar-container").resizable({handles: {n: $("#n-element")}, minHeight: "100", maxHeight: "500"}).bind("resize", function (e, ui) {
+    $("#debug-toolbar-container").resizable({handles: {n: $("#n-element")}, minHeight: "100", maxHeight: "500"})
+            .bind("resize", function (e, ui) {
             $(this).css("top", "auto");
     });
+});
+
+$(window).unload(function(){ 
+    $.cookie('height', $('#debug-toolbar-container').height());
 });

@@ -59,7 +59,7 @@ abstract class Easy
         if (self::$init) {
             return;
 	}
-        self::$init = TRUE;
+        self::$init = true;
 
         // Загружаем файл базовых настроек
         $config = Config::read('system');        
@@ -67,6 +67,11 @@ abstract class Easy
         // Проверка включена ли система
         if (!(boolean)$config['offline']) {
             die($config['offline_message']);
+        }
+
+        // Показ ошибок
+        if (!empty($config['error_reporting'])) {
+            error_reporting($config['error_reporting']);
         }
 
         // Устанавливаем обработчик исключений

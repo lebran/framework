@@ -36,7 +36,7 @@ class Autoloader
      */
     public static function register()
     {
-        spl_autoload_register(array(self, 'loadClass'));
+        spl_autoload_register(array(__NAMESPACE__.'\\Autoloader', 'loadClass'));
     }
 
     /**
@@ -46,7 +46,7 @@ class Autoloader
      */
     public static function unregister()
     {
-        spl_autoload_unregister(array(self, 'loadClass'));
+        spl_autoload_unregister(array(__NAMESPACE__.'\\Autoloader', 'loadClass'));
     }
 
     /**

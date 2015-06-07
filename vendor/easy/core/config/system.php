@@ -7,7 +7,7 @@
         'offline_message' => 'Извините, но сайт временно не работает по техническим причинам.',
 
         // Показ ошибок
-        'error_reporting' => '-1',
+        'error_reporting' => E_ALL,
 
         // Путь к папке для хранение логов
         'log_path' => APP_PATH.'temp'.DS.'logs'.DS,

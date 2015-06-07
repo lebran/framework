@@ -1,6 +1,7 @@
 <?php
 namespace Easy\Core;
 
+use Easy\Core\Utils\Arr;
 use Easy\Core\Config\ConfigException;
 
 /**
@@ -35,10 +36,11 @@ abstract class Config{
      * @param string $file Имя файла с расширением(определяется какой драйвер покдключать).
      * @param bool $set Сохранять ли их в общий массив(по умолчанию - нет).
      * @return array Массив загруженых настроек.
+     * @throws ConfigException
      */
-    public static function read($file, $set = FALSE)
+    public static function read($file, $set = false)
     {
-        if (isset(self::$load_files[$file])) {
+        if (isset(self::$data[$file])) {
             return self::$data[$file];
         }  
         
@@ -50,7 +52,7 @@ abstract class Config{
             $type = $info['extension'];
             $name = substr($file, 0, -(strlen($type) + 1));
         }
-        $class = 'Easy\\Core\\Config\\'.ucfirst($type);
+        $class = __NAMESPACE__.'\\Config\\'.ucfirst($type);
         
         if (class_exists($class)) {
             $configs = $class::read($name);
@@ -74,21 +76,7 @@ abstract class Config{
      */
     public static function set($name, $config)
     {
-        $name = explode('.', $name);
-        $key = array_shift($name);
-        
-        if (!($total = count($name))) {
-            self::$data[$key] = $config;
-        } else {
-            $group = &self::$data[$key];
-            foreach ($name as $k => $v) {
-                if ($k == $total - 1) {
-                    $group[$v] = $config;
-                } else {
-                    $group = &$group[$v];
-                }            
-            }
-        }
+        Arr::setAnnotation($name, $config, self::$data);
     }    
     
     /**
@@ -98,29 +86,11 @@ abstract class Config{
      *      Config::get('database.config.driver'); // $_data[database][config][driver]
      * 
      * @param string $name Ключ.
+     * @param mixed $default Значение, если по ключу не найдено.
      * @return string Найденые настройки.
-     * @throws Easy_Exception
      */
-    public static function get($name)
+    public static function get($name, $default = false)
     {
-        $name = explode('.', $name);
-        $key = array_shift($name);
-        
-        if (!($total = count($name))) {
-            return self::$data[$key];
-        } else {
-            $group = &self::$data[$key];
-            foreach ($name as $k => $v) {
-                if (isset($group[$v])) {
-                    if ($k == $total - 1) {
-                        return $group[$v];
-                    } else {
-                        $group = &$group[$v];
-                    }
-                } else {
-                    throw new ConfigException('Конфигурация "'.$v.'" не установлена.');
-                }
-            }            
-        }
+        return Arr::getAnnotation($name, self::$data, $default);
     }  
 }

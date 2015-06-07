@@ -1,7 +1,7 @@
 <?php
 namespace Easy\Core\Utils;
 
-use Easy\Core\Config;
+use Easy\Core\Utils\Arr;
 
 /**
  * Cодержит методы, которые помогают работать с куки.
@@ -13,28 +13,50 @@ use Easy\Core\Config;
  * @license    GNU Lisence
  * @copyright  2014 - 2015 Roman Kritskiy
  */
-abstract class Cookie {
+class Cookie {
     
     /**
      * Параметры для кук.
      *
      * @var array
      */
-    public static $params = null;
-    
+    protected $params = array(
+        // Время, когда срок действия cookie истекает
+        'expiration' => 0,
+
+        // Путь к директории на сервере, из которой будут доступны cookie
+        'path' => '',
+
+        // Домен, которому доступны cookie
+        'domain' => null,
+
+        //Указывает на то, что значение cookie должно передаваться от клиента по защищенному HTTPS соединению
+        'secure' => false,
+
+        // Если задано TRUE, cookie будут доступны только через HTTP протокол
+        'httponly' => false
+    );
+
+    /**
+     * Коструктор.
+     *
+     * @param array $params параметры кук
+     */
+    public function __construct($params = array())
+    {
+        $this->params = $params + $this->params;
+    }
+
     /**
      * Возвращает значение куки по ключу или дефолтное, если куки не найден.
      *
-     * @param string $key Имя куки.
+     * @param string $name Имя куки.
      * @param mixed $default Значение, которое вернется, если куки не найден.
      * @return mixed Значение по ключу или default
      */
-    public static function get($key, $default = null){
-    	if (!isset($_COOKIE[$key])) {
-            return $default;
-        }
-	
-        return $_COOKIE[$key];        
+    public function get($name, $default = null)
+    {
+        return Arr::getAnnotation($name, $_COOKIE, $default);
     }
 
     /**
@@ -48,12 +70,9 @@ abstract class Cookie {
      * @param array $params Параметры.
      * @return void
      */
-    public static function set($name, $value, $params = array()){
-        if (empty(self::$params)) {
-            self::$params = Config::read('cookie');
-        }
-        
-        foreach (self::$params as $key => $val) {
+    public function set($name, $value, $params = array())
+    {        
+        foreach ($this->params as $key => $val) {
             if (empty($params[$key])) {
                 $params[$key] = $val;
             }
@@ -61,16 +80,20 @@ abstract class Cookie {
         if ($params['expiration'] != 0) {
             $params['expiration'] += time();
         }
-                
-        if (!is_array($value)) {
-            setcookie($name, $value, $params['expiration'] , $params['path'], $params['domain'],$params['secure'], $params['httponly']);
+
+        $name = explode('.', $name);
+        $temp_name = array_shift($name);
+        $name = $temp_name.((empty($name))? '' : '['.implode('][', $name).']');
+
+        if(!is_array($value)){
+            setcookie($name , $value, $params['expiration'] , $params['path'], $params['domain'],$params['secure'], $params['httponly']);
         } else {
-            foreach ($value as $k => $v) {
-                setcookie($name.'['.$k.']', $v, $params['expiration'] , $params['path'], $params['domain'],$params['secure'], $params['httponly']);
+            foreach (Arr::asAnnotation($value, '', '][') as $n => $v) {
+                setcookie($name.substr($n, 1).']' , $v, $params['expiration'] , $params['path'], $params['domain'],$params['secure'], $params['httponly']);
             }
-        }   
+        }
     }
-        
+
     /**
      * Удаление куки по ключу.
      * 
@@ -78,22 +101,17 @@ abstract class Cookie {
      * @param array $params Параметры с которыми обьявляли куки.
      * @return void
      */
-    public static function delete($name, $params = array()){
-        if (!isset($_COOKIE[$name])) {
+    public function delete($name, $params = array())
+    {
+        if (!($delete = Arr::getAnnotation($name, $_COOKIE))) {
             return;
         }
-        
-        $value = null;
-        if (!is_array($_COOKIE[$name])) {
-            unset($_COOKIE[$name]);
-        } else {
-            foreach ($_COOKIE[$name] as $k => &$v) {
-                $value[$k] = null;
-                unset($v); 
-            }
-        }
-        
-        $params += array('expiration' => -(time() + 86400));
-        self::set($name, $value,$params);
+
+        array_walk_recursive($delete, function (&$item){
+            $item = '';
+        });
+
+        $params = array_merge($params, array('expiration' => 1));
+        $this->set($name, $delete, $params);
     }
 }

@@ -27,9 +27,9 @@ class Php implements ConfigInterface
     public static function read($name) 
     {
         $configs = array();
-        if (($settings = Easy::findFile('config', $name, self::$extension, TRUE))) {
+        if (($settings = Easy::findFile('config', $name, self::$extension, true))) {
             foreach ($settings as $config) {
-                $configs = array_merge_recursive(include_once $config, $configs);
+                $configs = array_merge_recursive(include $config, $configs);
             }
         } 
         return $configs;
