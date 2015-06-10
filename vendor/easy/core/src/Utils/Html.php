@@ -87,15 +87,13 @@ class Html{
      * @param string $name Папка хранения стиля внутри шаблона и название стиля.
      * @return string Собраная тег подключения стиля.
      */
-    public function style($name)
+    public function style($name, $link = true)
     {
-        $attr = array('href' => $this->getPath($name, 'style'), 'rel' => 'stylesheet', 'type' => 'text/css');
-        return '<link'.$this->attr($attr).' />'."\n";
-    }
-
-    public function styleContent($name)
-    {
-        return '<style'.$this->attr(array('type'=>'text/css')).'>'.file_get_contents($this->getPath($name, 'style')).'</style>'."\n";
+        if ($link) {
+            return '<link'.$this->attr(array('href' => $this->getPath($name, 'style'), 'rel' => 'stylesheet', 'type' => 'text/css')).' />'."\n";
+        } else {
+            return '<style'.$this->attr(array('type'=>'text/css')).'>'.file_get_contents($this->getPath($name, 'style')).'</style>'."\n";
+        }        
     }
 
     /**
@@ -106,10 +104,13 @@ class Html{
      * @param string $name Папка хранения крипта внутри шаблона и название скрипта.
      * @return string Собраная тег подключения скрипта.
      */
-    public function script($name)
+    public function script($name, $link = true)
     {
-        $attr = array('src' => $this->getPath($name, 'script'), 'type' => 'text/javascript');
-        return '<script'.$this->attr($attr).'></script>'."\n";
+        if ($link){
+            return '<script'.$this->attr(array('src' => $this->getPath($name, 'script'), 'type' => 'text/javascript')).'></script>'."\n";
+        } else {
+            return '<script>'.file_get_contents($this->getPath($name, 'script')).'</script>';
+        }
     }
     
     /**

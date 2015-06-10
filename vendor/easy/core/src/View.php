@@ -1,6 +1,8 @@
 <?php
 namespace Easy\Core;
 
+use Easy\Core\Utils\Arr;
+
 /**
  *  Мини-шаблонизатор: передает данные в шаблон и рендерит их.
  * 
@@ -93,7 +95,7 @@ class View {
 
         $render = $this->obInclude($view, $vars);
         if ($var) {
-            $this->vars[$var] = $render;
+            Arr::setAnnotation($var, $render, $this->vars);
             return $this;
         } else {
             return $render;
@@ -115,14 +117,9 @@ class View {
      * @return View 
      * @uses Arr::merge()
      */
-    public function set($var, $value = null)
+    public function set($var, $value)
     {
-        if (is_array($var)) {
-            Arr::merge($this->vars, $var);
-        } else {
-            $this->vars[ $var ] = $value ;
-	}
-        
+        Arr::setAnnotation($var, $value, $this->vars);    
         return $this;
     }
 
