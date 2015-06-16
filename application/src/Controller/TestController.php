@@ -1,8 +1,8 @@
 <?php
-namespace Easy\App\Controller;
+namespace Leaf\App\Controller;
 
-use Easy\Core\Utils\Layout;
-use Easy\Core\View;
+use Leaf\Core\Utils\Layout;
+use Leaf\Core\View;
 
 /**
  * Тестовый контроллер

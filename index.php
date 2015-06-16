@@ -4,14 +4,14 @@
  * 
  * @var string
  */
-define('EASY_START_TIME', microtime(true));
+define('LEAF_START_TIME', microtime(true));
 
 /**
  * Количество памяти выделенной PHP
  *
  * @var string
  */
-define('EASY_START_MEM', memory_get_usage());
+define('LEAF_START_MEM', memory_get_usage());
 
 /**
  * Разделитель директорий ( '/', '\' ).
@@ -46,14 +46,14 @@ define( 'VENDOR_PATH', $_SERVER['DOCUMENT_ROOT'].DS.'vendor'.DS) ;
  * 
  * @var string
  */
-define( 'EASY_PATH', VENDOR_PATH.'easy'.DS) ;
+define( 'LEAF_PATH', VENDOR_PATH.'leaf'.DS) ;
 
 /**
  * Полный путь к директории ядра фреймворка.
  * 
  * @var string
  */
-define( 'CORE_PATH', EASY_PATH.'core'.DS) ;
+define( 'CORE_PATH', LEAF_PATH.'core'.DS) ;
 
 /**
  * Полный путь к классам директории ядра фреймворка.
@@ -74,18 +74,18 @@ define( 'TPL_PATH', $_SERVER['DOCUMENT_ROOT'] . DS . 'templates' . DS) ;
 //
     
     require CORE_PATH.'src'.DS.'Autoloader.php';
-    Easy\Core\Autoloader::register();
+    Leaf\Core\Autoloader::register();
         
 //
 //  Инициализация ядра
 //  
     
-    Easy\Core\Easy::init();
+    Leaf\Core\Leaf::init();
 	
 //  
 //  Передаем управление избранному контроллеру 
 //
     
-    echo Easy\Core\Http\Request::make()
+    echo Leaf\Core\Http\Request::make()
         ->execute()
         ->sendHeaders();
