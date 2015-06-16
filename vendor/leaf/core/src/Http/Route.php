@@ -1,7 +1,7 @@
 <?php
 namespace Leaf\Core\Http;
 
-use Leaf\Core\Config;
+use Leaf\Core\Config\Config;
 
 /**
  *                      РОУТИНГ

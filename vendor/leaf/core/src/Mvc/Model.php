@@ -1,10 +1,14 @@
 <?php
-namespace Leaf\Core;
+namespace Leaf\Core\Mvc;
+
+use Leaf\Core\Autoloader;
+use Leaf\Core\Exception;
 
 /**
  * Фабрика для моделей.
  * 
  * @package    Core
+ * @subpackage Mvc
  * @version    2.0
  * @author     Roman Kritskiy <itoktor@gmail.com>
  * @license    GNU Lisence

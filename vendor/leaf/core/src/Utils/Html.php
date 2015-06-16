@@ -1,7 +1,7 @@
 <?php
 namespace Leaf\Core\Utils;
 
-use Leaf\Core\Config;
+use Leaf\Core\Config\Config;
 
 /**
  * Cодержит методы, которые помогают работать с HTML.

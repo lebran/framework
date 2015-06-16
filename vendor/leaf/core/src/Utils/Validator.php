@@ -1,7 +1,7 @@
 <?php
 namespace Leaf\Core\Utils;
 
-use Leaf\Core\Config;
+use Leaf\Core\Config\Config;
 use Leaf\Core\Exception;
 
 /**

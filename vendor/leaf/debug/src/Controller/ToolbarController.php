@@ -1,7 +1,7 @@
 <?php
 namespace Leaf\Debug\Controller;
 
-use Leaf\Core\Config;
+use Leaf\Core\Config\Config;
 use Leaf\Debug\Variable;
 use Leaf\Core\Utils\Html;
 use Leaf\Core\Utils\Layout;

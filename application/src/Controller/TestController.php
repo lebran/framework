@@ -2,7 +2,7 @@
 namespace Leaf\App\Controller;
 
 use Leaf\Core\Utils\Layout;
-use Leaf\Core\View;
+use Leaf\Core\Mvc\View;
 
 /**
  * Тестовый контроллер

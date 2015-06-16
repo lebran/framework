@@ -1,5 +1,5 @@
 <?php
-namespace Leaf\Core\Config;
+namespace Leaf\Core\Config\Driver;
 
 use Leaf\Core\Leaf;
 
@@ -13,7 +13,7 @@ use Leaf\Core\Leaf;
  * @license    GNU Lisence
  * @copyright  2014 - 2015 Roman Kritskiy
  */
-class Php implements ConfigInterface
+class ConfigDriverPhp implements ConfigDriverInterface
 {   
     public static $extension = 'php';
     

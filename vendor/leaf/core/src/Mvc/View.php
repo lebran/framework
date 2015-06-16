@@ -1,5 +1,5 @@
 <?php
-namespace Leaf\Core;
+namespace Leaf\Core\Mvc;
 
 use Leaf\Core\Utils\Arr;
 
@@ -27,7 +27,7 @@ use Leaf\Core\Utils\Arr;
  *      $this->layout->content = $view;
  * 
  * @package    Core
- * @subpackage Utils
+ * @subpackage Mvc
  * @version    2.0
  * @author     Roman Kritskiy <itoktor@gmail.com>
  * @license    GNU Lisence
@@ -62,11 +62,8 @@ class View {
      * @param $path Путь.
      * @return View
      */
-    public static function make($view = false, $path = false, $template = false){
-        if (!$template) {
-            $template = Config::get('system.template');
-        }
-        return new View($view, $path, $template);
+    public static function make($view , $template = 'default', $path = false){
+        return new View($view, $template, $path);
     }
 
     /**
@@ -75,13 +72,8 @@ class View {
      * @param string $view Имя вида.
      * @param string $path Путь.
      * @return void
-     * @uses Config::get()
-     * @uses Request::current()
      */
-    public function __construct($view, $path, $template) {       
-        if (!$view) {
-            $view = Request::current()->controller().DS.Request::current()->action() ;
-	}
+    public function __construct($view, $template, $path) {
         $this->layout = ($path? trim($path, DS).DS.'templates'.DS : TPL_PATH).$template.DS;
         $this->view = trim($view, DS).'.php';
     }
@@ -90,7 +82,7 @@ class View {
     {
         $view = $this->layout.trim($view, DS).'.php';
         if (!file_exists($view)) {
-            throw new Exception('Файл вида "'.$view.'" не найден.');
+            throw new ViewException('Файл вида "'.$view.'" не найден.');
         }
 
         $render = $this->obInclude($view, $vars);
@@ -131,12 +123,7 @@ class View {
     protected function obInclude($view, $vars = false)
     {
         $vars = $vars? $vars : $this->vars;
-        $prefix = Config::get('system.view_prefix');
-        if (empty($prefix)) {
             extract($vars);
-        } else {
-            extract($vars, EXTR_PREFIX_ALL, $prefix);
-        }
         ob_start();
         include $view;
         return ob_get_clean();
@@ -151,7 +138,7 @@ class View {
     public function render()
     {
         if (!file_exists($this->layout.$this->view)) {
-            throw new Exception('Файл вида "'.$this->layout.$this->view.'" не найден.');
+            throw new ViewException('Файл вида "'.$this->layout.$this->view.'" не найден.');
         }
 
         return $this->obInclude($this->layout.$this->view);

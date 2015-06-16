@@ -1,8 +1,8 @@
 <?php
 namespace Leaf\Core\Utils;
 
-use Leaf\Core\Controller;
-use Leaf\Core\View;
+use Leaf\Core\Mvc\View;
+use Leaf\Core\Mvc\Controller;
 
 /**
  * Класс помощник для создания шаблонов,
@@ -51,7 +51,7 @@ abstract class Layout extends Controller {
     public function first() {
         parent::first();
         if ($this->render === true) {
-            $this->layout = View::make($this->layout, $this->template_path, $this->template);
+            $this->layout = View::make($this->layout, $this->template, $this->template_path);
         } 
     }
     

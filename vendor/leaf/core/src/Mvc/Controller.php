@@ -1,13 +1,13 @@
 <?php
-namespace Leaf\Core;
+namespace Leaf\Core\Mvc;
 
-use Leaf\Core\Http\Request;
-use Leaf\Core\Http\Response;
+use Leaf\Core\Exception;
 
 /**
  * Базовый контролллер.
  *
  * @package    Core
+ * @subpackage Mvc
  * @version    2.0
  * @author     Roman Kritskiy <itoktor@gmail.com>
  * @license    GNU Lisence
@@ -33,26 +33,20 @@ abstract class Controller {
      *
      * @var string
      */
-    public $template = null;
+    public $template = 'default';
     
     /**
      * Метод вызывается перед всеми действиями.
      *
      * @return void
      */
-    public function first(){
-        if(empty($this->template)){
-            $this->template = Config::get('system.template');
-        }else{
-            Config::set('system.template', $this->template);
-        }
-    }
+    public function first(){}
     
     /**
      * Метод запуска контроллера.
      *
      * @return void
-     * @throws Leaf_Exception
+     * @throws Exception
      */
     public function run($action) {
         $this->first();
@@ -75,7 +69,7 @@ abstract class Controller {
      * @param Response $response Текущий ответ.
      * @return void
      */
-    public function __construct(Request $request, Response $response) {
+    public function __construct($request, $response) {
         $this->request = $request;
         $this->response = $response;
     }

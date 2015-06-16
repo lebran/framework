@@ -1,8 +1,7 @@
 <?php
-namespace Leaf\Core;
+namespace Leaf\Core\Config;
 
 use Leaf\Core\Utils\Arr;
-use Leaf\Core\Config\ConfigException;
 
 /**
  * Класс для работы с конфигурациями
@@ -52,14 +51,14 @@ abstract class Config{
             $type = $info['extension'];
             $name = substr($file, 0, -(strlen($type) + 1));
         }
-        $class = __NAMESPACE__.'\\Config\\'.ucfirst($type);
+        $class = __NAMESPACE__.'\\Driver\\ConfigDriver'.ucfirst($type);
         
         if (class_exists($class)) {
             $configs = $class::read($name);
             if ($set) {
                 self::set($name ,$configs);
             }
-            self::$load_files[$file] = TRUE;
+            self::$load_files[$file] = true;
             return $configs;
         } else {
             throw new ConfigException('"'.$type.'" - в данный момент такой тип не поддержуется.');

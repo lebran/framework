@@ -1,5 +1,5 @@
 <?php
-namespace Leaf\Core\Config;
+namespace Leaf\Core\Config\Driver;
 
 /**
  * Методы, которые должны быть в каждом драйвере конфигов.
@@ -11,7 +11,7 @@ namespace Leaf\Core\Config;
  * @license    GNU Lisence
  * @copyright  2014 - 2015 Roman Kritskiy
  */
-interface ConfigInterface 
+interface ConfigDriverInterface
 {            
     /**
      * Метод для загрузки конфигурационных файлов.
