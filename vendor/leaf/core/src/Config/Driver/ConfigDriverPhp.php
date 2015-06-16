@@ -1,7 +1,7 @@
 <?php
 namespace Leaf\Core\Config\Driver;
 
-use Leaf\Core\Leaf;
+use Leaf\Core\Utils\Finder;
 
 /**
  * Драйвер для php конфигов
@@ -27,7 +27,7 @@ class ConfigDriverPhp implements ConfigDriverInterface
     public static function read($name) 
     {
         $configs = array();
-        if (($settings = Leaf::findFile('config', $name, self::$extension, true))) {
+        if (($settings = Finder::file('config', $name, self::$extension, true))) {
             foreach ($settings as $config) {
                 $configs = array_merge_recursive(include $config, $configs);
             }

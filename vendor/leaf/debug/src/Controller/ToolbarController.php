@@ -1,11 +1,11 @@
 <?php
 namespace Leaf\Debug\Controller;
 
-use Leaf\Core\Config\Config;
+use Leaf\Core\Leaf;
 use Leaf\Debug\Variable;
+use Leaf\Core\Mvc\Layout;
 use Leaf\Core\Utils\Html;
-use Leaf\Core\Utils\Layout;
-use Leaf\Core\Http\Request;
+use Leaf\Core\Config\Config;
 
 /**
  *
@@ -47,7 +47,7 @@ class ToolbarController extends Layout
         if(!self::$configs['enabled']){
             return;
         }
-        return Request::make('toolbar/run')->execute()->body();
+        return Leaf::make('toolbar/run')->execute()->body();
     }
 
     /**

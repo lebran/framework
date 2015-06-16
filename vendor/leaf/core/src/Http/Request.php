@@ -1,9 +1,6 @@
 <?php
 namespace Leaf\Core\Http;
 
-use Leaf\Core\Utils\Arr;
-use Leaf\Core\Autoloader;
-
 /**
  * Использует класс Route, что бы определить 
  * какому контроллеру нужно передать работу.
@@ -25,62 +22,6 @@ use Leaf\Core\Autoloader;
 class Request {
     
     /**
-     * Хранилище для текущего запроса.
-     *
-     * @var Request 
-     */
-    protected static $current;
-    
-    /**
-     * Хранилище для инициализирующего запроса.
-     *
-     * @var Request 
-     */
-    protected static $initial = false;
-
-    /**
-     * Инициализирует запрос
-     *
-     * @param string $uri Адрес запроса.
-     * @return Request Обьект созданого запроса.
-     */
-    public static function make($uri = false)
-    {
-        self::$current = new self($uri);
-        if(self::$initial){
-            self::$initial = self::$current;
-        }
-        return self::$current;
-    }
-
-    /**
-     * Геттер для текущего запроса.
-     * 
-     * @return Request
-     */
-    public static function current()
-    {
-        return self::$current;
-    }
-
-    /**
-     * Геттер для инициализирующего запроса.
-     *
-     * @return Request
-     */
-    public static function initial()
-    {
-        return self::$initial;
-    }
-
-    /**
-     * Хранилище для ответа.
-     *
-     * @var Response
-     */
-    protected $response;
-
-    /**
      * Контроллер.
      *
      * @var string
@@ -99,84 +40,67 @@ class Request {
      *
      * @var array 
      */
-    protected $params = array();
+    protected $params;
 
     /**
      * Директория.
      *
      * @var string 
      */
-    protected $directory = NULL;
+    protected $directory = null;
 
     /**
-     * Адрес запроса.
      *
-     * @var string 
+     * @var type
      */
-    protected $uri = NULL;
+    protected $post;
+
+    /**
+     *
+     * @var type
+     */
+    protected $get;
+
+    /**
+     *
+     * @var type
+     */
+    protected $method;
 
     /**
      * Подготовка:
      *  - поиск правила маршрутизации
      *  - извлечение необходимых данных для передачи работы контроллеру
      *
-     * @param string $uri Адрес запроса.
      * @throws HttpException
      * @uses Route::check()
      * @uses Arr::extract()
      */
-    private function __construct($uri)
+    public function __construct($params)
     {
-        $this->uri = trim(($uri)? $uri: $_SERVER[ 'REQUEST_URI' ], DS );
-
-        $params = Route::check($this->uri);
-
-        if(empty($params['controller']) or empty($params['action'])){
-            throw new HttpException('Не задан контроллер или действие, проверьте правила маршрутизации.');
+        if(empty($params['controller']) and empty($params['action'])){
+            throw new HttpException('Ошибка 404');
         }
 
         $this->controller = 'Controller\\';
         if(!empty($params['directory'])){
             $params['directory'] = array_map('ucfirst', explode(DS, $params['directory']));
             $params['directory'] = implode('\\', $params['directory']);
-            $this->controller .= ($this->directory = Arr::extract($params, 'directory')).'\\';
+            $this->controller .= ($this->directory = $params['directory']).'\\';
         }
-        $this->controller .= ucfirst(Arr::extract($params, 'controller')).'Controller';
+        $this->controller .= ucfirst($params['controller']).'Controller';
 
-        $this->action = Arr::extract($params, 'action').'Action';  
+        $this->action = $params['action'].'Action';
         $this->params = $params;
+
+        $this->post = $_POST = array_map('trim', $_POST);
+        $this->get = $_GET = array_map('trim', $_GET);
+
+        $this->method = $_SERVER['REQUEST_METHOD'];
     }
-
-    /**
-     * Передает работу выбраному пользователем контроллеру.
-     *
-     * @return Response - ссылка на ответ.
-     * @throws Leaf_Exception
-     * @uses Response
-     * @uses ReflectionClass
-     */
-    public function execute()
-    {
-        $this->response = new Response();
-
-        foreach (array_keys(Autoloader::getNamespaces()) as $key) {
-            if (class_exists($key.$this->controller)) {
-                $this->controller = $key.$this->controller;
-                $refl = new \ReflectionClass($this->controller);
-                $controller = $refl->newInstanceArgs(array($this, $this->response));
-                break;
-            }
-        }
-
-        if (empty($controller) or !method_exists($controller, 'run') or !method_exists($controller, $this->action)) {
-            throw new HttpException('Ошибка 404');
-        } else {
-            return $controller->run($this->action);
-        }
-    }  
   
     /**
-     * Геттер для контроллер.
+     * Геттер для контроллера.
      * 
      * @return string
      */
@@ -218,24 +142,86 @@ class Request {
     {
         return $this->directory;
     }
-    
+
     /**
-     * Геттер для uri.
-     *
-     * @return string
+     * Gets a POST value by key from request
+     * @param string $key a key
+     * @param null|mixed $default value that will be settled, if no POST key-value found
+     * @return string a POST value
      */
-    public function getUri()
-    {
-        return $this->uri;
+    public function getPost($key = false, $default = false) {
+       return ($key)? (isset($this->post[$key]) ? $this->post[$key] : $default) : $this->post;
     }
     
     /**
-     * Геттер для ответа.
-     * 
-     * @return Response
+     *
+     * @param type $key
+     * @param type $default
      */
-    public static function response()
+    public function getGet($key = false, $default = false)
     {
-        return $this->response;
+        return ($key)? (isset($this->get[$key]) ? $this->get[$key] : $default) : $this->get;
+    }
+
+    /**
+     * Checks if request method is POST
+     * @return bool true, if POST, else - false
+     */
+    public function isPost() {
+        return 'POST' == $this->getMethod();
+    }
+    /**
+     * Gets a name of a method of a request from it's headers
+     * @return string METHOD name
+     */
+    public function getMethod() {
+        return $this->method;
+    }
+    /**
+     * Checks if request method is GET
+     * @return bool true, if GET, else - false
+     */
+    public function isGet() {
+        return 'GET' == $this->getMethod();
+    }
+    /**
+     * Checks if request method is an ASYNC request
+     * @return bool true, if it's a XmlHttpReques, else - false
+     */
+    public function isXMLHttpRequest() {
+        return 'XMLHttpRequest' == $this->getHeader('X_REQUESTED_WITH');
+    }
+    /**
+     * Gets a value of header from request
+     * @param string $header a name of header
+     * @return string|null a headers value, if there is no such header - null
+     * @throws \InvalidArgumentException if $header name is empty
+     */
+    public function getHeader($header) {
+        $temp = 'HTTP_' . strtoupper(str_replace('-', '_', $header));
+        if (isset($_SERVER[$temp])) {
+            return $_SERVER[$temp];
+        }
+        if (function_exists('apache_request_headers')) {
+            $headers = apache_request_headers();
+            if (isset($headers[$header])) {
+                return $headers[$header];
+            }
+            $header = strtolower($header);
+            foreach ($headers as $key => $value) {
+                if (strtolower($key) == $header) {
+                    return $value;
+                }
+            }
+        }
+        return null;
+    }
+    
+    /**
+     * Checks if user uses secure connection (HTTPS)
+     * @return bool true, if HTTPS
+     */
+    public function isHTTPS() {
+        return (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443;
     }
 }

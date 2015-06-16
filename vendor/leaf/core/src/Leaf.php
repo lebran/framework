@@ -1,7 +1,11 @@
 <?php
 namespace Leaf\Core;
 
-use Leaf\Core\Utils\Arr;
+use Leaf\Core\Http\Router;
+use Leaf\Core\Http\Request;
+use Leaf\Core\Http\Response;
+use Leaf\Core\Http\HttpException;
+use Leaf\Core\Utils\Finder;
 use Leaf\Core\Config\Config;
 
 /**
@@ -22,16 +26,8 @@ use Leaf\Core\Config\Config;
  * @license    GNU Lisence
  * @copyright  2014 - 2015 Roman Kritskiy
  */
-abstract class Leaf
+class Leaf
 { 
-     
-    /**
-     * Хранилище путей для поиска файлов.
-     *
-     * @var array
-     */
-    protected static $path = array(CORE_PATH, APP_PATH);
-
     /**
      * Хранилище запущеных модулей.
      *
@@ -98,18 +94,7 @@ abstract class Leaf
             }
             $config['base_url'] = $url;
         }
-        
-        // Проверка на наличие настройки базового шаблона
-        if (empty($config['template']) and is_dir(TPL_PATH.'default')) {
-            $config['template'] = 'default';
-        }
-        
-        // Проверка на наличие префикса для переменных шаблона
-        if (empty($config['view_prefix'])) {
-            $config['view_prefix'] = '';
-        }
-        $config['view_prefix'] = trim($config['view_prefix']);
-        
+                
         // Установка кодировки ввода и вывода
         if (empty($config['charset'])) {
             $config['charset'] = 'utf-8';
@@ -129,7 +114,7 @@ abstract class Leaf
 
         // Добавляем пути к пользовательским файлам
         if (isset($config['path']) and is_array($config['path'])) {
-            self::path($config['path']);
+            Finder::addPath($config['path']);
         }
 
         // Устанавливаем обработаные настройки
@@ -140,64 +125,7 @@ abstract class Leaf
         Autoloader::addClasses($autoload['classes']);
         Autoloader::addAliases($autoload['aliases']);
     }    
-            
-    /**
-     * Метод установки или получения(ничего не передавать) путей для поиска файлов.
-     * 
-     * @param mixed $path Новый путь.
-     * @param boolean $delete Удалять ли предыдущие пути.
-     * @return array Массив добавленых путей в системе.
-     * @uses Arr::merge()
-     */
-    public static function path($path = null, $delete = false) 
-    {
-        if (empty($path)) {
-            return self::$path;
-        } else if($delete){
-            self::$path = is_array($path)? $path: array($path);
-        } else {
-            if (is_array($path)) {
-                Arr::merge(self::$path, $path, true);
-            } else {
-                array_unshift(self::$path, $path);
-            }
-        }
-    }
-        
-    /**
-     * Ищет файл по заданым параметрам.
-     * 
-     *      Leaf::findFile('images', 'header', 'jpeg', true);
-     *      Пути подходящие под эти параметры:
-     *          - vendor/leaf/core/images/header.jpeg,
-     *          - application/images/header.jpeg,
-     *          - vendor/leaf/test/images/header.jpeg  // Если инициализизирован модуль "test"
-     * 
-     * @param string $subfolder Под-папка в которой искать.
-     * @param string $name Имя файла.
-     * @param string $extension Тип файла.
-     * @param bool $return_all Возвращать все найденые файли или первый?
-     * @return mixed Полный путь на найденый файл(ы) или false.
-     */
-    public static function findFile($subfolder, $name, $extension = 'php', $return_all = FALSE) {
-        $fname = $name.'.'.$extension;
-        $found_files = array();
-        foreach (self::path() as $folder) {
-            $file = trim($folder, DS).DS.trim($subfolder, DS).DS.$fname;
-            if (file_exists($file)) {
-                $found_files[] = $file;
-            }
-        }
-		
-        if (!empty($found_files) and !$return_all) {
-            return $found_files[0];
-        } else if (!empty($found_files)) {
-            return $found_files;
-        } else {
-            return false;
-        }
-    }
-    
+                        
     /**
      * Инициализирует переданый перечень модулей,
      * если ничего не отправлять - вернет массив запущенных.
@@ -224,11 +152,11 @@ abstract class Leaf
             return self::$modules;
 	}
         
-        self::path(CORE_PATH, TRUE);
+        Finder::addPath(CORE_PATH, TRUE);
         
 	foreach ($modules as $name => $path) {
             if (is_dir($path)) {
-                self::path($path); 
+                Finder::addPath($path);
                 self::$modules[$name] = $path;
                 Autoloader::addNamespace('Leaf\\'.ucfirst($name), $path.DS.'src');
             } else {
@@ -236,7 +164,7 @@ abstract class Leaf
             }
 	}
         
-        self::path(APP_PATH);
+        Finder::addPath(APP_PATH);
         
 	foreach (self::$modules as $path) {
             $init = trim($path,DS).DS.'init.php';
@@ -271,4 +199,119 @@ abstract class Leaf
     public static function errorHandler($errno, $errstr, $errfile, $errline){     
         throw new \ErrorException($errstr, 0, $errno, $errfile, $errline);
     }
+
+    /**
+     * Хранилище для текущего запроса.
+     *
+     * @var Request
+     */
+    protected static $current;
+
+    /**
+     * Хранилище для инициализирующего запроса.
+     *
+     * @var Request
+     */
+    protected static $initial = false;
+
+    /**
+     * Инициализирует запрос
+     *
+     * @param string $uri Адрес запроса.
+     * @return Request Обьект созданого запроса.
+     */
+    public static function make($uri = false)
+    {
+        self::init();
+        self::$current = new self($uri);
+        if(!self::$initial){
+            self::$initial = self::$current;
+        }
+        return self::$current;
+    }
+
+    /**
+     * Геттер для текущего запроса.
+     *
+     * @return Request
+     */
+    public static function current()
+    {
+        return self::$current;
+    }
+
+    /**
+     * Геттер для инициализирующего запроса.
+     *
+     * @return Request
+     */
+    public static function initial()
+    {
+        return self::$initial;
+    }
+
+    /**
+     *
+     * @var type
+     */
+    public $request;
+
+    /**
+     *
+     * @var type 
+     */
+    public $response;
+
+    /**
+     * Адрес запроса.
+     *
+     * @var string
+     */
+    public $uri;
+    
+    /**
+     *
+     * @param type $uri
+     */
+    protected function __construct($uri)
+    {
+        $this->uri = trim(($uri)? $uri: $_SERVER[ 'REQUEST_URI' ], '/');
+        $this->request = new Request(
+            Router::make(
+                Config::read('routes')
+            )
+            ->check($this->uri)
+        );
+        $this->response = new Response();
+    }
+
+    /**
+     * Передает работу выбраному пользователем контроллеру.
+     *
+     * @return Response - ссылка на ответ.
+     * @throws Exception
+     * @uses Response
+     * @uses ReflectionClass
+     */
+    public function execute()
+    {
+        foreach (array_keys(Autoloader::getNamespaces()) as $key) {
+            $controller = $this->request->getController();
+            if (class_exists($key.$controller)) {
+                $controller = $key.$controller;
+                $class = new \ReflectionClass($controller);
+                $controller = $class->newInstanceArgs(array($this->request, $this->response));
+                break;
+            }
+        }
+
+        $action = $this->request->getAction();
+        if (empty($controller) or !method_exists($controller, 'run') or !method_exists($controller, $action)) {
+            throw new HttpException('Ошибка 404');
+        } else {
+            return $controller->run($action);
+        }
+    }  
+
+
 }

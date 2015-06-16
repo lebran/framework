@@ -1,8 +1,6 @@
 <?php
 namespace Leaf\Core\Http;
 
-use Leaf\Core\Config\Config;
-
 /**
  *                      РОУТИНГ
  * Правила записываются в файл routes в папке core/config.
@@ -34,7 +32,7 @@ use Leaf\Core\Config\Config;
  * @license    GNU Lisence
  * @copyright  2014 - 2015 Roman Kritskiy
  */
-class Route {
+class Router {
     
     /**
      * Что может быть частью (сегмента).
@@ -51,19 +49,46 @@ class Route {
      *
      * @var array
      */
-    protected static $routes = false;
-    
+    protected static $routes;
+
+    /**
+     *
+     * @param array $routes
+     * @return \self
+     */
+    public static function make(array $routes = array())
+    {
+        return new self($routes);
+    }
+
+    /**
+     *
+     * @param array $routes
+     */
+    protected function __construct(array $routes)
+    {
+        foreach ($routes as $name => $value) {
+            if (is_array($value) and array_key_exists ('rout' , $value) and empty(self::$routes[$name])) {
+                $value['regex'] = empty($value['regex'])? null : $value['regex'];
+                $rout = $this->compile($value['rout'], $value['regex']);
+
+                $default = array_key_exists('default' , $value)? $value['default'] : null;
+                self::$routes[$name] = array(
+                    'rout' => $rout,
+                    'default' => $default
+                );
+            }
+        }      
+    }
+
     /**
      * Проверяет соответствует ли uri правилам маршрутизации.
      * 
      * @param string $uri Адрес запроса.
      * @return boolean|array Если соответствует - сегменты uri, нет - false.
      */    
-    public static function check($uri)
+    public function check($uri)
     {
-        if(!self::$routes){
-            self::init();
-        }
         $matches = array();
         $params = array();
 
@@ -86,37 +111,6 @@ class Route {
     }
     
     /**
-     *  Подготовка правил для использования:
-     *      - загружает файл с правилами
-     *      - отпраляет их на компиляцию 
-     *      - сохраняет в хранилище
-     *
-     * @return void
-     * @uses Config::read() 
-     */
-    protected static function init()
-    {
-        $config = Config::read('routes');
-        if (empty($config)) {
-            throw new HttpException('Правила маршрутизации не найдены. Проверьте файл config/routes.php');
-        }
-        foreach ($config as $name => $val) {
-            if (is_array($val) AND array_key_exists ('rout' , $val)) {
-                if (!isset($val['regex'])) {
-                    $val['regex'] = null;
-                }
-                $rout = self::compile($val['rout'], $val['regex']);
-                
-                $default = array_key_exists( 'default' , $val )? $val['default'] : null;
-                self::$routes[$name] = array(
-                    'rout' => $rout,
-                    'default' => $default
-                );
-            }  
-        }
-    }
-    
-    /**
      * Компилирует правило роутинга(превращает в правило регулярного выражения).
      * 
      * @param string $rout Правило.
@@ -125,11 +119,11 @@ class Route {
      * @uses Route::REGEX_ESCAPE
      * @uses Route::REGEX_SEGMENT
      */
-    public static function compile($rout, $regex)
+    public function compile($rout, $regex)
     {
         $expression = preg_replace('#'.self::REGEX_ESCAPE.'#', '\\\\$0', $rout);
 
-        if (strpos($expression, '(') !== FALSE){
+        if (strpos($expression, '(') !== false){
             $expression = str_replace(array('(', ')'), array('(?:', ')?'), $expression);
         }
             

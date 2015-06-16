@@ -1,8 +1,6 @@
 <?php
 namespace Leaf\Core\Utils;
 
-use Leaf\Core\Config\Config;
-
 /**
  * Cодержит методы, которые помогают работать с HTML.
  *
@@ -66,13 +64,13 @@ class Html{
 
     public function getPath($name ,$tag)
     {
-        $name = trim($name, DS);
+        $name = trim(trim($name, DS), '/');
         switch ($tag) {
             case 'link':
-                return Config::get('system.base_url').$name;
+                return '/'.$name;
             case 'img':
             case 'script':
-                return Config::get('system.base_url').trim(substr($this->path, mb_strlen($_SERVER['DOCUMENT_ROOT'])), DS).DS.$name;
+                return trim(substr($this->path, mb_strlen($_SERVER['DOCUMENT_ROOT'])), DS).DS.$name;
             case 'style':
             default:
                 return $this->path.$name;

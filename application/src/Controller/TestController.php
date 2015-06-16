@@ -1,8 +1,8 @@
 <?php
 namespace Leaf\App\Controller;
 
-use Leaf\Core\Utils\Layout;
 use Leaf\Core\Mvc\View;
+use Leaf\Core\Mvc\Layout;
 
 /**
  * Тестовый контроллер

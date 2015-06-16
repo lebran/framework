@@ -80,12 +80,6 @@ define( 'TPL_PATH', $_SERVER['DOCUMENT_ROOT'] . DS . 'templates' . DS) ;
 //  Инициализация ядра
 //  
     
-    Leaf\Core\Leaf::init();
-	
-//  
-//  Передаем управление избранному контроллеру 
-//
-    
-    echo Leaf\Core\Http\Request::make()
-        ->execute()
-        ->sendHeaders();
+    echo Leaf\Core\Leaf::make()
+            ->execute()
+            ->sendHeaders();

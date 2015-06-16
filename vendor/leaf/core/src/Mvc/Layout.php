@@ -1,8 +1,5 @@
 <?php
-namespace Leaf\Core\Utils;
-
-use Leaf\Core\Mvc\View;
-use Leaf\Core\Mvc\Controller;
+namespace Leaf\Core\Mvc;
 
 /**
  * Класс помощник для создания шаблонов,
@@ -65,5 +62,16 @@ abstract class Layout extends Controller {
         if ($this->render === true) {
             $this->response->body($this->layout->render());
         }   
+    }
+
+    /**
+     * Редирект
+     *
+     * @param string $uri Ури редиректа.
+     * @return void
+     */
+    public function redirect( $uri = '', $code = 302) {
+        $this->render = false;
+        parent::redirect($uri, $code);
     }
 }    

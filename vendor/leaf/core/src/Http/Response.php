@@ -1,8 +1,6 @@
 <?php
 namespace Leaf\Core\Http;
 
-use Leaf\Core\Config\Config;
-
 /**
  * Формирует http пакет.
  *
@@ -170,7 +168,7 @@ class Response{
      * @return void
      */
     public function redirect($uri, $code = 302) {
-        $this->addHeaders('Location', Config::get('system.base_url').trim($uri, DS));
+        $this->addHeaders('Location', trim($uri));
         $this->setStatusCode($code);
     }
 

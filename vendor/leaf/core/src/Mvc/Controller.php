@@ -1,8 +1,6 @@
 <?php
 namespace Leaf\Core\Mvc;
 
-use Leaf\Core\Exception;
-
 /**
  * Базовый контролллер.
  *
@@ -50,13 +48,7 @@ abstract class Controller {
      */
     public function run($action) {
         $this->first();
-        
-        if (method_exists($this, $action)) {
-            $this->{$action}();
-        } else {
-            throw new Exception('Не найден метод '. $action);
-        }
-        
+        $this->{$action}();
         $this->last();
 
         return $this->response;
