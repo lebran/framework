@@ -2,7 +2,20 @@
 namespace Leaf\Core\Http;
 
 /**
- * Формирует http пакет.
+ * Реализует обертку для Http ответа. Формирует Http пакет.
+ *
+ *       #####################
+ *      #      Http пакет     #
+ *       #####################
+ *      #        Статус       #
+ *      #---------------------#
+ *      #                     #
+ *      #       Заголовки     #
+ *      #          ...        #
+ *      #                     #
+ *      #---------------------#
+ *      #         Тело        #
+ *       #####################
  *
  * @package    Core
  * @subpackage Http
@@ -77,7 +90,7 @@ class Response{
     );
         
     /**
-     * Тело http пакета.
+     * Тело Http пакета.
      *
      * @var string 
      */
@@ -100,33 +113,39 @@ class Response{
     protected $status_сode = 200;
     
     /**
-     * Версия http.
+     * Версия Http.
      *
      * @var string
      */
     protected $version = 'HTTP/1.1';
 
     /**
-     * Устанавливает или отдает(если ничего не передавать) тело http пакета.
+     * Отправляет тело Http пакета.
      *
-     * @param string $body Тело ответа.
-     * @return string|Response Тело ответа.
+     * @return string Тело ответа.
      */
-    public function body($body = false)
+    public function getBody()
     {
-    	if ($body) {
-            $this->body .= (string)$body;
-            return $this;
-        } else {
-            return $this->body;
-        }
+        return $this->body;
     }
 
     /**
-     * Добавление заголовков.
+     * Устанавливает тело Http пакета.
      *
-     * @param string|array $header Имя заголовка или массив: header_name => header_body.
-     * @param string $value Тело заголовка
+     * @param string $body Тело ответа.
+     * @return Response 
+     */
+    public function setBody($body)
+    {
+        $this->body .= (string)$body;
+        return $this;
+    }
+
+    /**
+     * Добавляет заголовки.
+     *
+     * @param string|array $header Имя заголовка или массив: имя => тело.
+     * @param string $value Тело заголовка.
      * @return Response
      */
     public function setHeaders($header, $value = null)
@@ -141,7 +160,7 @@ class Response{
     }
 
     /**
-     * Отправка заголовков.
+     * Отправляет заголовки.
      *
      * @return Response
      */
@@ -163,7 +182,7 @@ class Response{
     /**
      * Редирект
      *
-     * @param string $uri Урл редиректа.
+     * @param string $uri Ури редиректа.
      * @param int $code Статус код.
      * @return void
      */
@@ -173,7 +192,7 @@ class Response{
     }
 
     /**
-     * Устаналивает статус код для http пакета.
+     * Устанавливает статус код для Http пакета.
      * 
      * @param int $status_code Статус код.
      * @return Response
@@ -188,9 +207,9 @@ class Response{
     }
     
     /**
-     * Устанавливает версию протокола http.
+     * Устанавливает версию протокола Http.
      * 
-     * @param string $version версия http протокола (1.1 или 1.0).
+     * @param string $version версия Http протокола (1.1 или 1.0).
      * @return Response
      * @throws HttpException
      */
@@ -203,13 +222,13 @@ class Response{
     }
 
     /**
-     * Отправляет тело пакета, если пытаются вывести обьект.
+     * Отправляет тело пакета, если пытаются вывести объект.
      *
-     * @return string Тело http пакета.
+     * @return string Тело Http пакета.
      */
     public function __toString() 
     {
-        return (string)$this->body();
+        return (string)$this->getBody();
     }
 
 }

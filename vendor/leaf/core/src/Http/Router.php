@@ -2,8 +2,7 @@
 namespace Leaf\Core\Http;
 
 /**
- *                      РОУТИНГ
- * Правила записываются в файл routes в папке core/config.
+ * Маршрутизатор. Обрабатывает переданные правила. Отправляет сегменты uri.
  *                      
  *                      ПРИМЕР
  *      'admin' => array(
@@ -36,25 +35,30 @@ class Router {
     
     /**
      * Что может быть частью (сегмента).
+     *
+     * @var string
      */
     const REGEX_SEGMENT = '[^/.,;?\n]++';
     
     /**
-     * Что должно быть экранировано. 
+     * Что должно быть экранировано.
+     * 
+     * @var string
      */
     const REGEX_ESCAPE  = '[.\\+*?[^\\]${}=!|]';
     
     /**
-     * Хранилище правил роутинга.
+     * Хранилище правил маршрутизации.
      *
      * @var array
      */
     protected static $routes;
 
     /**
+     * Отправляет объект Router.
      *
-     * @param array $routes
-     * @return \self
+     * @param array $routes Массив правил маршрутизации.
+     * @return Router
      */
     public static function make(array $routes = array())
     {
@@ -62,8 +66,10 @@ class Router {
     }
 
     /**
+     * Компилирует и сохраняет правила маршрутизации, если таких еще нет.
      *
-     * @param array $routes
+     * @param array $routes Массив правил маршрутизации.
+     * @return void
      */
     protected function __construct(array $routes)
     {
@@ -85,7 +91,7 @@ class Router {
      * Проверяет соответствует ли uri правилам маршрутизации.
      * 
      * @param string $uri Адрес запроса.
-     * @return boolean|array Если соответствует - сегменты uri, нет - false.
+     * @return boolean|array Если uri соответствует правилу - сегменты uri, нет - false.
      */    
     public function check($uri)
     {
@@ -93,7 +99,7 @@ class Router {
         $params = array();
 
         foreach (self::$routes as $rout) {
-            if(preg_match($rout['rout'], $uri, $matches)){
+            if (preg_match($rout['rout'], $uri, $matches)) {
                 $default = $rout['default'];
                 break;
             }
@@ -111,19 +117,17 @@ class Router {
     }
     
     /**
-     * Компилирует правило роутинга(превращает в правило регулярного выражения).
+     * Компилирует правило маршрутизации(превращает в регулярное выражения).
      * 
-     * @param string $rout Правило.
+     * @param string $rout Правило маршрутизации.
      * @param array $regex Регулярные выражения.
      * @return string Скомпилированное правило.
-     * @uses Route::REGEX_ESCAPE
-     * @uses Route::REGEX_SEGMENT
      */
     public function compile($rout, $regex)
     {
         $expression = preg_replace('#'.self::REGEX_ESCAPE.'#', '\\\\$0', $rout);
 
-        if (strpos($expression, '(') !== false){
+        if (strpos($expression, '(') !== false) {
             $expression = str_replace(array('(', ')'), array('(?:', ')?'), $expression);
         }
             

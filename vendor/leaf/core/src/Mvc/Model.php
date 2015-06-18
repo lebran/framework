@@ -17,11 +17,11 @@ use Leaf\Core\Exception;
 class Model{
     /**
      * 
-     * Создаем экземпляр выбраной модели 
+     * Отправляет объект выбранной модели.
      *
      *     $model = Model::make($name);
      *
-     * @param string  $name Имя модели
+     * @param string  $name Имя модели.
      * @return Model
      */
     public static function make($name){

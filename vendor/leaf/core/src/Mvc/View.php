@@ -5,26 +5,22 @@ use Leaf\Core\Utils\Arr;
 
 /**
  *  Мини-шаблонизатор: передает данные в шаблон и рендерит их.
+ *  Реализована возможность использования под видов.
+ *  Для установки данных в под ячейки, используется точечная аннотация.
  * 
  *                             ПРИМЕР
  *      
  *      // Создаем массив данных 
- *      $data = array( 'name' => 'Roman', 'age' => '27' );
+ *      $data = array( 'name' => 'Roman', 'surname' => 'Kritskiy', 'age' => '27');
  *      
- *      $view = View::make('index') // Выбираем вид
- *                  ->set($data)      // Устанавливаем 
- *                  ->set('n', 'Ann') // значения
- *                  ->render();       // Рендерим
- *                       
- *                      (Запрос внутри запроса)
- *      // Делаем запрос к контроллеру coments действию show.
- *      // Добавляем данные в соответствующую ячейку в обертке
- *      $this->layout->coments = Request::make('/coments/show')
- *                                     ->execute() 
- *                                     ->body();
- * 
- *      // Кидаем наш вид в главный шаблон под псевдонимом content
- *      $this->layout->content = $view;
+ *      //  Выбираем view под именем "member"
+ *      View::make('member')
+ *          //  Устанавливаем под вид(about) в ячейку, которая будет доступна как $member['about']
+ *          ->partial('about', $data, 'member.about')
+ *          //  Устанавливаем значение в ячейку, которая будет доступна как $member['gender']
+ *          ->set('member.gender', 'male')
+ *          //  Рендерим и отправляем
+ *          ->render();
  * 
  * @package    Core
  * @subpackage Mvc
@@ -35,14 +31,14 @@ use Leaf\Core\Utils\Arr;
  */
 class View {
     /**
-     * Название вьюхи.
+     * Название вида.
      *
      * @var string
      */
     protected $view;
 
     /**
-     * Путь к шаблону.
+     * Абсолютный путь к папке шаблона.
      *
      * @var string
      */
@@ -56,10 +52,11 @@ class View {
     protected $vars = array() ;
     
     /**
-     * Фабрика для видов 
+     * Отправляет объект View.
      * 
      * @param string $view Имя вида.
-     * @param $path Путь.
+     * @param string $template Название шаблона.
+     * @param string $path Путь к папке 'templates'.
      * @return View
      */
     public static function make($view , $template = 'default', $path = false){
@@ -67,10 +64,10 @@ class View {
     }
 
     /**
-     * Подготовка полного пути для файла вида.
+     * Генерирует абсолютный путь к файлу вида.
      * 
      * @param string $view Имя вида.
-     * @param string $path Путь.
+     * @param string $path Путь к папке 'templates'.
      * @return void
      */
     public function __construct($view, $template, $path) {
@@ -78,6 +75,16 @@ class View {
         $this->view = trim($view, DS).'.php';
     }
 
+    /**
+     * Рендерит под вид и отправляет его.
+     * Если передать 3 параметр, установит в ячейку с соответствующим именем.
+     *
+     * @param string $view Имя вида.
+     * @param array $vars Массив переменных под вида.
+     * @param string $var Ячейка, куда установить под вид.
+     * @return string|View Объект или отрендереный шаблон.
+     * @throws ViewException
+     */
     public function partial($view, array $vars = array(), $var = false)
     {
         $view = $this->layout.trim($view, DS).'.php';
@@ -91,23 +98,27 @@ class View {
             return $this;
         } else {
             return $render;
-        }
-        
+        }       
     }
 
+    /**
+     * Отправляет абсолютный путь к шаблону.
+     *
+     * @return string Путь к шаблону.
+     */
     public function getLayoutPath()
     {
         return $this->layout;
     }
 
     /**
-     * Назначение переменных вида
-     * @param mixed $var
+     * Устанавливает переменные вида.
+     *
+     * @param string|array $var
      *		1) если string, тогда имя переменной в виде,
      *		2) если array, то массив array( 'var' => 'value' )
      * @param mixed $value Значение переменной вида для случая (1).
      * @return View 
-     * @uses Arr::merge()
      */
     public function set($var, $value)
     {
@@ -116,24 +127,25 @@ class View {
     }
 
     /**
+     * Вспомогательный метод для рендеринга.
      *
-     * @param type $view
-     * @return type
+     * @param string $view Абсолютный путь к файлу вида.
+     * @param array $vars Переменные вида.
+     * @return string
      */
-    protected function obInclude($view, $vars = false)
+    protected function obInclude($view, $vars)
     {
-        $vars = $vars? $vars : $this->vars;
-            extract($vars);
+        extract($vars);
         ob_start();
         include $view;
         return ob_get_clean();
     }
 
     /**
-     * Рендеринг Вида
+     * Рендерит вид.
      * 
-     * @return string Отрендеренный шаблон.
-     * @uses Config::get()
+     * @return string Отрендереный шаблон.
+     * @throws ViewException
      */
     public function render()
     {
@@ -141,14 +153,14 @@ class View {
             throw new ViewException('Файл вида "'.$this->layout.$this->view.'" не найден.');
         }
 
-        return $this->obInclude($this->layout.$this->view);
+        return $this->obInclude($this->layout.$this->view, $this->vars);
     }
 
     /**
      * Сеттер
      * 
-     * @param string $name Имя переменной
-     * @param string $value Значение
+     * @param string $name Имя переменной.
+     * @param string $value Значение.
      * @return void
      */
     public function __set($name, $value)
@@ -159,7 +171,7 @@ class View {
     /**
      * Геттер
      * 
-     * @param string $name Имя переменной
+     * @param string $name Имя переменной.
      * @return void
      */
     public function &__get($name)

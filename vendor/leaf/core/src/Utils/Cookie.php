@@ -4,7 +4,8 @@ namespace Leaf\Core\Utils;
 use Leaf\Core\Utils\Arr;
 
 /**
- * Cодержит методы, которые помогают работать с куки.
+ * Вспомогательный класс для работы с cookie. Поддерживает установку массива.
+ * Используется точечная аннотация для доступа как к многомерному массиву.
  * 
  * @package    Core
  * @subpackage Utils
@@ -16,7 +17,7 @@ use Leaf\Core\Utils\Arr;
 class Cookie {
     
     /**
-     * Параметры для кук.
+     * Параметры для cookie.
      *
      * @var array
      */
@@ -38,9 +39,11 @@ class Cookie {
     );
 
     /**
-     * Коструктор.
+     * Устанавливает параметры cookie.
      *
-     * @param array $params параметры кук
+     *      $cookie = new Cookie(Config::read('cookie'));
+     *
+     * @param array $params Параметры cookie.
      */
     public function __construct($params = array())
     {
@@ -48,11 +51,13 @@ class Cookie {
     }
 
     /**
-     * Возвращает значение куки по ключу или дефолтное, если куки не найден.
+     * Отправляет значение cookie по ключу или default, если искомое - не найдено.
      *
-     * @param string $name Имя куки.
-     * @param mixed $default Значение, которое вернется, если куки не найден.
-     * @return mixed Значение по ключу или default
+     *      $cookie->get('user.about.name', 'noname');
+     *
+     * @param string $name Имя cookie.
+     * @param mixed $default Значение, которое вернется, если искомое - не найдено.
+     * @return mixed Значение по ключу или default.
      */
     public function get($name, $default = null)
     {
@@ -60,14 +65,13 @@ class Cookie {
     }
 
     /**
-     * Устанавливает значение или масив кук по ключу.
+     * Устанавливает значение или массив cookie по ключу.
      * 
-     *      Cookie::set('test', array('1' => '1', '2' => '2'),
-     *                  array('path' = > '/test/test', 'expiration' => 3600));
+     *      $cookie->set('global.post', $_POST, Config::read('cookie'));
      * 
-     * @param string $name Имя куки.
-     * @param mixed $value Значение или масив.
-     * @param array $params Параметры.
+     * @param string $name Имя cookie.
+     * @param string|array $value Значение cookie.
+     * @param array $params Параметры cookie.
      * @return void
      */
     public function set($name, $value, $params = array())
@@ -95,10 +99,10 @@ class Cookie {
     }
 
     /**
-     * Удаление куки по ключу.
+     * Удаляет cookie по ключу с заданными параметрами.
      * 
      * @param string $name Имя куки.
-     * @param array $params Параметры с которыми обьявляли куки.
+     * @param array $params Параметры с которыми обьявляли cookie.
      * @return void
      */
     public function delete($name, $params = array())

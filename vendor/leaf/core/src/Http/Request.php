@@ -2,16 +2,13 @@
 namespace Leaf\Core\Http;
 
 /**
- * Использует класс Route, что бы определить 
- * какому контроллеру нужно передать работу.
- * 
- *                      ПРИМЕР
- * 
- *      Request::make('admin/login')
- *              ->execute()
- *              ->send_headers()    // Методы класса
- *              ->body();           //   Response
- *  
+ * Реализует обертку для Http запроса с расширенным функционалом.
+ *
+ *      - Удобный доступ к заголовкам запроса
+ *      - Методы проверки типа запроса
+ *      - Доступ к обработанным глобальным массивам (POST, GET)
+ *      - Обработка имен контроллера, действия, директории
+ *
  * @package    Core
  * @subpackage Http
  * @version    2.0
@@ -22,60 +19,61 @@ namespace Leaf\Core\Http;
 class Request {
     
     /**
-     * Контроллер.
+     * Полное имя контроллера, включает имя директории.
      *
      * @var string
      */
     protected $controller;
 
     /**
-     * Действие.
+     * Обработанное имя действия.
      *
      * @var string 
      */
     protected $action;
 
     /**
-     * Параметры.
+     * Параметры запроса, сегменты.
      *
      * @var array 
      */
     protected $params;
 
     /**
-     * Директория.
+     * Обработанное имя директории, если она была передана.
      *
      * @var string 
      */
-    protected $directory = null;
+    protected $directory = false;
 
     /**
+     * Обработанный глобальный массив POST.
      *
-     * @var type
+     * @var array
      */
     protected $post;
 
     /**
+     * Обработанный глобальный массив GET.
      *
-     * @var type
+     * @var array
      */
     protected $get;
 
     /**
+     * Метод запроса.
      *
-     * @var type
+     * @var string
      */
     protected $method;
 
     /**
-     * Подготовка:
-     *  - поиск правила маршрутизации
-     *  - извлечение необходимых данных для передачи работы контроллеру
+     * Инициализация:
+     *      - обработка переданных данных, а так же Http запроса
      *
+     * @return void
      * @throws HttpException
-     * @uses Route::check()
-     * @uses Arr::extract()
-     */
+    */
     public function __construct($params)
     {
         if(empty($params['controller']) and empty($params['action'])){
@@ -100,9 +98,9 @@ class Request {
     }
   
     /**
-     * Геттер для контроллера.
+     * Отправляет полное имя контроллера.
      * 
-     * @return string
+     * @return string Имя контроллера.
      */
     public function getController()
     {
@@ -110,9 +108,9 @@ class Request {
     }
     
     /**
-     * Геттер для действия.
+     * Отправляет обработанное имя действия.
      *
-     * @return string
+     * @return string Имя действия.
      */
     public function getAction()
     {
@@ -120,23 +118,23 @@ class Request {
     }
     
     /**
-     * Если ничего не передавать работает как геттер(отправляет массив параметров).
+     * Если ничего не передавать, отправляет массив параметров.
      * При передаче значение отправляет параметр с таким ключем.
      * 
      *      $request->params('id'); // получим значение в ячейке 'id'
      * 
-     * @param mixed $params Имя параметра.
-     * @return mixed Выбраный или все параметры.
+     * @param string $params Имя параметра.
+     * @return array|string Выбранный или все параметры.
      */
     public function getParams($params = false)
     {       
-        return ($params)? $this->params[$params]: $this->params;
+        return ($params)? $this->params[$params] : $this->params;
     }
     
     /**
-     * Геттер для директории.
+     * Отправляет обработанное имя директории, если она была передана.
      *
-     * @return string
+     * @return string Имя директории.
      */
     public function getDirectory()
     {
@@ -144,19 +142,24 @@ class Request {
     }
 
     /**
-     * Gets a POST value by key from request
-     * @param string $key a key
-     * @param null|mixed $default value that will be settled, if no POST key-value found
-     * @return string a POST value
+     * Если ничего не передавать, отправляет массив значений POST.
+     * При передаче ключа отправляет значение с таким ключом.
+     *
+     * @param string $key Ключ по которому будет идти поиск.
+     * @param mixed $default Значение которое будет отправлено, если поиск не дал результатов.
+     * @return array|string Массив POST, значение по ключу или default.
      */
     public function getPost($key = false, $default = false) {
        return ($key)? (isset($this->post[$key]) ? $this->post[$key] : $default) : $this->post;
     }
     
     /**
+     * Если ничего не передавать, отправляет массив значений GET.
+     * При передаче ключа отправляет значение с таким ключом.
      *
-     * @param type $key
-     * @param type $default
+     * @param string $key Ключ по которому будет идти поиск.
+     * @param mixed $default Значение которое будет отправлено, если поиск не дал результатов.
+     * @return array|string Массив GET, значение по ключу или default.
      */
     public function getGet($key = false, $default = false)
     {
@@ -164,38 +167,20 @@ class Request {
     }
 
     /**
-     * Checks if request method is POST
-     * @return bool true, if POST, else - false
+     * Отправляет имя метода, полученного из заголовков запроса.
+     * 
+     * @return string Метод запроса.
      */
-    public function isPost() {
-        return 'POST' == $this->getMethod();
-    }
-    /**
-     * Gets a name of a method of a request from it's headers
-     * @return string METHOD name
-     */
-    public function getMethod() {
+    public function getMethod()
+    {
         return $this->method;
     }
+
     /**
-     * Checks if request method is GET
-     * @return bool true, if GET, else - false
-     */
-    public function isGet() {
-        return 'GET' == $this->getMethod();
-    }
-    /**
-     * Checks if request method is an ASYNC request
-     * @return bool true, if it's a XmlHttpReques, else - false
-     */
-    public function isXMLHttpRequest() {
-        return 'XMLHttpRequest' == $this->getHeader('X_REQUESTED_WITH');
-    }
-    /**
-     * Gets a value of header from request
-     * @param string $header a name of header
-     * @return string|null a headers value, if there is no such header - null
-     * @throws \InvalidArgumentException if $header name is empty
+     * Отправляет значение заголовка из запроса.
+     * 
+     * @param string $header Имя заголовка.
+     * @return string|bool Значение заголовка, если поиск не дал результатов - false.
      */
     public function getHeader($header) {
         $temp = 'HTTP_' . strtoupper(str_replace('-', '_', $header));
@@ -216,10 +201,36 @@ class Request {
         }
         return null;
     }
+
+    /**
+     * Проверяет, является ли post методом запроса.
+     * 
+     * @return bool true, если метод POST, иначе - false
+     */
+    public function isPost() {
+        return 'POST' == $this->getMethod();
+    }
     
     /**
-     * Checks if user uses secure connection (HTTPS)
-     * @return bool true, if HTTPS
+     * Проверяет, является ли get методом запроса.
+     * 
+     * @return bool true, если метод GET, иначе - false.
+     */
+    public function isGet() {
+        return 'GET' == $this->getMethod();
+    }
+    /**
+     * Проверяет, является ли запрос асинхронным.
+     * 
+     * @return bool true, если метод XmlHttpRequest, иначе - false.
+     */
+    public function isXMLHttpRequest() {
+        return 'XMLHttpRequest' == $this->getHeader('X_REQUESTED_WITH');
+    }
+    
+    /**
+     * Проверяет, использовал ли пользователь защищенное соединение. (HTTPS)
+     * @return bool true, если HTTPS, иначе - false.
      */
     public function isHTTPS() {
         return (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443;

@@ -2,7 +2,7 @@
 namespace Leaf\Core\Config\Driver;
 
 /**
- * Методы, которые должны быть в каждом драйвере конфигов.
+ * Интерфейс для драйверов конфигураций.
  *
  * @package    Core
  * @subpackage Config
@@ -14,10 +14,10 @@ namespace Leaf\Core\Config\Driver;
 interface ConfigDriverInterface
 {            
     /**
-     * Метод для загрузки конфигурационных файлов.
+     * Читает конфигурации.
      *
-     * @param type $name
+     * @param string $name Имя.
+     * @return array Массив загруженных конфигураций.
      */
-    public static function read($name);
-    
+    public static function read($name);   
 }

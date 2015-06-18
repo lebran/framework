@@ -4,7 +4,7 @@ namespace Leaf\Core\Mvc;
 use Leaf\Core\Exception;
 
 /**
- * Исключения для Config.
+ * View исключения.
  *
  * @package    Core
  * @subpackage Mvc

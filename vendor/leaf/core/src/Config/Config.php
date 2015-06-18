@@ -4,11 +4,11 @@ namespace Leaf\Core\Config;
 use Leaf\Core\Utils\Arr;
 
 /**
- * Класс для работы с конфигурациями
+ * Класс для работы с конфигурациями.
  * Добавлять конфигурационные файлы нужно в папку /config/.
- * Для загрузки используется метод "read"
+ * Для чтения используется метод "read".
  *  
- * @package    Core\Config
+ * @package    Config
  * @version    2.0
  * @author     Roman Kritskiy <itoktor@gmail.com>
  * @license    GNU Lisence
@@ -23,7 +23,7 @@ abstract class Config{
     protected static $data = array();     
     
     /**
-     * Загруженые конфиги.
+     * Загруженные конфиги.
      *
      * @var array
      */
@@ -32,9 +32,9 @@ abstract class Config{
     /**
      * Метод для загрузки конфигурационных файлов.
      * 
-     * @param string $file Имя файла с расширением(определяется какой драйвер покдключать).
+     * @param string $file Имя файла с расширением(определяется какой драйвер подключать).
      * @param bool $set Сохранять ли их в общий массив(по умолчанию - нет).
-     * @return array Массив загруженых настроек.
+     * @return array Массив загруженных конфигураций.
      * @throws ConfigException
      */
     public static function read($file, $set = false)
@@ -61,15 +61,15 @@ abstract class Config{
             self::$load_files[$file] = true;
             return $configs;
         } else {
-            throw new ConfigException('"'.$type.'" - в данный момент такой тип не поддержуется.');
+            throw new ConfigException('"'.$type.'" - в данный момент такой тип не поддерживается.');
         }
     }
     
     /**
      * Устанавливает значение конфигурации.
-     * Используйте точечную анотацию.
+     * Используйте точечную аннотацию.
      * 
-     * @param string $name Имя конфигурации или групы.
+     * @param string $name Имя конфигурации или группы.
      * @param mixed $config Значение конфигурации(й).
      * @return void
      */
@@ -81,11 +81,11 @@ abstract class Config{
     /**
      * Получает значение конфигурации по ключу.
      * 
-     *      Нужно использывать точечную анотацию для доступа к свойствам в групповых массивах.
+     *      Нужно использывать точечную аннотацию для доступа к свойствам в групповых массивах.
      *      Config::get('database.config.driver'); // $_data[database][config][driver]
      * 
-     * @param string $name Ключ.
-     * @param mixed $default Значение, если по ключу не найдено.
+     * @param string $name Ключ по которому будет идти поиск.
+     * @param mixed $default Значение которое будет отправлено, если поиск не дал результатов.
      * @return string Найденые настройки.
      */
     public static function get($name, $default = false)

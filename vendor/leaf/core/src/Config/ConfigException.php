@@ -4,7 +4,7 @@ namespace Leaf\Core\Config;
 use Leaf\Core\Exception;
 
 /**
- * Исключения для Config.
+ * Config исключения.
  *
  * @package    Core
  * @subpackage Config

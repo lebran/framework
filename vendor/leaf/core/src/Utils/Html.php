@@ -2,7 +2,7 @@
 namespace Leaf\Core\Utils;
 
 /**
- * Cодержит методы, которые помогают работать с HTML.
+ * Вспомогательный класс для работы с  HTML.
  *
  * @package    Core
  * @subpackage Utils
@@ -50,18 +50,34 @@ class Html{
 	'disabled',
     );
 
+    /**
+     * Путь к папке шаблона.
+     *
+     * @var string
+     */
     protected $path;
 
-    public static function make($path)
-    {
-        return new self($path);
-    }
-
+    /**
+     * Устанавливает путь к папке шаблона.
+     *
+     *      $html = new Html($view->getLayoutPath());
+     *
+     * @param string $path Путь к папке шаблона.
+     */
     public function __construct($path)
     {
         $this->path = trim($path, DS).DS;
     }
 
+    /**
+     * Отправляет путь в зависимости от тега.
+     *
+     *      $html->getPath('main.css', 'style');
+     *
+     * @param string $name Имя файла, ссылка.
+     * @param string $tag Тег для которого отправлять путь.
+     * @return string Путь в зависимости от тега.
+     */
     public function getPath($name ,$tag)
     {
         $name = trim(trim($name, DS), '/');
@@ -78,12 +94,13 @@ class Html{
     }
 
     /**
-     * Подключение нужного стиля.
+     * Отправляет строку подключения стиля или блок со вставленными стилями из файла.
      * 
-     *      Html::style(css/style.css) или Html::style(/styles/style.css).
+     *      $html->style('css/style.css', false);
      * 
-     * @param string $name Папка хранения стиля внутри шаблона и название стиля.
-     * @return string Собраная тег подключения стиля.
+     * @param string $name Относительный путь к файлу стиля от пути к шаблону.
+     * @param bool $link Отправлять строку или блок со вставленными стилями из файла?
+     * @return string Строка подключения или блок со вставленными стилями из файла.
      */
     public function style($name, $link = true)
     {
@@ -95,12 +112,13 @@ class Html{
     }
 
     /**
-     * Подключение нужного скрипта.
-     * 
-     *      Html::style(js/script.js) или Html::script(/scripts/script.js).
-     * 
-     * @param string $name Папка хранения крипта внутри шаблона и название скрипта.
-     * @return string Собраная тег подключения скрипта.
+     * Отправляет строку подключения скрипта или блок со вставленным скриптом из файла.
+     *
+     *      $html->script('js/validator.js');
+     *
+     * @param string $name Относительный путь к файлу скрипта от пути к шаблону.
+     * @param bool $link Отправлять строку или блок со вставленным скриптом из файла?
+     * @return string Строка подключения или блок со вставленным скриптом из файла.
      */
     public function script($name, $link = true)
     {
@@ -112,12 +130,13 @@ class Html{
     }
     
     /**
-     * Подключение изображения.
+     * Отправляет строку подключения изображения.
      * 
-     *      Html::img(img/1.img) или Html::img(/images/2.PNG).
+     *      $html->img('images/logo.png', array('alt' => 'logo'));
      * 
-     * @param string $name Папка хранения изображения внутри шаблона и название изображения.
-     * @return string Собраная тег подключения изображения.
+     * @param string $name Относительный путь к файлу изображения от пути к шаблону.
+     * @param array $attr Аттрибуты изображения.
+     * @return string Строка подключения изображения.
      */
     public function img($name, $attr = array())
     {
@@ -126,13 +145,14 @@ class Html{
     }
     
     /**
-     * Вывод на страницу текста и установка на него ссылки.
+     * Отправляет тег ссылки(<a></a>).
      * 
-     *      HTML::link('home','Домашняя страница') - будет написан текст "Домашняя страница" c ccылкой на контроллер "home".
+     *      $html->link('home','Домашняя страница', array('class' => 'mylink'));
      * 
      * @param string $link Ссылка.
-     * @param string $title Выводимый на сраницу текст.
-     * @return string Собраная тег подключения ссылки.
+     * @param string $title Название ссылки.
+     * @param array $attr Аттрибуты ссылки.
+     * @return string Собраный тег ссылки.
      */
     public function link($link, $title, $attr = array())
     {
@@ -142,7 +162,7 @@ class Html{
     
     /**
      * Составляет массив HTML атрибутов в строку, а также 
-     * сортирует с помощью Html::$attribute_order для последовательности.
+     * сортирует с помощью $attribute_order для последовательности.
      * 
      * @param array $attr Список параметров.
      * @return string Скомпилированные параметры.

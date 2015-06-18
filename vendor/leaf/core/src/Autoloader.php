@@ -23,7 +23,7 @@ class Autoloader
     );
 
     /**
-     * Ассоциативный массив. Ключи содержат пространства имён, значение — пути для классов.
+     * Ассоциативный массив. Ключи содержат абсолютные имена классов, значение — пути для классов.
      *
      * @var array
      */
@@ -53,23 +53,23 @@ class Autoloader
      * Добавляет базовую директорию к префиксу пространства имён.
      *
      * @param string $prefix Префикс пространства имён.
-     * @param string $base_dir Базовая директория для файлов классов из пространства имён.
-     * @param bool $prepend Если true, добавить базовую директорию в начало стека.
+     * @param string $dir Базовая директория для файлов классов из пространства имён.
+     * @param bool $prepend Если true, добавить базовую директорию в начало стека, иначе в конец.
      * @return void
      */
-    public static function addNamespace($prefix, $base_dir, $prepend = false)
+    public static function addNamespace($prefix, $dir, $prepend = false)
     {
         $prefix = trim($prefix, '\\') . '\\';
-        $base_dir = rtrim($base_dir, DIRECTORY_SEPARATOR) . '/';
+        $dir = rtrim($dir, DIRECTORY_SEPARATOR) . '/';
 
         if (!isset(self::$prefixes[$prefix])) {
             self::$prefixes[$prefix] = array();
         }
 
         if ($prepend) {
-            array_unshift(self::$prefixes[$prefix], $base_dir);
+            array_unshift(self::$prefixes[$prefix], $dir);
         } else {
-            array_push(self::$prefixes[$prefix], $base_dir);
+            array_push(self::$prefixes[$prefix], $dir);
         }
     }
 
@@ -79,7 +79,7 @@ class Autoloader
      * @param array $namespaces Mассив: префикс => базовая директория.
      * @return void
      */
-    public function addNamespaces(array $namespaces)
+    public static function addNamespaces(array $namespaces)
     {
         foreach ($namespaces as $prefix => $base_dir) {
             self::addNamespace($prefix, $base_dir);
@@ -89,7 +89,7 @@ class Autoloader
     /**
      * Возвращает массив: префикс => базовая директория.
      *
-     * @return type
+     * @return array Массив добавленных неймспейсов.
      */
     public static function getNamespaces()
     {
@@ -99,7 +99,7 @@ class Autoloader
     /**
      * Добавляет пути к классам. Любой добавленный класс будет сразу же загружен без поиска пути.
      *
-     * @param array $classes Mассив: namespace => путь.
+     * @param array $classes Mассив: неймспейс => путь.
      * @return void
      */
     public static function addClasses(array $classes)
@@ -108,10 +108,9 @@ class Autoloader
     }
 
     /**
-     * Установка псевдонимов. Используется для перекрытия системных классов.
+     * Установка псевдонимов классам. Используется для перекрытия системных классов.
      *
-     * @param string|array $class Оригинал или массив: оригинал => псевдоним.
-     * @param type $alias Псевдоним для класса.
+     * @param array $aliases Массив: оригинал => псевдоним.
      * @return void
      */
     public static function addAliases(array $aliases)
@@ -160,8 +159,8 @@ class Autoloader
             return false;
         }
         
-        foreach (self::$prefixes[$prefix] as $base_dir) {
-            $file = $base_dir.str_replace('\\', '/', $relative_class).'.php';
+        foreach (self::$prefixes[$prefix] as $dir) {
+            $file = $dir.str_replace('\\', '/', $relative_class).'.php';
             if (self::requireFile($file)) {
                 return true;
             }
@@ -170,7 +169,7 @@ class Autoloader
     }
 
     /**
-     * Если файл существует, загружеаем его.
+     * Если файл существует, загружаем его.
      *
      * @param string $file файл для загрузки.
      * @return bool true если файл существует, false если нет.

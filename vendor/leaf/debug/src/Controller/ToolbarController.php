@@ -47,7 +47,7 @@ class ToolbarController extends Layout
         if(!self::$configs['enabled']){
             return;
         }
-        return Leaf::make('toolbar/run')->execute()->body();
+        return Leaf::make('toolbar/run')->execute()->getBody();
     }
 
     /**

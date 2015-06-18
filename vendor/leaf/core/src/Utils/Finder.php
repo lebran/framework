@@ -2,9 +2,14 @@
 namespace Leaf\Core\Utils;
 
 /**
- * Description of Finder
+ * Вспомогательный класс, для поиска файлов в установленных папках.
  *
- * @author Roma
+ * @package    Core
+ * @subpackage Utils
+ * @version    2.0
+ * @author     Roman Kritskiy <itoktor@gmail.com>
+ * @license    GNU Lisence
+ * @copyright  2014 - 2015 Roman Kritskiy
  */
 class Finder
 {
@@ -16,19 +21,19 @@ class Finder
     protected static $path = array(CORE_PATH, APP_PATH);
 
     /**
-     * Ищет файл по заданым параметрам.
+     * Ищет файл по заданным параметрам.
      *
-     *      Leaf::findFile('images', 'header', 'jpeg', true);
+     *      Finder::file('images', 'header', 'jpeg', true);
      *      Пути подходящие под эти параметры:
      *          - vendor/leaf/core/images/header.jpeg,
      *          - application/images/header.jpeg,
-     *          - vendor/leaf/test/images/header.jpeg  // Если инициализизирован модуль "test"
+     *          - vendor/leaf/test/images/header.jpeg  // Если инициализирован модуль "test"
      *
-     * @param string $subfolder Под-папка в которой искать.
+     * @param string $subfolder Под папка в которой искать.
      * @param string $name Имя файла.
-     * @param string $extension Тип файла.
-     * @param bool $return_all Возвращать все найденые файли или первый?
-     * @return mixed Полный путь на найденый файл(ы) или false.
+     * @param string $extension Расширение файла.
+     * @param bool $return_all Отправлять все найденные файлы или первый?
+     * @return mixed Полный путь на найденый файл(ы) или false, если файл(ы) не найден.
      */
     public static function file($subfolder, $name, $extension = 'php', $return_all = false) {
         $fname = $name.'.'.$extension;
@@ -50,12 +55,11 @@ class Finder
     }
 
     /**
-     * Метод установки или получения(ничего не передавать) путей для поиска файлов.
+     * Устанавливает пути для поиска файлов.
      *
-     * @param mixed $path Новый путь.
+     * @param string|array $path Новый путь(и).
      * @param boolean $delete Удалять ли предыдущие пути.
-     * @return array Массив добавленых путей в системе.
-     * @uses Arr::merge()
+     * @return void
      */
     public static function addPath($path, $delete = false)
     {
@@ -71,8 +75,9 @@ class Finder
     }
 
     /**
+     * Отправляет добавленные пути для поиска файлов.
      *
-     * @return type
+     * @return array Добавленные пути.
      */
     public static function getPath()
     {

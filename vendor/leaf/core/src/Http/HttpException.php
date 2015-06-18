@@ -4,7 +4,7 @@ namespace Leaf\Core\Http;
 use Leaf\Core\Exception;
 
 /**
- * Исключения для Http.
+ * Http исключения.
  *
  * @package    Core
  * @subpackage Http

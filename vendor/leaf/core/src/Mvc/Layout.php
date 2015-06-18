@@ -30,7 +30,7 @@ abstract class Layout extends Controller {
     public $template_path = false;
     
     /**
-     * Авто-рендеринг.
+     * Включить или выключить авто-рендеринг.
      *
      * @var bool 
      */
@@ -41,9 +41,6 @@ abstract class Layout extends Controller {
      * При переопределении обязательно вызывать(parent::first()).
      *
      * @return void
-     * @uses Config::get()
-     * @uses Config::set()
-     * @uses View::make()
      */
     public function first() {
         parent::first();
@@ -55,12 +52,13 @@ abstract class Layout extends Controller {
     /**
      * Если включен авто-рендеринг, загрузка в ответ отрендериного базового шаблона(обвертки).
      * При переопределении обязательно вызывать(parent::first()).
+     * 
      * @return void
      */
     public function last() {
         parent::last();
         if ($this->render === true) {
-            $this->response->body($this->layout->render());
+            $this->response->setBody($this->layout->render());
         }   
     }
 
@@ -68,6 +66,7 @@ abstract class Layout extends Controller {
      * Редирект
      *
      * @param string $uri Ури редиректа.
+     * @param int $code Статус код.
      * @return void
      */
     public function redirect( $uri = '', $code = 302) {

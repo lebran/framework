@@ -2,7 +2,7 @@
 namespace Leaf\Core\Utils;
 
 /**
- * Cодержит методы, которые помогают работать с масивами.
+ * Вспомогательный класс для работы с массивами.
  *
  * @package    Core
  * @subpackage Utils
@@ -16,9 +16,9 @@ class Arr{
     /**
      * Извлекает значение из массива по ключу.
      * 
-     * @param array &$arr Массив
-     * @param string $key Ключ массива
-     * @return mixed 
+     * @param array &$arr Массив с которого будет извлекаться значение.
+     * @param string $key Ключ по которому будет извлекаться значение.
+     * @return mixed Значение по ключу.
      */
     public static function extract( &$arr, $key )
     {
@@ -28,12 +28,12 @@ class Arr{
     }
     
     /**
-     * Присоединяет массив arr2 к arr1 в конец.
+     * Присоединяет первый массив к другому.
      * 
      * @param array $arr1 Исходный массив.
      * @param array $arr2 Присоединяемый массив.
-     * @param bool $prepend Добавить в начало.
-     * @return array
+     * @param bool $prepend Добавить в начало?
+     * @return array Объединенный массив.
      */
     public static function merge( &$arr1, $arr2 , $prepend = false)
     {
@@ -42,7 +42,7 @@ class Arr{
     }
 
     /**
-     * Рекурсивно конвертирует массив в одиночный.
+     * Рекурсивно конвертирует массив в одиночный с заданным разделителем.
      *
      *      Arr::asAnnotation($test, 'test', '.');
      *
@@ -60,7 +60,7 @@ class Arr{
      *          "test.level12.level21" => "value2",
      *      )
      *
-     * @param array $arr Массив.
+     * @param array $arr Конвертируемый массив.
      * @param string $name Имя, которое добавится в начале.
      * @param string $delim Разделитель.
      * @return array
@@ -77,16 +77,17 @@ class Arr{
     }
 
     /**
-     * Доступ массиву с помощью переданой аннотации.
+     * Отправляет значение массива по ключу или default, если искомое - не найдено.
+     * Предоставляет доступ к массиву с помощью переданной аннотации.
      *
      *      Arr::getAnnotation('system.test.config', $config);
      *          (return $config['system']['test']['config'])
      *
      * @param string $name Имя с аннотацией.
      * @param array $arr Массив в котором брать значение.
-     * @param string $default Значение, если по ключу не найдено.
+     * @param string $default Значение, которое вернется, если искомое - не найдено.
      * @param string $delim Разделитель(аннотация).
-     * @return mixed
+     * @return mixed Значение по ключу или default.
      */
     public static function getAnnotation($name, $arr, $default = false, $delim = '.')
     {
@@ -106,7 +107,7 @@ class Arr{
     }
 
     /**
-     * Установка значения массива с помощью переданой аннотации.
+     * Установливает значения массива с помощью переданной аннотации.
      *
      *      Arr::setAnnotation('system.test.config', 'test', $config);
      *          ($config['system']['test']['config'] = 'test')

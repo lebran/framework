@@ -2,7 +2,7 @@
 namespace Leaf\Core\Mvc;
 
 /**
- * Базовый контролллер.
+ * Базовый контроллер.
  *
  * @package    Core
  * @subpackage Mvc
@@ -13,28 +13,28 @@ namespace Leaf\Core\Mvc;
  */
 abstract class Controller {
     /**
-     * Хранилище для запроса.
+     * Хранилище для объекта запроса.
      *
      * @var Request
      */
     public $request;
     
     /**
-     * Хранилище для ответа.
+     * Хранилище для объекта ответа.
      *
      * @var Response
      */
     public $response;
     
     /**
-     * Имя шаблона.
+     * Название шаблона.
      *
      * @var string
      */
     public $template = 'default';
     
     /**
-     * Метод вызывается перед всеми действиями.
+     * Вызывается перед всеми действиями.
      *
      * @return void
      */
@@ -43,8 +43,7 @@ abstract class Controller {
     /**
      * Метод запуска контроллера.
      *
-     * @return void
-     * @throws Exception
+     * @return Response
      */
     public function run($action) {
         $this->first();
@@ -67,7 +66,7 @@ abstract class Controller {
     }
     
     /**
-     * Метод вызывается после всех действий.
+     * Вызывается после всех действий.
      *
      * @return void
      */
@@ -75,8 +74,9 @@ abstract class Controller {
     
     /**
      * Редирект
-     * 
+     *
      * @param string $uri Ури редиректа.
+     * @param int $code Статус код.
      * @return void
      */		
     public function redirect( $uri = '', $code = 302) {
