@@ -11,6 +11,11 @@ use Leaf\Core\Mvc\Layout;
  */
 class TestController extends Layout
 {    
+    public function __construct()
+    {
+        $this->addMiddleware(new \Leaf\App\Middleware\TestMiddleware());
+    }
+
     public function helloWorldAction()
     {
         $view = View::make('views/hello_world')->set('hello_world', 'Hello World!!!')->render();

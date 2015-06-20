@@ -11,76 +11,63 @@ namespace Leaf\Core\Mvc;
  * @license    GNU Lisence
  * @copyright  2014 - 2015 Roman Kritskiy
  */
-abstract class Controller {
-    /**
-     * Хранилище для объекта запроса.
-     *
-     * @var Request
-     */
-    public $request;
-    
-    /**
-     * Хранилище для объекта ответа.
-     *
-     * @var Response
-     */
-    public $response;
-    
+abstract class Controller extends Middleware{   
     /**
      * Название шаблона.
      *
      * @var string
      */
-    public $template = 'default';
-    
+    protected $template = 'default';
+
+    /**
+     * Название шаблона.
+     *
+     * @var string
+     */
+    protected $middlewares = array();
+
+    /**
+     * Метод запуска контроллера.
+     *
+     * @return object Объект Http ответа.
+     */
+    final public function call() {
+        $this->before();
+        $this->{$this->app->request->getAction()}();
+        $this->after();
+        return $this->app->response;
+    }
+
     /**
      * Вызывается перед всеми действиями.
      *
      * @return void
      */
-    public function first(){}
-    
-    /**
-     * Метод запуска контроллера.
-     *
-     * @return Response
-     */
-    public function run($action) {
-        $this->first();
-        $this->{$action}();
-        $this->last();
-
-        return $this->response;
-    }
-    
-    /**
-     * Конструктор
-     * 
-     * @param Request $request Текущий запрос.
-     * @param Response $response Текущий ответ.
-     * @return void
-     */
-    public function __construct($request, $response) {
-        $this->request = $request;
-        $this->response = $response;
-    }
-    
+    public function before(){}
+            
     /**
      * Вызывается после всех действий.
      *
      * @return void
      */
-    public function last(){}
-    
+    public function after(){}
+
     /**
-     * Редирект
      *
-     * @param string $uri Ури редиректа.
-     * @param int $code Статус код.
-     * @return void
-     */		
-    public function redirect( $uri = '', $code = 302) {
-        $this->response->redirect($uri, $code);
+     * @param type $param
+     */
+    final public function addMiddleware($middleware, $params = array())
+    {
+        $this->middlewares[] = array('middleware' => $middleware, 'params' => $params);
+    }
+
+    /**
+     *
+     * @param type $param
+     */
+    final public function getMiddlewares()
+    {
+        return $this->middlewares;
     }
     
 }

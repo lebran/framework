@@ -7,6 +7,7 @@ use Leaf\Core\Http\Response;
 use Leaf\Core\Http\HttpException;
 use Leaf\Core\Utils\Finder;
 use Leaf\Core\Config\Config;
+use Leaf\Core\Mvc\MiddlewareExecutor;
 
 /**
  *                  ЯДРО СИСТЕМЫ
@@ -184,6 +185,7 @@ class Leaf
         echo '<center>'.$e->getMessage().'</center>';
         echo '<center> В файле: '.$e->getFile().'</center>';
         echo '<center> Строка: '.$e->getLine().'</center>';
+        echo '<center> '.$e->getTraceAsString().'</center>';
     }
     
     /**
@@ -263,6 +265,12 @@ class Leaf
     public $response;
 
     /**
+     *
+     * @var type
+     */
+    public $middlewares = array();
+
+    /**
      * Адрес запроса.
      *
      * @var string
@@ -283,6 +291,35 @@ class Leaf
             ->check($this->uri)
         );
         $this->response = new Response();
+
+        foreach (array_keys(Autoloader::getNamespaces()) as $key) {
+            $controller = $key.$this->request->getController();
+            if (class_exists($controller)) {
+                $controller_class = new $controller();
+            }
+        }
+
+        if (isset($controller_class) and method_exists($controller_class, $this->request->getAction())) {
+            $controller_class->setApplication($this);
+            $this->middlewares[] = $controller_class;
+        } else {
+            throw new HttpException('Ошибка 404');
+        }
+    }
+
+    public function addMiddleware($middleware ,$params = array())
+    {
+        if(!is_object($middleware)){
+            
+        }
+
+        if(in_array($middleware, $this->middlewares)) {
+            $middleware_class = get_class($middleware);
+            throw new \RuntimeException("Circular Middleware setup detected. Middleware instance ({$middleware_class}) twice.");
+        }
+        $middleware->setApplication($this);
+        $middleware->setNextMiddleware($this->middlewares[0]);
+        array_unshift($this->middlewares, $middleware);
     }
 
     /**
@@ -294,23 +331,12 @@ class Leaf
      * @uses ReflectionClass
      */
     public function execute()
-    {
-        foreach (array_keys(Autoloader::getNamespaces()) as $key) {
-            $controller = $this->request->getController();
-            if (class_exists($key.$controller)) {
-                $controller = $key.$controller;
-                $class = new \ReflectionClass($controller);
-                $controller = $class->newInstanceArgs(array($this->request, $this->response));
-                break;
-            }
+    {  
+        foreach (end($this->middlewares)->getMiddlewares() as $middleware) {
+            $this->addMiddleware($middleware['middleware'], $middleware['params']);
         }
 
-        $action = $this->request->getAction();
-        if (empty($controller) or !method_exists($controller, 'run') or !method_exists($controller, $action)) {
-            throw new HttpException('Ошибка 404');
-        } else {
-            return $controller->run($action);
-        }
+        return $this->middlewares[0]->call();
     }  
 
 

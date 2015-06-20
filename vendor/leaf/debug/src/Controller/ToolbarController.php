@@ -53,10 +53,10 @@ class ToolbarController extends Layout
     /**
      *
      */
-    public function first() {
+    public function before() {
         $this->template = self::$configs['template'];
         $this->template_path = LEAF_PATH.'debug';
-        parent::first();
+        parent::before();
     }
 
     /*

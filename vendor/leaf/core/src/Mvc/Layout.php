@@ -42,8 +42,8 @@ abstract class Layout extends Controller {
      *
      * @return void
      */
-    public function first() {
-        parent::first();
+    public function before() {
+        parent::before();
         if ($this->render === true) {
             $this->layout = View::make($this->layout, $this->template, $this->template_path);
         } 
@@ -55,10 +55,10 @@ abstract class Layout extends Controller {
      * 
      * @return void
      */
-    public function last() {
-        parent::last();
+    public function after() {
+        parent::after();
         if ($this->render === true) {
-            $this->response->setBody($this->layout->render());
+            $this->app->response->setBody($this->layout->render());
         }   
     }
 
