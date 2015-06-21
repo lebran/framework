@@ -11,33 +11,36 @@ namespace Leaf\Core\Utils;
  * @license    GNU Lisence
  * @copyright  2014 - 2015 Roman Kritskiy
  */
-class Arr{
+class Arr
+{
 
     /**
      * Извлекает значение из массива по ключу.
-     * 
-     * @param array &$arr Массив с которого будет извлекаться значение.
-     * @param string $key Ключ по которому будет извлекаться значение.
+     *
+     * @param array  &$arr Массив с которого будет извлекаться значение.
+     * @param string $key  Ключ по которому будет извлекаться значение.
+     *
      * @return mixed Значение по ключу.
      */
-    public static function extract( &$arr, $key )
+    public static function extract(&$arr, $key)
     {
         $val = $arr[$key];
         unset($arr[$key]);
         return $val;
     }
-    
+
     /**
      * Присоединяет первый массив к другому.
-     * 
-     * @param array $arr1 Исходный массив.
-     * @param array $arr2 Присоединяемый массив.
-     * @param bool $prepend Добавить в начало?
+     *
+     * @param array $arr1    Исходный массив.
+     * @param array $arr2    Присоединяемый массив.
+     * @param bool  $prepend Добавить в начало?
+     *
      * @return array Объединенный массив.
      */
-    public static function merge( &$arr1, $arr2 , $prepend = false)
+    public static function merge(&$arr1, $arr2, $prepend = false)
     {
-        $arr1 = ($prepend)? array_merge($arr2, $arr1): array_merge($arr1, $arr2);
+        $arr1 = ($prepend)?array_merge($arr2, $arr1):array_merge($arr1, $arr2);
         return $arr1;
     }
 
@@ -60,17 +63,18 @@ class Arr{
      *          "test.level12.level21" => "value2",
      *      )
      *
-     * @param array $arr Конвертируемый массив.
-     * @param string $name Имя, которое добавится в начале.
+     * @param array  $arr   Конвертируемый массив.
+     * @param string $name  Имя, которое добавится в начале.
      * @param string $delim Разделитель.
+     *
      * @return array
      */
     public static function asAnnotation(array $arr, $name = false, $delim = '.')
     {
         $array = array();
         foreach ($arr as $key => $value) {
-            $arr_name = ($name)? $name.$delim.$key : $key;
-            is_array($value)? $array += self::asAnnotation($value, $arr_name, $delim) : $array[$arr_name] = $value;
+            $arr_name = ($name)?$name.$delim.$key:$key;
+            is_array($value)?$array += self::asAnnotation($value, $arr_name, $delim):$array[$arr_name] = $value;
         }
 
         return $array;
@@ -83,16 +87,17 @@ class Arr{
      *      Arr::getAnnotation('system.test.config', $config);
      *          (return $config['system']['test']['config'])
      *
-     * @param string $name Имя с аннотацией.
-     * @param array $arr Массив в котором брать значение.
+     * @param string $name    Имя с аннотацией.
+     * @param array  $arr     Массив в котором брать значение.
      * @param string $default Значение, которое вернется, если искомое - не найдено.
-     * @param string $delim Разделитель(аннотация).
+     * @param string $delim   Разделитель(аннотация).
+     *
      * @return mixed Значение по ключу или default.
      */
     public static function getAnnotation($name, $arr, $default = false, $delim = '.')
     {
         $segments = explode($delim, $name);
-        $group = &$arr;
+        $group    = &$arr;
         foreach ($segments as $segment => $value) {
             if (isset($group[$value])) {
                 if ($segment == count($segments) - 1) {
@@ -112,16 +117,17 @@ class Arr{
      *      Arr::setAnnotation('system.test.config', 'test', $config);
      *          ($config['system']['test']['config'] = 'test')
      *
-     * @param string $name Имя с аннотацией.
-     * @param mixed $val Значение.
-     * @param type $arr Массив в котором устаналивать значение.
+     * @param string $name  Имя с аннотацией.
+     * @param mixed  $val   Значение.
+     * @param type   $arr   Массив в котором устаналивать значение.
      * @param string $delim Разделитель(аннотация).
+     *
      * @return void
      */
     public static function setAnnotation($name, $val, &$arr, $delim = '.')
     {
         $segments = explode($delim, $name);
-        $group = &$arr;
+        $group    = &$arr;
         foreach ($segments as $segment => $value) {
             if ($segment == count($segments) - 1) {
                 $group[$value] = $val;

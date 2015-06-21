@@ -79,11 +79,13 @@ abstract class Middleware
     /**
      * Редирект
      *
-     * @param string $uri Ури редиректа.
-     * @param int $code Статус код.
+     * @param string $uri  Ури редиректа.
+     * @param int    $code Статус код.
+     *
      * @return void
      */
-    public function redirect( $uri = '', $code = 302) {
+    public function redirect($uri = '', $code = 302)
+    {
         $this->app->response->redirect($uri, $code);
     }
 

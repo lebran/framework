@@ -12,12 +12,13 @@ namespace Leaf\Core\Config\Driver;
  * @copyright  2014 - 2015 Roman Kritskiy
  */
 interface ConfigDriverInterface
-{            
+{
     /**
      * Читает конфигурации.
      *
      * @param string $name Имя.
+     *
      * @return array Массив загруженных конфигураций.
      */
-    public static function read($name);   
+    public static function read($name);
 }

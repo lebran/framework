@@ -16,8 +16,9 @@ namespace Leaf\Core\Http;
  * @license    GNU Lisence
  * @copyright  2014 - 2015 Roman Kritskiy
  */
-class Request {
-    
+class Request
+{
+
     /**
      * Полное имя контроллера, включает имя директории.
      *
@@ -28,21 +29,21 @@ class Request {
     /**
      * Обработанное имя действия.
      *
-     * @var string 
+     * @var string
      */
     protected $action;
 
     /**
      * Параметры запроса, сегменты.
      *
-     * @var array 
+     * @var array
      */
     protected $params;
 
     /**
      * Обработанное имя директории, если она была передана.
      *
-     * @var string 
+     * @var string
      */
     protected $directory = false;
 
@@ -73,15 +74,15 @@ class Request {
      *
      * @return void
      * @throws HttpException
-    */
+     */
     public function __construct($params)
     {
-        if(empty($params['controller']) and empty($params['action'])){
+        if (empty($params['controller']) and empty($params['action'])) {
             throw new HttpException('Ошибка 404');
         }
 
         $this->controller = 'Controller\\';
-        if(!empty($params['directory'])){
+        if (!empty($params['directory'])) {
             $params['directory'] = array_map('ucfirst', explode(DS, $params['directory']));
             $params['directory'] = implode('\\', $params['directory']);
             $this->controller .= ($this->directory = $params['directory']).'\\';
@@ -92,21 +93,21 @@ class Request {
         $this->params = $params;
 
         $this->post = $_POST = array_map('trim', $_POST);
-        $this->get = $_GET = array_map('trim', $_GET);
+        $this->get  = $_GET = array_map('trim', $_GET);
 
         $this->method = $_SERVER['REQUEST_METHOD'];
     }
-  
+
     /**
      * Отправляет полное имя контроллера.
-     * 
+     *
      * @return string Имя контроллера.
      */
     public function getController()
     {
         return $this->controller;
     }
-    
+
     /**
      * Отправляет обработанное имя действия.
      *
@@ -116,21 +117,22 @@ class Request {
     {
         return $this->action;
     }
-    
+
     /**
      * Если ничего не передавать, отправляет массив параметров.
      * При передаче значение отправляет параметр с таким ключем.
-     * 
+     *
      *      $request->params('id'); // получим значение в ячейке 'id'
-     * 
+     *
      * @param string $params Имя параметра.
+     *
      * @return array|string Выбранный или все параметры.
      */
     public function getParams($params = false)
-    {       
-        return ($params)? $this->params[$params] : $this->params;
+    {
+        return ($params)?$this->params[$params]:$this->params;
     }
-    
+
     /**
      * Отправляет обработанное имя директории, если она была передана.
      *
@@ -145,30 +147,33 @@ class Request {
      * Если ничего не передавать, отправляет массив значений POST.
      * При передаче ключа отправляет значение с таким ключом.
      *
-     * @param string $key Ключ по которому будет идти поиск.
-     * @param mixed $default Значение которое будет отправлено, если поиск не дал результатов.
+     * @param string $key     Ключ по которому будет идти поиск.
+     * @param mixed  $default Значение которое будет отправлено, если поиск не дал результатов.
+     *
      * @return array|string Массив POST, значение по ключу или default.
      */
-    public function getPost($key = false, $default = false) {
-       return ($key)? (isset($this->post[$key]) ? $this->post[$key] : $default) : $this->post;
+    public function getPost($key = false, $default = false)
+    {
+        return ($key)?(isset($this->post[$key])?$this->post[$key]:$default):$this->post;
     }
-    
+
     /**
      * Если ничего не передавать, отправляет массив значений GET.
      * При передаче ключа отправляет значение с таким ключом.
      *
-     * @param string $key Ключ по которому будет идти поиск.
-     * @param mixed $default Значение которое будет отправлено, если поиск не дал результатов.
+     * @param string $key     Ключ по которому будет идти поиск.
+     * @param mixed  $default Значение которое будет отправлено, если поиск не дал результатов.
+     *
      * @return array|string Массив GET, значение по ключу или default.
      */
     public function getGet($key = false, $default = false)
     {
-        return ($key)? (isset($this->get[$key]) ? $this->get[$key] : $default) : $this->get;
+        return ($key)?(isset($this->get[$key])?$this->get[$key]:$default):$this->get;
     }
 
     /**
      * Отправляет имя метода, полученного из заголовков запроса.
-     * 
+     *
      * @return string Метод запроса.
      */
     public function getMethod()
@@ -178,12 +183,14 @@ class Request {
 
     /**
      * Отправляет значение заголовка из запроса.
-     * 
+     *
      * @param string $header Имя заголовка.
+     *
      * @return string|bool Значение заголовка, если поиск не дал результатов - false.
      */
-    public function getHeader($header) {
-        $temp = 'HTTP_' . strtoupper(str_replace('-', '_', $header));
+    public function getHeader($header)
+    {
+        $temp = 'HTTP_'.strtoupper(str_replace('-', '_', $header));
         if (isset($_SERVER[$temp])) {
             return $_SERVER[$temp];
         }
@@ -204,35 +211,41 @@ class Request {
 
     /**
      * Проверяет, является ли post методом запроса.
-     * 
+     *
      * @return bool true, если метод POST, иначе - false
      */
-    public function isPost() {
+    public function isPost()
+    {
         return 'POST' == $this->getMethod();
     }
-    
+
     /**
      * Проверяет, является ли get методом запроса.
-     * 
+     *
      * @return bool true, если метод GET, иначе - false.
      */
-    public function isGet() {
+    public function isGet()
+    {
         return 'GET' == $this->getMethod();
     }
+
     /**
      * Проверяет, является ли запрос асинхронным.
-     * 
+     *
      * @return bool true, если метод XmlHttpRequest, иначе - false.
      */
-    public function isXMLHttpRequest() {
+    public function isXMLHttpRequest()
+    {
         return 'XMLHttpRequest' == $this->getHeader('X_REQUESTED_WITH');
     }
-    
+
     /**
      * Проверяет, использовал ли пользователь защищенное соединение. (HTTPS)
+     *
      * @return bool true, если HTTPS, иначе - false.
      */
-    public function isHTTPS() {
+    public function isHTTPS()
+    {
         return (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443;
     }
 }

@@ -1,8 +1,6 @@
 <?php
 namespace Leaf\Core\Http;
 
-use Leaf\Core\Exception;
-
 /**
  * Http исключения.
  *
@@ -13,4 +11,6 @@ use Leaf\Core\Exception;
  * @license    GNU Lisence
  * @copyright  2014 - 2015 Roman Kritskiy
  */
-class HttpException extends Exception {}
+class HttpException extends \Exception
+{
+}

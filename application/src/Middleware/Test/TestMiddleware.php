@@ -1,5 +1,5 @@
 <?php
-namespace Leaf\App\Middleware;
+namespace Leaf\App\Middleware\Test;
 
 use Leaf\Core\Mvc\Middleware;
 

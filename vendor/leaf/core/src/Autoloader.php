@@ -19,7 +19,7 @@ class Autoloader
      * @var array
      */
     protected static $prefixes = array(
-            'Leaf\\Core\\' => array(CORE_SRC_PATH)
+        'Leaf\\Core\\' => array(CORE_SRC_PATH)
     );
 
     /**
@@ -52,15 +52,16 @@ class Autoloader
     /**
      * Добавляет базовую директорию к префиксу пространства имён.
      *
-     * @param string $prefix Префикс пространства имён.
-     * @param string $dir Базовая директория для файлов классов из пространства имён.
-     * @param bool $prepend Если true, добавить базовую директорию в начало стека, иначе в конец.
+     * @param string $prefix  Префикс пространства имён.
+     * @param string $dir     Базовая директория для файлов классов из пространства имён.
+     * @param bool   $prepend Если true, добавить базовую директорию в начало стека, иначе в конец.
+     *
      * @return void
      */
     public static function addNamespace($prefix, $dir, $prepend = false)
     {
-        $prefix = trim($prefix, '\\') . '\\';
-        $dir = rtrim($dir, DIRECTORY_SEPARATOR) . '/';
+        $prefix = trim($prefix, '\\').'\\';
+        $dir    = rtrim($dir, DIRECTORY_SEPARATOR).'/';
 
         if (!isset(self::$prefixes[$prefix])) {
             self::$prefixes[$prefix] = array();
@@ -77,6 +78,7 @@ class Autoloader
      * Добавляет базовые директории к префиксам пространств имён.
      *
      * @param array $namespaces Mассив: префикс => базовая директория.
+     *
      * @return void
      */
     public static function addNamespaces(array $namespaces)
@@ -85,7 +87,7 @@ class Autoloader
             self::addNamespace($prefix, $base_dir);
         }
     }
-    
+
     /**
      * Возвращает массив: префикс => базовая директория.
      *
@@ -100,6 +102,7 @@ class Autoloader
      * Добавляет пути к классам. Любой добавленный класс будет сразу же загружен без поиска пути.
      *
      * @param array $classes Mассив: неймспейс => путь.
+     *
      * @return void
      */
     public static function addClasses(array $classes)
@@ -111,6 +114,7 @@ class Autoloader
      * Установка псевдонимов классам. Используется для перекрытия системных классов.
      *
      * @param array $aliases Массив: оригинал => псевдоним.
+     *
      * @return void
      */
     public static function addAliases(array $aliases)
@@ -124,6 +128,7 @@ class Autoloader
      * Загружает файл для заданного имени класса.
      *
      * @param string $class Абсолютное имя класса.
+     *
      * @return bool Статус загрузки файла.
      */
     public static function loadClass($class)
@@ -134,9 +139,9 @@ class Autoloader
 
         $prefix = $class;
         while (($pos = strrpos($prefix, '\\'))) {
-            $prefix = substr($class, 0, $pos + 1);
+            $prefix         = substr($class, 0, $pos + 1);
             $relative_class = substr($class, $pos + 1);
-                    
+
             if ((self::loadMappedFile($prefix, $relative_class))) {
                 return true;
             }
@@ -149,8 +154,9 @@ class Autoloader
     /**
      * Загружает соответствующий префиксу пространства имён и относительному имени класса файл.
      *
-     * @param string $prefix Префикс пространства имён.
+     * @param string $prefix         Префикс пространства имён.
      * @param string $relative_class Относительное имя класса.
+     *
      * @return bool Статус загрузки файла.
      */
     protected static function loadMappedFile($prefix, $relative_class)
@@ -158,7 +164,7 @@ class Autoloader
         if (!isset(self::$prefixes[$prefix])) {
             return false;
         }
-        
+
         foreach (self::$prefixes[$prefix] as $dir) {
             $file = $dir.str_replace('\\', '/', $relative_class).'.php';
             if (self::requireFile($file)) {
@@ -172,6 +178,7 @@ class Autoloader
      * Если файл существует, загружаем его.
      *
      * @param string $file файл для загрузки.
+     *
      * @return bool true если файл существует, false если нет.
      */
     protected static function requireFile($file)

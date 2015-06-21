@@ -199,6 +199,7 @@
     font-weight: bold;
     padding: 7px 15px;
     margin: 0 0 10px 0px;
+    list-style:none;
 }
 
 #debug-toolbar-container .spoiler > input{

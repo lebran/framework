@@ -1,8 +1,17 @@
 <?php
-namespace Leaf\Debug;
 
-use Leaf\Debug\Controller\ToolbarController;
+register_shutdown_function(
+    function () {
+        echo \Leaf\Debug\Controller\ToolbarController::render();
+    }
+);
 
-register_shutdown_function(function(){
-    echo ToolbarController::render();
-});
+function vard($var)
+{
+    echo \Leaf\Debug\Variable::dump($var);
+}
+
+function tmsg($msg)
+{
+    \Leaf\Debug\Controller\ToolbarController::msg($msg);
+}

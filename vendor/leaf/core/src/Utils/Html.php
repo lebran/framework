@@ -12,42 +12,43 @@ namespace Leaf\Core\Utils;
  * @copyright  2014 - 2015 Roman Kritskiy
  */
 
-class Html{
-    
+class Html
+{
+
     /**
      * Массив с параметрами в правильной последовательности для сортировки.
      *
-     * @var array 
+     * @var array
      */
     public $attribute_order = array(
         'action',
-	'method',
-	'type',
-	'id',
-	'name',
-	'value',
-	'href',
-	'src',
-	'width',
-	'height',
-	'cols',
-	'rows',
-	'size',
-	'maxlength',
-	'rel',
-	'media',
-	'accept-charset',
-	'accept',
-	'tabindex',
-	'accesskey',
-	'alt',
-	'title',
-	'class',
-	'style',
-	'selected',
-	'checked',
-	'readonly',
-	'disabled',
+        'method',
+        'type',
+        'id',
+        'name',
+        'value',
+        'href',
+        'src',
+        'width',
+        'height',
+        'cols',
+        'rows',
+        'size',
+        'maxlength',
+        'rel',
+        'media',
+        'accept-charset',
+        'accept',
+        'tabindex',
+        'accesskey',
+        'alt',
+        'title',
+        'class',
+        'style',
+        'selected',
+        'checked',
+        'readonly',
+        'disabled',
     );
 
     /**
@@ -75,10 +76,11 @@ class Html{
      *      $html->getPath('main.css', 'style');
      *
      * @param string $name Имя файла, ссылка.
-     * @param string $tag Тег для которого отправлять путь.
+     * @param string $tag  Тег для которого отправлять путь.
+     *
      * @return string Путь в зависимости от тега.
      */
-    public function getPath($name ,$tag)
+    public function getPath($name, $tag)
     {
         $name = trim(trim($name, DS), '/');
         switch ($tag) {
@@ -86,8 +88,10 @@ class Html{
                 return '/'.$name;
             case 'img':
             case 'script':
-                return trim(substr($this->path, mb_strlen($_SERVER['DOCUMENT_ROOT'])), DS).DS.$name;
             case 'style':
+                return DS.trim(substr($this->path, mb_strlen($_SERVER['DOCUMENT_ROOT'])), DS).DS.$name;
+            case 'styleIn':
+            case 'scriptIn':
             default:
                 return $this->path.$name;
         }
@@ -95,20 +99,25 @@ class Html{
 
     /**
      * Отправляет строку подключения стиля или блок со вставленными стилями из файла.
-     * 
+     *
      *      $html->style('css/style.css', false);
-     * 
+     *
      * @param string $name Относительный путь к файлу стиля от пути к шаблону.
-     * @param bool $link Отправлять строку или блок со вставленными стилями из файла?
+     * @param bool   $link Отправлять строку или блок со вставленными стилями из файла?
+     *
      * @return string Строка подключения или блок со вставленными стилями из файла.
      */
     public function style($name, $link = true)
     {
         if ($link) {
-            return '<link'.$this->attr(array('href' => $this->getPath($name, 'style'), 'rel' => 'stylesheet', 'type' => 'text/css')).' />'."\n";
+            return '<link'.$this->attr(
+                array('href' => $this->getPath($name, 'style'), 'rel' => 'stylesheet', 'type' => 'text/css')
+            ).' />'."\n";
         } else {
-            return '<style'.$this->attr(array('type'=>'text/css')).'>'.file_get_contents($this->getPath($name, 'style')).'</style>'."\n";
-        }        
+            return '<style'.$this->attr(array('type' => 'text/css')).'>'.file_get_contents(
+                $this->getPath($name, 'styleIn')
+            ).'</style>'."\n";
+        }
     }
 
     /**
@@ -117,25 +126,29 @@ class Html{
      *      $html->script('js/validator.js');
      *
      * @param string $name Относительный путь к файлу скрипта от пути к шаблону.
-     * @param bool $link Отправлять строку или блок со вставленным скриптом из файла?
+     * @param bool   $link Отправлять строку или блок со вставленным скриптом из файла?
+     *
      * @return string Строка подключения или блок со вставленным скриптом из файла.
      */
     public function script($name, $link = true)
     {
-        if ($link){
-            return '<script'.$this->attr(array('src' => $this->getPath($name, 'script'), 'type' => 'text/javascript')).'></script>'."\n";
+        if ($link) {
+            return '<script'.$this->attr(
+                array('src' => $this->getPath($name, 'script'), 'type' => 'text/javascript')
+            ).'></script>'."\n";
         } else {
-            return '<script>'.file_get_contents($this->getPath($name, 'script')).'</script>';
+            return '<script>'.file_get_contents($this->getPath($name, 'scriptIn')).'</script>';
         }
     }
-    
+
     /**
      * Отправляет строку подключения изображения.
-     * 
+     *
      *      $html->img('images/logo.png', array('alt' => 'logo'));
-     * 
+     *
      * @param string $name Относительный путь к файлу изображения от пути к шаблону.
-     * @param array $attr Аттрибуты изображения.
+     * @param array  $attr Аттрибуты изображения.
+     *
      * @return string Строка подключения изображения.
      */
     public function img($name, $attr = array())
@@ -143,15 +156,16 @@ class Html{
         $attr += array('src' => $this->getPath($name, 'img'));
         return '<img '.$this->attr($attr).'/>';
     }
-    
+
     /**
      * Отправляет тег ссылки(<a></a>).
-     * 
+     *
      *      $html->link('home','Домашняя страница', array('class' => 'mylink'));
-     * 
+     *
      * @param string $link Ссылка.
      * @param string $title Название ссылки.
-     * @param array $attr Аттрибуты ссылки.
+     * @param array  $attr Аттрибуты ссылки.
+     *
      * @return string Собраный тег ссылки.
      */
     public function link($link, $title, $attr = array())
@@ -159,43 +173,44 @@ class Html{
         $attr += array('href' => $this->getPath($link, 'link'));
         return '<a'.$this->attr($attr).'>'.$title.'</a>';
     }
-    
+
     /**
-     * Составляет массив HTML атрибутов в строку, а также 
+     * Составляет массив HTML атрибутов в строку, а также
      * сортирует с помощью $attribute_order для последовательности.
-     * 
+     *
      * @param array $attr Список параметров.
+     *
      * @return string Скомпилированные параметры.
      */
     public function attr(array $attr = null)
     {
- 	if (empty($attr)) {
+        if (empty($attr)) {
             return '';
         }
-        
-	$sorted = array();
-	foreach ($this->attribute_order as $key) {
+
+        $sorted = array();
+        foreach ($this->attribute_order as $key) {
             if (isset($attr[$key])) {
-		$sorted[$key] = $attr[$key];
+                $sorted[$key] = $attr[$key];
             }
-	}
+        }
 
-	$attr = $sorted + $attr;
+        $attr = $sorted + $attr;
 
-	$compiled = '';
-	foreach ($attr as $key => $value) {
+        $compiled = '';
+        foreach ($attr as $key => $value) {
             if ($value === null) {
-		continue;
+                continue;
             }
 
             if (is_int($key)) {
-		$key = $value;
+                $key = $value;
             }
             $compiled .= ' '.$key;
             if ($value) {
                 $compiled .= '="'.$value.'"';
             }
-	}
-        return $compiled;       
+        }
+        return $compiled;
     }
 }

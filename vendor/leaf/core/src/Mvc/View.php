@@ -7,12 +7,12 @@ use Leaf\Core\Utils\Arr;
  *  Мини-шаблонизатор: передает данные в шаблон и рендерит их.
  *  Реализована возможность использования под видов.
  *  Для установки данных в под ячейки, используется точечная аннотация.
- * 
+ *
  *                             ПРИМЕР
- *      
- *      // Создаем массив данных 
+ *
+ *      // Создаем массив данных
  *      $data = array( 'name' => 'Roman', 'surname' => 'Kritskiy', 'age' => '27');
- *      
+ *
  *      //  Выбираем view под именем "member"
  *      View::make('member')
  *          //  Устанавливаем под вид(about) в ячейку, которая будет доступна как $member['about']
@@ -21,7 +21,7 @@ use Leaf\Core\Utils\Arr;
  *          ->set('member.gender', 'male')
  *          //  Рендерим и отправляем
  *          ->render();
- * 
+ *
  * @package    Core
  * @subpackage Mvc
  * @version    2.0
@@ -29,7 +29,8 @@ use Leaf\Core\Utils\Arr;
  * @license    GNU Lisence
  * @copyright  2014 - 2015 Roman Kritskiy
  */
-class View {
+class View
+{
     /**
      * Название вида.
      *
@@ -43,36 +44,40 @@ class View {
      * @var string
      */
     protected $layout;
-    	
+
     /**
      * Хранилище для переменных вида.
      *
      * @var array
      */
-    protected $vars = array() ;
-    
+    protected $vars = array();
+
     /**
      * Отправляет объект View.
-     * 
-     * @param string $view Имя вида.
+     *
+     * @param string $view     Имя вида.
      * @param string $template Название шаблона.
-     * @param string $path Путь к папке 'templates'.
+     * @param string $path     Путь к папке 'templates'.
+     *
      * @return View
      */
-    public static function make($view , $template = 'default', $path = false){
+    public static function make($view, $template = 'default', $path = false)
+    {
         return new View($view, $template, $path);
     }
 
     /**
      * Генерирует абсолютный путь к файлу вида.
-     * 
+     *
      * @param string $view Имя вида.
      * @param string $path Путь к папке 'templates'.
+     *
      * @return void
      */
-    public function __construct($view, $template, $path) {
-        $this->layout = ($path? trim($path, DS).DS.'templates'.DS : TPL_PATH).$template.DS;
-        $this->view = trim($view, DS).'.php';
+    public function __construct($view, $template, $path)
+    {
+        $this->layout = ($path?trim($path, DS).DS.'templates'.DS:TPL_PATH).$template.DS;
+        $this->view   = trim($view, DS).'.php';
     }
 
     /**
@@ -80,8 +85,9 @@ class View {
      * Если передать 3 параметр, установит в ячейку с соответствующим именем.
      *
      * @param string $view Имя вида.
-     * @param array $vars Массив переменных под вида.
-     * @param string $var Ячейка, куда установить под вид.
+     * @param array  $vars Массив переменных под вида.
+     * @param string $var  Ячейка, куда установить под вид.
+     *
      * @return string|View Объект или отрендереный шаблон.
      * @throws ViewException
      */
@@ -98,7 +104,7 @@ class View {
             return $this;
         } else {
             return $render;
-        }       
+        }
     }
 
     /**
@@ -115,14 +121,15 @@ class View {
      * Устанавливает переменные вида.
      *
      * @param string|array $var
-     *		1) если string, тогда имя переменной в виде,
-     *		2) если array, то массив array( 'var' => 'value' )
-     * @param mixed $value Значение переменной вида для случая (1).
-     * @return View 
+     *                            1) если string, тогда имя переменной в виде,
+     *                            2) если array, то массив array( 'var' => 'value' )
+     * @param mixed        $value Значение переменной вида для случая (1).
+     *
+     * @return View
      */
     public function set($var, $value)
     {
-        Arr::setAnnotation($var, $value, $this->vars);    
+        Arr::setAnnotation($var, $value, $this->vars);
         return $this;
     }
 
@@ -130,7 +137,8 @@ class View {
      * Вспомогательный метод для рендеринга.
      *
      * @param string $view Абсолютный путь к файлу вида.
-     * @param array $vars Переменные вида.
+     * @param array  $vars Переменные вида.
+     *
      * @return string
      */
     protected function obInclude($view, $vars)
@@ -143,7 +151,7 @@ class View {
 
     /**
      * Рендерит вид.
-     * 
+     *
      * @return string Отрендереный шаблон.
      * @throws ViewException
      */
@@ -158,36 +166,38 @@ class View {
 
     /**
      * Сеттер
-     * 
-     * @param string $name Имя переменной.
+     *
+     * @param string $name  Имя переменной.
      * @param string $value Значение.
+     *
      * @return void
      */
     public function __set($name, $value)
     {
-        $this->vars[$name] = $value;   
+        $this->vars[$name] = $value;
     }
-    
+
     /**
      * Геттер
-     * 
+     *
      * @param string $name Имя переменной.
+     *
      * @return void
      */
     public function &__get($name)
     {
         return $this->vars[$name];
     }
-    
+
     /**
      * Удаление несуществующих переменных.
-     * 
+     *
      * @param string $name Имя удаляемой ячейки.
+     *
      * @return void
      */
     public function __unset($name)
     {
         unset($this->vars[$name]);
     }
-    
 }

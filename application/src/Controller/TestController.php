@@ -13,12 +13,13 @@ class TestController extends Layout
 {    
     public function __construct()
     {
-        $this->addMiddleware(new \Leaf\App\Middleware\TestMiddleware());
+        $this->addMiddleware('test.test', array('only' => array('helloWorld')));
     }
 
     public function helloWorldAction()
     {
         $view = View::make('views/hello_world')->set('hello_world', 'Hello World!!!')->render();
+        tmsg(View::make('views/hello_world'));
         $this->layout->index = $view;
     }
 }

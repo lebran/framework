@@ -18,7 +18,7 @@ class Finder
      *
      * @var array
      */
-    protected static $path = array(CORE_PATH, APP_PATH);
+    protected static $path = array();
 
     /**
      * Ищет файл по заданным параметрам.
@@ -29,14 +29,16 @@ class Finder
      *          - application/images/header.jpeg,
      *          - vendor/leaf/test/images/header.jpeg  // Если инициализирован модуль "test"
      *
-     * @param string $subfolder Под папка в которой искать.
-     * @param string $name Имя файла.
-     * @param string $extension Расширение файла.
-     * @param bool $return_all Отправлять все найденные файлы или первый?
+     * @param string $subfolder  Под папка в которой искать.
+     * @param string $name       Имя файла.
+     * @param string $extension  Расширение файла.
+     * @param bool   $return_all Отправлять все найденные файлы или первый?
+     *
      * @return mixed Полный путь на найденый файл(ы) или false, если файл(ы) не найден.
      */
-    public static function file($subfolder, $name, $extension = 'php', $return_all = false) {
-        $fname = $name.'.'.$extension;
+    public static function file($subfolder, $name, $extension = 'php', $return_all = false)
+    {
+        $fname       = $name.'.'.$extension;
         $found_files = array();
         foreach (self::getPath() as $folder) {
             $file = trim($folder, DS).DS.trim($subfolder, DS).DS.$fname;
@@ -57,14 +59,15 @@ class Finder
     /**
      * Устанавливает пути для поиска файлов.
      *
-     * @param string|array $path Новый путь(и).
-     * @param boolean $delete Удалять ли предыдущие пути.
+     * @param string|array $path   Новый путь(и).
+     * @param boolean      $delete Удалять ли предыдущие пути.
+     *
      * @return void
      */
     public static function addPath($path, $delete = false)
     {
-        if($delete){
-            self::$path = is_array($path)? $path: array($path);
+        if ($delete) {
+            self::$path = is_array($path)?$path:array($path);
         } else {
             if (is_array($path)) {
                 Arr::merge(self::$path, $path, true);

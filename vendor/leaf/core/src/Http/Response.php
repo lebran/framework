@@ -24,7 +24,8 @@ namespace Leaf\Core\Http;
  * @license    GNU Lisence
  * @copyright  2014 - 2015 Roman Kritskiy
  */
-class Response{
+class Response
+{
 
     /**
      * Описание статус кодов.
@@ -35,7 +36,6 @@ class Response{
         // Информационные 1xx
         100 => 'Continue',
         101 => 'Switching Protocols',
-
         // Успешные 2xx
         200 => 'OK',
         201 => 'Created',
@@ -44,7 +44,6 @@ class Response{
         204 => 'No Content',
         205 => 'Reset Content',
         206 => 'Partial Content',
-
         // Перенаправление 3xx
         300 => 'Multiple Choices',
         301 => 'Moved Permanently',
@@ -53,7 +52,6 @@ class Response{
         304 => 'Not Modified',
         305 => 'Use Proxy',
         307 => 'Temporary Redirect',
-
         // Ошибка клиента 4xx
         400 => 'Bad Request',
         401 => 'Unauthorized',
@@ -75,7 +73,6 @@ class Response{
         417 => 'Expectation Failed',
         423 => 'Locked',
         429 => 'Too Many Requests',
-
         // Ошибка сервера 5xx
         500 => 'Internal Server Error',
         501 => 'Not Implemented',
@@ -88,21 +85,21 @@ class Response{
         508 => 'Loop Detected',
         509 => 'Bandwidth Limit Exceeded'
     );
-        
+
     /**
      * Тело Http пакета.
      *
-     * @var string 
+     * @var string
      */
     protected $body = '';
 
     /**
      * Хранилище для заголовков.
      *
-     * @var array 
+     * @var array
      */
     protected $headers = array(
-	'Content-Type' => 'text/html; charset=utf-8'
+        'Content-Type' => 'text/html; charset=utf-8'
     );
 
     /**
@@ -111,7 +108,7 @@ class Response{
      * @var int
      */
     protected $status_сode = 200;
-    
+
     /**
      * Версия Http.
      *
@@ -133,7 +130,8 @@ class Response{
      * Устанавливает тело Http пакета.
      *
      * @param string $body Тело ответа.
-     * @return Response 
+     *
+     * @return Response
      */
     public function setBody($body)
     {
@@ -145,7 +143,8 @@ class Response{
      * Добавляет заголовки.
      *
      * @param string|array $header Имя заголовка или массив: имя => тело.
-     * @param string $value Тело заголовка.
+     * @param string       $value  Тело заголовка.
+     *
      * @return Response
      */
     public function setHeaders($header, $value = null)
@@ -169,12 +168,12 @@ class Response{
         if (headers_sent()) {
             throw new HttpException('Заголовки уже были отправлены.');
         }
-        
+
         $status_line = $this->version.' '.$this->status_сode.' '.self::$messages[$this->status_сode];
         header($status_line, true, $this->status_сode);
 
         foreach ($this->headers as $name => $value) {
-            header($name . ':' . $value);
+            header($name.':'.$value);
         }
         return $this;
     }
@@ -182,38 +181,44 @@ class Response{
     /**
      * Редирект
      *
-     * @param string $uri Ури редиректа.
-     * @param int $code Статус код.
+     * @param string $uri  Ури редиректа.
+     * @param int    $code Статус код.
+     *
      * @return void
      */
-    public function redirect($uri, $code = 302) {
+    public function redirect($uri, $code = 302)
+    {
         $this->addHeaders('Location', trim($uri));
         $this->setStatusCode($code);
     }
 
     /**
      * Устанавливает статус код для Http пакета.
-     * 
+     *
      * @param int $status_code Статус код.
+     *
      * @return Response
      * @throws HttpException
      */
-    public function setStatusCode($status_code) {
+    public function setStatusCode($status_code)
+    {
         if ($status_code >= 600 || $status_code < 100) {
             throw new HttpException('Неизвестный статус код (поддерживаются 100 ~ 599)!');
         }
         $this->status_сode = $status_code;
         return $this;
     }
-    
+
     /**
      * Устанавливает версию протокола Http.
-     * 
+     *
      * @param string $version версия Http протокола (1.1 или 1.0).
+     *
      * @return Response
      * @throws HttpException
      */
-    public function setHttpVersion($version) {
+    public function setHttpVersion($version)
+    {
         if ($version != '1.0' || $version != '1.1') {
             throw new HttpException('Поддерживаются только 1.0 и 1.1!');
         }
@@ -226,9 +231,8 @@ class Response{
      *
      * @return string Тело Http пакета.
      */
-    public function __toString() 
+    public function __toString()
     {
         return (string)$this->getBody();
     }
-
 }

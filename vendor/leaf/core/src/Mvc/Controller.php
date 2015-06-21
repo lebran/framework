@@ -11,7 +11,8 @@ namespace Leaf\Core\Mvc;
  * @license    GNU Lisence
  * @copyright  2014 - 2015 Roman Kritskiy
  */
-abstract class Controller extends Middleware{   
+abstract class Controller extends Middleware
+{
     /**
      * Название шаблона.
      *
@@ -31,7 +32,8 @@ abstract class Controller extends Middleware{
      *
      * @return object Объект Http ответа.
      */
-    final public function call() {
+    final public function call()
+    {
         $this->before();
         $this->{$this->app->request->getAction()}();
         $this->after();
@@ -43,14 +45,18 @@ abstract class Controller extends Middleware{
      *
      * @return void
      */
-    public function before(){}
-            
+    public function before()
+    {
+    }
+
     /**
      * Вызывается после всех действий.
      *
      * @return void
      */
-    public function after(){}
+    public function after()
+    {
+    }
 
     /**
      *
@@ -69,5 +75,4 @@ abstract class Controller extends Middleware{
     {
         return $this->middlewares;
     }
-    
 }

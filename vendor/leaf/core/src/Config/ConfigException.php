@@ -1,8 +1,6 @@
 <?php
 namespace Leaf\Core\Config;
 
-use Leaf\Core\Exception;
-
 /**
  * Config исключения.
  *
@@ -13,4 +11,6 @@ use Leaf\Core\Exception;
  * @license    GNU Lisence
  * @copyright  2014 - 2015 Roman Kritskiy
  */
-class ConfigException extends Exception {}
+class ConfigException extends \Exception
+{
+}

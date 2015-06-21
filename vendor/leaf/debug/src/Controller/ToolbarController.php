@@ -34,7 +34,8 @@ class ToolbarController extends Layout
      *
      * @param type $msg
      */
-    public static function msg($msg) {
+    public static function msg($msg)
+    {
         self::$msgs[] = $msg;
     }
 
@@ -42,9 +43,10 @@ class ToolbarController extends Layout
      *
      * @return type
      */
-    public static function render(){
+    public static function render()
+    {
         self::$configs = Config::read('toolbar');
-        if(!self::$configs['enabled']){
+        if (!self::$configs['enabled']) {
             return;
         }
         return Leaf::make('toolbar/run')->execute()->getBody();
@@ -53,8 +55,9 @@ class ToolbarController extends Layout
     /**
      *
      */
-    public function before() {
-        $this->template = self::$configs['template'];
+    public function before()
+    {
+        $this->template      = self::$configs['template'];
         $this->template_path = LEAF_PATH.'debug';
         parent::before();
     }
@@ -62,21 +65,22 @@ class ToolbarController extends Layout
     /*
      *
      */
-    public function runAction() {
+    public function runAction()
+    {
         $this->layout->set('html', new Html($this->layout->getLayoutPath()));
 
         foreach (self::$configs['tabs'] as $name => $tab) {
             $configs = array('link' => $name);
-            if(isset($tab['configs'])){
+            if (isset($tab['configs'])) {
                 $configs += $tab['configs'];
             }
 
-            $tab_keys['name'] = $tab['name'];
-            $tab_keys['logo'] = $tab['logo'];
+            $tab_keys['name']     = $tab['name'];
+            $tab_keys['logo']     = $tab['logo'];
             $tab_keys['position'] = $tab['position'];
 
-            $this->layout->set('tab_keys.'.$name ,$tab_keys);
-            
+            $this->layout->set('tab_keys.'.$name, $tab_keys);
+
             $this->{$tab['method']}($configs);
         }
 
@@ -87,26 +91,30 @@ class ToolbarController extends Layout
         $files .= $this->layout->html->script('js'.DS.'tabulous.js');
         $this->layout->set('files', $files);
 
-        $this->layout->set('memory', round(LEAF_START_MEM/1048576,2).' MB');
-        $this->layout->set('time', round((microtime(true) - LEAF_START_TIME), 4). ' s');
+        $this->layout->set('memory', round(LEAF_START_MEM / 1048576, 2).' MB');
+        $this->layout->set('time', round((microtime(true) - LEAF_START_TIME), 4).' s');
     }
 
     /**
      *
      * @param array $configs
      */
-    public function messages(array $configs){
+    public function messages(array $configs)
+    {
         $msgs = array();
         foreach (self::$msgs as $msg) {
-            if(is_array($msg) or is_object($msg)){
-                $msgs[] = array('header' => strstr(Variable::dump($msg), '{', true), 'body' => strstr(Variable::dump($msg), '{'));
-            }else{
+            if (is_array($msg) or is_object($msg)) {
+                $msgs[] = array(
+                    'header' => strstr(Variable::dump($msg), '{', true),
+                    'body'   => strstr(Variable::dump($msg), '{')
+                );
+            } else {
                 $msgs[]['header'] = Variable::dump($msg);
             }
         }
-        
+
         if (isset($configs['count']) and $configs['count'] == true and count($msgs)) {
-            $this->layout->set('tab_keys.'.$configs['link'].'.info' ,count($msgs));
+            $this->layout->set('tab_keys.'.$configs['link'].'.info', count($msgs));
         }
 
         $this->layout->partial('views'.DS.'messages', array('messages' => $msgs), 'tabs.'.$configs['link']);
@@ -116,18 +124,21 @@ class ToolbarController extends Layout
      *
      * @param array $configs
      */
-    public function files(array $configs){
+    public function files(array $configs)
+    {
         $files = (array)get_included_files();
         $files = array_map(
-            function($file){
+            function ($file) {
                 return substr($file, mb_strlen($_SERVER['DOCUMENT_ROOT']) + 1);
             }
-        , $files);
+            ,
+            $files
+        );
 
         if (isset($configs['count']) and $configs['count'] == true) {
             $this->layout->set('tab_keys.'.$configs['link'].'.info', count($files));
         }
-        
+
         $this->layout->partial('views'.DS.'files', array('files' => $files), 'tabs.'.$configs['link']);
     }
 
@@ -135,7 +146,8 @@ class ToolbarController extends Layout
      *
      * @param array $configs
      */
-    public function globals(array $configs){
+    public function globals(array $configs)
+    {
         $globals = array();
         foreach ($configs['globals'] as $global) {
             $global = '_'.strtoupper($global);
@@ -143,7 +155,7 @@ class ToolbarController extends Layout
                 $globals[substr($global, 1)] = strstr(Variable::dump($GLOBALS[$global]), '{');
             }
         }
-        
+
         $this->layout->partial('views'.DS.'globals', array('globals' => $globals), 'tabs.'.$configs['link']);
     }
 }

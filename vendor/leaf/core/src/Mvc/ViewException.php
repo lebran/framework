@@ -1,8 +1,6 @@
 <?php
 namespace Leaf\Core\Mvc;
 
-use Leaf\Core\Exception;
-
 /**
  * View исключения.
  *
@@ -13,4 +11,6 @@ use Leaf\Core\Exception;
  * @license    GNU Lisence
  * @copyright  2014 - 2015 Roman Kritskiy
  */
-class ViewException extends Exception {}
+class ViewException extends \Exception
+{
+}
