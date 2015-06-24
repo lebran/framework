@@ -1,5 +1,5 @@
 <?php
-namespace Leaf\Core\Http;
+namespace Leaf\Mvc\Router;
 
 /**
  * Маршрутизатор. Обрабатывает переданные правила. Отправляет сегменты uri.
@@ -31,7 +31,7 @@ namespace Leaf\Core\Http;
  * @license    GNU Lisence
  * @copyright  2014 - 2015 Roman Kritskiy
  */
-class Router
+class Route
 {
 
     /**
@@ -53,19 +53,42 @@ class Router
      *
      * @var array
      */
-    protected static $routes;
+    public $name;
 
     /**
-     * Отправляет объект Router.
+     * Хранилище правил маршрутизации.
      *
-     * @param array $routes Массив правил маршрутизации.
-     *
-     * @return Router
+     * @var array
      */
-    public static function make(array $routes = array())
-    {
-        return new self($routes);
-    }
+    public $pattern;
+
+    /**
+     * Хранилище правил маршрутизации.
+     *
+     * @var array
+     */
+    protected $defaults = array();
+
+    /**
+     * Хранилище правил маршрутизации.
+     *
+     * @var array
+     */
+    protected $regex = false;
+
+    /**
+     * Хранилище правил маршрутизации.
+     *
+     * @var array
+     */
+    protected $middlewares = false;
+
+    /**
+     * Хранилище правил маршрутизации.
+     *
+     * @var array
+     */
+    protected $callbacks = array();
 
     /**
      * Компилирует и сохраняет правила маршрутизации, если таких еще нет.
@@ -74,9 +97,11 @@ class Router
      *
      * @return void
      */
-    protected function __construct(array $routes)
+    public function __construct($name ,$pattern)
     {
-        foreach ($routes as $name => $value) {
+        $this->name = $name;
+        $this->pattern = $pattern;
+        /*foreach ($routes as $name => $value) {
             if (is_array($value) and array_key_exists('rout', $value) and empty(self::$routes[$name])) {
                 $value['regex'] = empty($value['regex'])?null:$value['regex'];
                 $rout           = $this->compile($value['rout'], $value['regex']);
@@ -87,38 +112,33 @@ class Router
                     'default' => $default
                 );
             }
-        }
+        }*/
     }
 
-    /**
-     * Проверяет соответствует ли uri правилам маршрутизации.
-     *
-     * @param string $uri Адрес запроса.
-     *
-     * @return boolean|array Если uri соответствует правилу - сегменты uri, нет - false.
-     */
-    public function check($uri)
+    public function defaults(array $defaults)
     {
-        $matches = array();
-        $params  = array();
-
-        foreach (self::$routes as $rout) {
-            if (preg_match($rout['rout'], $uri, $matches)) {
-                $default = $rout['default'];
-                break;
-            }
-        }
-
-        foreach ($matches as $key => $value) {
-            if (is_int($key)) {
-                continue;
-            }
-            $params[$key] = $value;
-        }
-        $params += $default;
-
-        return empty($params)?false:$params;
+        $this->defaults = $defaults;
+        return $this;
     }
+
+    public function regex(array $regex)
+    {
+        $this->regex = $regex;
+        return $this;
+    }
+
+    public function middlewares(array $middlewares)
+    {
+        $this->middlewares = $middlewares;
+        return $this;
+    }
+
+    public function callback($part, \Closure $callback)
+    {
+        $this->callbacks[$part] = $callback;
+        return $this;
+    }
+
 
     /**
      * Компилирует правило маршрутизации(превращает в регулярное выражения).
@@ -128,9 +148,9 @@ class Router
      *
      * @return string Скомпилированное правило.
      */
-    public function compile($rout, $regex)
+    public function compile()
     {
-        $expression = preg_replace('#'.self::REGEX_ESCAPE.'#', '\\\\$0', $rout);
+        $expression = preg_replace('#'.self::REGEX_ESCAPE.'#', '\\\\$0', $this->pattern);
 
         if (strpos($expression, '(') !== false) {
             $expression = str_replace(array('(', ')'), array('(?:', ')?'), $expression);
@@ -138,9 +158,9 @@ class Router
 
         $expression = str_replace(array('<', '>'), array('(?P<', '>'.self::REGEX_SEGMENT.')'), $expression);
 
-        if (is_array($regex)) {
+        if (is_array($this->regex)) {
             $search = $replace = array();
-            foreach ($regex as $key => $value) {
+            foreach ($this->regex as $key => $value) {
                 $search[]  = "<$key>".self::REGEX_SEGMENT;
                 $replace[] = "<$key>$value";
             }
@@ -149,5 +169,25 @@ class Router
         }
 
         return '#^'.$expression.'$#uD';
+    }
+
+    public function getDefaults()
+    {
+        return $this->defaults;
+    }
+
+    public function getRegex()
+    {
+        return $this->regex;
+    }
+
+    public function getMiddlewares()
+    {
+        return $this->middlewares;
+    }
+
+    public function getCallbacks()
+    {
+        return $this->callbacks;
     }
 }

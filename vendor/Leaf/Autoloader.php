@@ -1,11 +1,10 @@
 <?php
-namespace Leaf\Core;
+namespace Leaf;
 
 /**
  * PSR - 4 Автолоадер
  *
- * @package    Core
- * @version    2.0
+ * @version    2.1
  * @author     Roman Kritskiy <itoktor@gmail.com>
  * @license    GNU Lisence
  * @copyright  2014 - 2015 Roman Kritskiy
@@ -18,25 +17,23 @@ class Autoloader
      *
      * @var array
      */
-    protected static $prefixes = array(
-        'Leaf\\Core\\' => array(CORE_SRC_PATH)
-    );
+    protected $prefixes = array();
 
     /**
      * Ассоциативный массив. Ключи содержат абсолютные имена классов, значение — пути для классов.
      *
      * @var array
      */
-    protected static $classes = array();
+    protected $classes = array();
 
     /**
      * Регистрирует загрузчик в стеке загрузчиков SPL.
      *
      * @return void
      */
-    public static function register()
+    public function register()
     {
-        spl_autoload_register(array(__NAMESPACE__.'\\Autoloader', 'loadClass'));
+        spl_autoload_register(array($this, 'loadClass'));
     }
 
     /**
@@ -44,9 +41,9 @@ class Autoloader
      *
      * @return void
      */
-    public static function unregister()
+    public function unregister()
     {
-        spl_autoload_unregister(array(__NAMESPACE__.'\\Autoloader', 'loadClass'));
+        spl_autoload_unregister(array($this, 'loadClass'));
     }
 
     /**
@@ -58,19 +55,19 @@ class Autoloader
      *
      * @return void
      */
-    public static function addNamespace($prefix, $dir, $prepend = false)
+    public function addNamespace($prefix, $dir, $prepend = false)
     {
         $prefix = trim($prefix, '\\').'\\';
-        $dir    = rtrim($dir, DIRECTORY_SEPARATOR).'/';
+        $dir = rtrim($dir, DIRECTORY_SEPARATOR).'/';
 
-        if (!isset(self::$prefixes[$prefix])) {
-            self::$prefixes[$prefix] = array();
+        if (!isset($this->prefixes[$prefix])) {
+            $this->prefixes[$prefix] = array();
         }
 
         if ($prepend) {
-            array_unshift(self::$prefixes[$prefix], $dir);
+            array_unshift($this->prefixes[$prefix], $dir);
         } else {
-            array_push(self::$prefixes[$prefix], $dir);
+            array_push($this->prefixes[$prefix], $dir);
         }
     }
 
@@ -81,10 +78,10 @@ class Autoloader
      *
      * @return void
      */
-    public static function addNamespaces(array $namespaces)
+    public function addNamespaces(array $namespaces)
     {
-        foreach ($namespaces as $prefix => $base_dir) {
-            self::addNamespace($prefix, $base_dir);
+        foreach ($namespaces as $prefix => $dir) {
+            $this->addNamespace($prefix, $dir);
         }
     }
 
@@ -93,9 +90,9 @@ class Autoloader
      *
      * @return array Массив добавленных неймспейсов.
      */
-    public static function getNamespaces()
+    public function getNamespaces()
     {
-        return self::$prefixes;
+        return $this->prefixes;
     }
 
     /**
@@ -105,9 +102,9 @@ class Autoloader
      *
      * @return void
      */
-    public static function addClasses(array $classes)
+    public function addClasses(array $classes)
     {
-        self::$classes += $classes;
+        $this->classes += $classes;
     }
 
     /**
@@ -117,10 +114,10 @@ class Autoloader
      *
      * @return void
      */
-    public static function addAliases(array $aliases)
+    public function addAliases(array $aliases)
     {
         foreach ($aliases as $class => $alias) {
-            class_alias($alias, $class);
+            class_alias($class, $alias);
         }
     }
 
@@ -131,18 +128,18 @@ class Autoloader
      *
      * @return bool Статус загрузки файла.
      */
-    public static function loadClass($class)
+    public function loadClass($class)
     {
-        if (!empty(self::$classes[$class]) and self::requireFile(self::$classes[$class])) {
+        if (!empty($this->classes[$class]) and $this->requireFile($this->classes[$class])) {
             return true;
         }
 
         $prefix = $class;
         while (($pos = strrpos($prefix, '\\'))) {
-            $prefix         = substr($class, 0, $pos + 1);
+            $prefix = substr($class, 0, $pos + 1);
             $relative_class = substr($class, $pos + 1);
 
-            if ((self::loadMappedFile($prefix, $relative_class))) {
+            if ($this->loadMappedFile($prefix, $relative_class)) {
                 return true;
             }
 
@@ -159,15 +156,15 @@ class Autoloader
      *
      * @return bool Статус загрузки файла.
      */
-    protected static function loadMappedFile($prefix, $relative_class)
+    protected function loadMappedFile($prefix, $relative_class)
     {
-        if (!isset(self::$prefixes[$prefix])) {
+        if (!isset($this->prefixes[$prefix])) {
             return false;
         }
 
-        foreach (self::$prefixes[$prefix] as $dir) {
+        foreach ($this->prefixes[$prefix] as $dir) {
             $file = $dir.str_replace('\\', '/', $relative_class).'.php';
-            if (self::requireFile($file)) {
+            if ($this->requireFile($file)) {
                 return true;
             }
         }
@@ -181,7 +178,7 @@ class Autoloader
      *
      * @return bool true если файл существует, false если нет.
      */
-    protected static function requireFile($file)
+    protected function requireFile($file)
     {
         if (file_exists($file)) {
             require_once $file;

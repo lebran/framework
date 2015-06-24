@@ -28,13 +28,6 @@ define( 'DS', '/' ) ;
 define( 'APP_PATH', $_SERVER['DOCUMENT_ROOT'].DS.'application'.DS) ;
 
 /**
- * Полный путь к классам директории приложения.
- * 
- * @var string
- */
-define( 'APP_SRC_PATH', APP_PATH.'src'.DS) ;
-
-/**
  * Полный путь к директории vendor.
  * 
  * @var string
@@ -46,21 +39,7 @@ define( 'VENDOR_PATH', $_SERVER['DOCUMENT_ROOT'].DS.'vendor'.DS) ;
  * 
  * @var string
  */
-define( 'LEAF_PATH', VENDOR_PATH.'leaf'.DS) ;
-
-/**
- * Полный путь к директории ядра фреймворка.
- * 
- * @var string
- */
-define( 'CORE_PATH', LEAF_PATH.'core'.DS) ;
-
-/**
- * Полный путь к классам директории ядра фреймворка.
- * 
- * @var string
- */
-define( 'CORE_SRC_PATH', CORE_PATH.'src'.DS) ;
+define( 'LEAF_PATH', VENDOR_PATH.'Leaf'.DS) ;
    
 /**
  * Полный путь к директории шаблонов.
@@ -69,17 +48,60 @@ define( 'CORE_SRC_PATH', CORE_PATH.'src'.DS) ;
  */
 define( 'TPL_PATH', $_SERVER['DOCUMENT_ROOT'] . DS . 'templates' . DS) ;
 	
-//
-//  Регистрация автолоадера
-//
-    
-    require CORE_PATH.'src'.DS.'Autoloader.php';
-    Leaf\Core\Autoloader::register();
-        
-//
-//  Инициализация ядра
-//  
-    
-    echo Leaf\Core\Leaf::make()
-            ->execute()
-            ->sendHeaders();
+require_once LEAF_PATH.'Autoloader.php';
+
+$autoloader = new \Leaf\Autoloader();
+
+$autoloader->addNamespaces(
+    array(
+        'Leaf' => LEAF_PATH,
+        'Leaf\\App' => APP_PATH
+    )
+);
+
+$autoloader->register();
+
+$di = new Leaf\Di\Container();
+
+$di->set('autoloader', $autoloader, true);
+
+$di->set('request', function (){
+    return new \Leaf\Http\Request();
+}, true);
+
+$di->set('response', function (){
+    return new \Leaf\Http\Response();
+}, true);
+
+$di->set('cookies', function (){
+    return new \Leaf\Http\Cookies();
+}, true);
+
+$di->set('router', function () {
+    $router = new \Leaf\Mvc\Router();
+    $router->add('test', '(<controller>(/<action>(/<id>)))')
+        ->defaults(
+            array(
+                'controller' => 'test',
+                'action' => 'index'
+            )
+        )
+        ->regex(
+            array(
+                'id' => '\d+'
+            )
+        )
+        ->middlewares(
+            array(
+                'test'
+            )
+        )
+        ->callback(
+            function($id) {
+                return $id + 20;
+            }
+        );
+}, true);
+
+$di->get('router');
+

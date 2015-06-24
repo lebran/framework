@@ -1,5 +1,7 @@
 <?php
-namespace Leaf\Core\Http;
+namespace Leaf\Http;
+
+use Leaf\Http\Response\Exception;
 
 /**
  * Реализует обертку для Http ответа. Формирует Http пакет.
@@ -17,9 +19,8 @@ namespace Leaf\Core\Http;
  *      #         Тело        #
  *       #####################
  *
- * @package    Core
- * @subpackage Http
- * @version    2.0
+ * @package    Http
+ * @version    2.1
  * @author     Roman Kritskiy <itoktor@gmail.com>
  * @license    GNU Lisence
  * @copyright  2014 - 2015 Roman Kritskiy
@@ -166,7 +167,7 @@ class Response
     public function sendHeaders()
     {
         if (headers_sent()) {
-            throw new HttpException('Заголовки уже были отправлены.');
+            throw new Exception('Заголовки уже были отправлены.');
         }
 
         $status_line = $this->version.' '.$this->status_сode.' '.self::$messages[$this->status_сode];
@@ -203,7 +204,7 @@ class Response
     public function setStatusCode($status_code)
     {
         if ($status_code >= 600 || $status_code < 100) {
-            throw new HttpException('Неизвестный статус код (поддерживаются 100 ~ 599)!');
+            throw new Exception('Неизвестный статус код (поддерживаются 100 ~ 599)!');
         }
         $this->status_сode = $status_code;
         return $this;
@@ -220,7 +221,7 @@ class Response
     public function setHttpVersion($version)
     {
         if ($version != '1.0' || $version != '1.1') {
-            throw new HttpException('Поддерживаются только 1.0 и 1.1!');
+            throw new Exception('Поддерживаются только 1.0 и 1.1!');
         }
         $this->version = 'HTTP/'.$version;
         return $this;

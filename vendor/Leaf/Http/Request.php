@@ -1,5 +1,5 @@
 <?php
-namespace Leaf\Core\Http;
+namespace Leaf\Http;
 
 /**
  * Реализует обертку для Http запроса с расширенным функционалом.
@@ -9,43 +9,14 @@ namespace Leaf\Core\Http;
  *      - Доступ к обработанным глобальным массивам (POST, GET)
  *      - Обработка имен контроллера, действия, директории
  *
- * @package    Core
- * @subpackage Http
- * @version    2.0
+ * @package    Http
+ * @version    2.1
  * @author     Roman Kritskiy <itoktor@gmail.com>
  * @license    GNU Lisence
  * @copyright  2014 - 2015 Roman Kritskiy
  */
 class Request
 {
-
-    /**
-     * Полное имя контроллера, включает имя директории.
-     *
-     * @var string
-     */
-    protected $controller;
-
-    /**
-     * Обработанное имя действия.
-     *
-     * @var string
-     */
-    protected $action;
-
-    /**
-     * Параметры запроса, сегменты.
-     *
-     * @var array
-     */
-    protected $params;
-
-    /**
-     * Обработанное имя директории, если она была передана.
-     *
-     * @var string
-     */
-    protected $directory = false;
 
     /**
      * Обработанный глобальный массив POST.
@@ -62,6 +33,13 @@ class Request
     protected $get;
 
     /**
+     * Обработанный глобальный массив SERVER.
+     *
+     * @var array
+     */
+    protected $server;
+
+    /**
      * Метод запроса.
      *
      * @var string
@@ -75,72 +53,17 @@ class Request
      * @return void
      * @throws HttpException
      */
-    public function __construct($params)
-    {
-        if (empty($params['controller']) and empty($params['action'])) {
-            throw new HttpException('Ошибка 404');
-        }
+    public function __construct()
+    {      
+        array_walk_recursive($_POST, 'trim');
+        array_walk_recursive($_GET, 'trim');
+        array_walk_recursive($_SERVER, 'trim');
 
-        $this->controller = 'Controller\\';
-        if (!empty($params['directory'])) {
-            $params['directory'] = array_map('ucfirst', explode(DS, $params['directory']));
-            $params['directory'] = implode('\\', $params['directory']);
-            $this->controller .= ($this->directory = $params['directory']).'\\';
-        }
-        $this->controller .= ucfirst($params['controller']).'Controller';
-
-        $this->action = $params['action'].'Action';
-        $this->params = $params;
-
-        $this->post = $_POST = array_map('trim', $_POST);
-        $this->get  = $_GET = array_map('trim', $_GET);
+        $this->post = $_POST;
+        $this->get  = $_GET;
+        $this->server = $_SERVER;
 
         $this->method = $_SERVER['REQUEST_METHOD'];
-    }
-
-    /**
-     * Отправляет полное имя контроллера.
-     *
-     * @return string Имя контроллера.
-     */
-    public function getController()
-    {
-        return $this->controller;
-    }
-
-    /**
-     * Отправляет обработанное имя действия.
-     *
-     * @return string Имя действия.
-     */
-    public function getAction()
-    {
-        return $this->action;
-    }
-
-    /**
-     * Если ничего не передавать, отправляет массив параметров.
-     * При передаче значение отправляет параметр с таким ключем.
-     *
-     *      $request->params('id'); // получим значение в ячейке 'id'
-     *
-     * @param string $params Имя параметра.
-     *
-     * @return array|string Выбранный или все параметры.
-     */
-    public function getParams($params = false)
-    {
-        return ($params)?$this->params[$params]:$this->params;
-    }
-
-    /**
-     * Отправляет обработанное имя директории, если она была передана.
-     *
-     * @return string Имя директории.
-     */
-    public function getDirectory()
-    {
-        return $this->directory;
     }
 
     /**
@@ -169,6 +92,20 @@ class Request
     public function getGet($key = false, $default = false)
     {
         return ($key)?(isset($this->get[$key])?$this->get[$key]:$default):$this->get;
+    }
+
+    /**
+     * Если ничего не передавать, отправляет массив значений SERVER.
+     * При передаче ключа отправляет значение с таким ключом.
+     *
+     * @param string $key     Ключ по которому будет идти поиск.
+     * @param mixed  $default Значение которое будет отправлено, если поиск не дал результатов.
+     *
+     * @return array|string Массив SERVER, значение по ключу или default.
+     */
+    public function getServer($key = false, $default = false)
+    {
+        return ($key)?(isset($this->server[$key])?$this->server[$key]:$default):$this->server;
     }
 
     /**

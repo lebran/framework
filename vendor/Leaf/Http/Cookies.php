@@ -1,7 +1,7 @@
 <?php
-namespace Leaf\Core\Utils;
+namespace Leaf\Http;
 
-use Leaf\Core\Utils\Arr;
+use Leaf\Utils\ArrayObject;
 
 /**
  * Вспомогательный класс для работы с cookie. Поддерживает установку массива.
@@ -14,11 +14,10 @@ use Leaf\Core\Utils\Arr;
  * @license    GNU Lisence
  * @copyright  2014 - 2015 Roman Kritskiy
  */
-class Cookie
+class Cookies extends ArrayObject
 {
-
     /**
-     * Параметры для cookie.
+     * Параметры для cookies.
      *
      * @var array
      */
@@ -36,21 +35,22 @@ class Cookie
     );
 
     /**
-     * Устанавливает параметры cookie.
+     * Устанавливает параметры cookies.
      *
-     *      $cookie = new Cookie(Config::read('cookie'));
+     *      $cookies = new Cookies($params));
      *
      * @param array $params Параметры cookie.
      */
     public function __construct($params = array())
     {
+        $this->array = &$_COOKIE;
         $this->params = $params + $this->params;
     }
 
     /**
-     * Отправляет значение cookie по ключу или default, если искомое - не найдено.
+     * Отправляет значение cookies по ключу или default, если искомое - не найдено.
      *
-     *      $cookie->get('user.about.name', 'noname');
+     *      $cookies->get('user.about.name', 'noname');
      *
      * @param string $name    Имя cookie.
      * @param mixed  $default Значение, которое вернется, если искомое - не найдено.
@@ -59,17 +59,17 @@ class Cookie
      */
     public function get($name, $default = null)
     {
-        return Arr::getAnnotation($name, $_COOKIE, $default);
+        return ($this->offsetExists($name) === true)? $this->offsetGet($name) : $default;
     }
 
     /**
      * Устанавливает значение или массив cookie по ключу.
      *
-     *      $cookie->set('global.post', $_POST, Config::read('cookie'));
+     *      $cookie->set('global.post', $_POST);
      *
-     * @param string       $name   Имя cookie.
-     * @param string|array $value  Значение cookie.
-     * @param array        $params Параметры cookie.
+     * @param string       $name   Имя cookies.
+     * @param string|array $value  Значение cookies.
+     * @param array        $params Параметры cookies.
      *
      * @return void
      */
@@ -99,10 +99,10 @@ class Cookie
                 $params['httponly']
             );
         } else {
-            foreach (Arr::asAnnotation($value, '', '][') as $n => $v) {
+            foreach ($this->asAnnotation($value, '', '][') as $n => $val) {
                 setcookie(
-                    $name.substr($n, 1).']',
-                    $v,
+                    $name.'['.$n.']',
+                    $val,
                     $params['expiration'],
                     $params['path'],
                     $params['domain'],
@@ -123,18 +123,32 @@ class Cookie
      */
     public function delete($name, $params = array())
     {
-        if (!($delete = Arr::getAnnotation($name, $_COOKIE))) {
+        if ((($delete = $this->offsetGet($name)) === false)) {
             return;
         }
 
-        array_walk_recursive(
-            $delete,
-            function (&$item) {
-                $item = '';
-            }
-        );
-
+        if(is_array($delete)){
+            array_walk_recursive(
+                $delete,
+                function (&$item) {
+                    $item = '';
+                }
+            );
+        } else {
+            $delete = '';
+        }
+        
         $params = array_merge($params, array('expiration' => 1));
         $this->set($name, $delete, $params);
+    }
+
+    public function offsetSet($offset, $value)
+    {
+        $this->set($offset, $value);
+    }
+
+    public function offsetUnset($offset)
+    {
+        return $this->delete($offset);
     }
 }
