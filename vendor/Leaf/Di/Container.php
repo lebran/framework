@@ -14,31 +14,37 @@ class Container implements \ArrayAccess
 {
     /**
      *
-     * @var type 
+     * @var type
      */
-    protected $classes;
+    protected $services;
 
-    public function set($name, $class, $shared = false)
+    public function set($name, $definition, $shared = false)
     {
-        return $this->classes[$name] = new Service($name, $class, $shared);
+        return $this->services[$name] = new Service($name, $definition, $shared);
     }
 
     /**
      * Resolves the service based on its configuration
      */
-    public function get($name, $parameters = null)
+    public function get($name, $params = null)
     {
-        if (isset($this->classes[$name])) {
-            $instance = $this->classes[$name]->resolve($parameters, $this);
-	} else {
+        if (isset($this->services[$name])) {
+            $instance = $this->services[$name]->resolve($params, $this);
+        } else {
             if (!class_exists($name)) {
-		throw new Exception('Service "'.$name.' wasn\'t found in the dependency injection container');
+                throw new Exception('Service "'.$name.'" wasn\'t found in the dependency injection container');
             }
-	}
+            $reflection = new \ReflectionClass($name);
+            if (is_array($params)) {
+                $instance = $reflection->newInstanceArgs($params);
+            } else {
+                $instance = $reflection->newInstance();
+            }
+        }
 
-	if ($instance instanceof InjectionInterface) {
+        if ($instance instanceof InjectionInterface) {
             $instance->setDi($this);
-	}
+        }
 
         return $instance;
     }
@@ -48,14 +54,14 @@ class Container implements \ArrayAccess
      */
     public function getService($name = false)
     {
-        if((bool)$name){
-            if(isset($this->classes[name])){
-                return $this->classes[name];
+        if ($name) {
+            if (isset($this->services[name])) {
+                return $this->services[name];
             } else {
-                throw new Exception("Service '" . name . "' wasn't found in the dependency injection container");
+                throw new Exception("Service '".name."' wasn't found in the dependency injection container");
             }
         } else {
-            return $this->classes;
+            return $this->services;
         }
     }
 
@@ -64,7 +70,7 @@ class Container implements \ArrayAccess
      */
     public function remove($name)
     {
-    	unset($this->classes[$name]);
+        unset($this->services[$name]);
         return true;
     }
 
@@ -73,7 +79,7 @@ class Container implements \ArrayAccess
      */
     public function has($name)
     {
-    	return isset($this->classes[$name]);
+        return isset($this->services[$name]);
     }
 
     /**
@@ -81,41 +87,41 @@ class Container implements \ArrayAccess
      */
     public function offsetExists($name)
     {
-    	return $this->has($name);
+        return $this->has($name);
     }
 
     /**
      * Allows to register a shared service using the array syntax
      *
      *<code>
-     *	$di["request"] = new \Phalcon\Http\Request();
+     *    $di["request"] = new \Phalcon\Http\Request();
      *</code>
      *
      * @param string name
-     * @param mixed definition
+     * @param mixed  definition
+     *
      * @return boolean
      */
-    public function offsetSet($name, $class)
+    public function offsetSet($name, $definition)
     {
-    	$this->set($name, $class, true);
-    	return true;
+        return $this->set($name, $definition, true);
     }
 
     /**
      * Allows to obtain a shared service using the array syntax
      *
      */
-    
+
     public function offsetGet($name)
     {
         return $this->get($name);
     }
-	
+
     /**
      * Removes a service from the services container using the array syntax
      */
     public function offsetUnset($name)
     {
-    	return $this->remove($name);
+        return $this->remove($name);
     }
 }

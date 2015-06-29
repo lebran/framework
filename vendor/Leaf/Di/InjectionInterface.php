@@ -7,7 +7,7 @@ namespace Leaf\Di;
  */
 interface InjectionInterface
 {
-    public function setDi($di);
+    public function setDi(Container $di);
 
     public function getDi();
 }

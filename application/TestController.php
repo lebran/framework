@@ -1,21 +1,28 @@
 <?php
 namespace Leaf\App;
 
+use Leaf\Di\Container;
+
 /**
  * Description of TestController
  *
  * @author Roma
  */
-class TestController implements \Leaf\Di\InjectionInterface
+class TestController //implements \Leaf\Di\InjectionInterface
 {
     public $test = 'Privet';
+
+    public function __construct($param1 = '', $param2 = '')
+    {
+        echo $param1.'    '.$param2;
+    }
 
     public function test($param)
     {
         echo ($this->test = $param);
     }
 
-    public function setDi($di)
+    public function setDi(Container $di)
     {
         foreach ($di->get('autoloader')->getNamespaces() as $key => $value) {
             echo $key.' => '.$value;
@@ -25,5 +32,10 @@ class TestController implements \Leaf\Di\InjectionInterface
     public function getDi()
     {
         return 'Helloaadsa';
+    }
+
+    public function __toString()
+    {
+        return $this->test;
     }
 }

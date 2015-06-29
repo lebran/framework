@@ -47,7 +47,9 @@ define( 'LEAF_PATH', VENDOR_PATH.'Leaf'.DS) ;
  * @var string
  */
 define( 'TPL_PATH', $_SERVER['DOCUMENT_ROOT'] . DS . 'templates' . DS) ;
-	
+
+error_reporting(E_ALL);
+
 require_once LEAF_PATH.'Autoloader.php';
 
 $autoloader = new \Leaf\Autoloader();
@@ -77,7 +79,38 @@ $di->set('cookies', function (){
     return new \Leaf\Http\Cookies();
 }, true);
 
-$di->set('router', function () {
+$di->set('test', function ($param1, $param2){
+    return new \Leaf\App\TestController($param1, $param2);
+});
+$di->set('test', array(
+    'class' => '\Leaf\App\TestController',
+    'arguments' => array(
+        array('type' => 'class', 'name' => '\Leaf\App\TestController', 'arguments' => array(
+            array('type' => 'class', 'name' => '\Leaf\App\TestController'),
+            array('type' => 'class', 'name' => 'test', 'arguments' => array(
+                array('type' => 'parameter', 'value' => 'yoyoyiyyo'),
+                array('type' => 'parameter', 'value' => 'Pidari')
+            )),
+        )),
+        array('type' => 'parameter', 'value' => 'World'),
+    ),
+    'calls' => array(
+        array('method' => 'test', 'arguments' => array(
+            array('type' => 'parameter', 'value' => 'Pizdec')
+        ))
+    ),
+    'properties' => array(
+        array('name' => 'test', 'value' => array(
+            'value' => ' QQQQQQQQQQQQQQQQQQ ', 'type' => 'parameter'
+        ))
+    )
+));
+
+$di->get('test');
+
+
+
+/*$di->set('router', function () {
     $router = new \Leaf\Mvc\Router();
     $router->add('test', '(<controller>(/<action>(/<id>)))')
         ->defaults(
@@ -104,4 +137,15 @@ $di->set('router', function () {
 }, true);
 
 $di->get('router');
+*/
+
+
+//$di['cookies']['system.fdfdf.asdasd.teg'] = array('adssad'=>'asasd', 'asdasdas' => 'asd');
+
+
+//unset($di['cookies']['system.fdfdf.asdasd.teg']);
+
+//$di->get('cookies')->set('system.fdfdf.asdasd.teg', array('adssad'=>'asasd', 'asdasdas' => 'asd'));
+
+//var_dump($_COOKIE);
 
