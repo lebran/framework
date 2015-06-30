@@ -4,8 +4,52 @@ namespace Leaf\Di;
 /**
  * Represents individually a service in the services container.
  *
- *      $service = new \Leaf\Di\Service('Router', 'Leaf\Mvc\Router', true);
- *      $request = $service->resolve();
+ *                           Example
+ * <code>
+ *      class TestController{
+ *          public $test = 'string';
+ *          public function __construct($param1 = '', $param2 = ''){}
+ *          public function test($param){}
+ *          public function __toString(){}
+ *      }
+ *
+ *      $service = new \Leaf\Di\Service(
+ *          'test',
+ *          array(
+ *              'class'      => '\Leaf\App\TestController',  // class1
+ *              'arguments'  => array(
+ *                  array(  // first argument for class1 construct
+ *                      'type'      => 'class',
+ *                      'name'      => '\Leaf\App\TestController',  // class2
+ *                      'arguments' => array(
+ *                          array('type' => 'parameter', 'value' => 'One'), // first argument for class2 construct
+ *                          array('type' => 'parameter', 'value' => 'Two')  // second argument for class2 construct
+ *                      )
+ *                  ),
+ *                  array('type' => 'parameter', 'value' => 'Three') // second argument for class1 construct
+ *              ),
+ *              'calls'      => array(
+ *                  array(  // call method 'test' in class1
+ *                      'method'    => 'test',
+ *                      'arguments' => array(
+ *                          array('type' => 'parameter', 'value' => 'Four') // first argument for method
+ *                      )
+ *                  )
+ *              ),
+ *              'properties' => array(
+ *                  array(  // set properties 'test' in class1
+ *                      'name'  => 'test',
+ *                      'value' => array(   // value for properties
+ *                          'value' => 'Five',
+ *                          'type'  => 'parameter'
+ *                      )
+ *                  )
+ *              )
+ *          )
+ *      );
+ *
+ *      $test = $service->resolve($params, $di);
+ *  </code>
  *
  * @package    Di
  * @version    2.1
@@ -46,9 +90,9 @@ class Service
     /**
      * Initialisation.
      *
-     * @param string  $name Service name.
-     * @param mixed   $definition Service definition.
-     * @param bool $shared Shared or not.
+     * @param string $name       Service name.
+     * @param mixed  $definition Service definition.
+     * @param bool   $shared     Shared or not.
      *
      * @return void
      */
@@ -62,38 +106,30 @@ class Service
     /**
      * Resolves the service.
      *
-     * @param array $params Parameters for service constructor.
-     * @param object $di Container object.
+     * @param array  $params Parameters for service constructor.
+     * @param object $di     Container object.
      *
-     * @return object Service object.
+     * @return object Service instance object.
      */
-    public function resolve($params, Container $di)
+    public function resolve(array $params, Container $di)
     {
         if ($this->shared and $this->shared_instance !== null) {
             return $this->shared_instance;
         }
 
-        $found = true;
+        $found    = true;
         $instance = null;
 
         if (is_string($this->definition)) {
             if (class_exists($this->definition)) {
                 $reflection = new \ReflectionClass($this->definition);
-                if (is_array($params)) {
-                    $instance = $reflection->newInstanceArgs($params);
-                } else {
-                    $instance = $reflection->newInstance();
-                }
+                $instance = $reflection->newInstanceArgs($params);
             } else {
                 $found = false;
             }
         } else if (is_object($this->definition)) {
             if ($this->definition instanceof \Closure) {
-                if (is_array($params)) {
-                    $instance = call_user_func_array($this->definition, $params);
-                } else {
-                    $instance = call_user_func($this->definition);
-                }
+                $instance = call_user_func_array($this->definition, $params);
             } else {
                 $instance = $this->definition;
             }
@@ -155,9 +191,9 @@ class Service
     /**
      * Sets the service parameter, only for array definition.
      *
-     * @param int $position Parameter position.
+     * @param int   $position  Parameter position.
      * @param array $parameter New parameter.
-     * 
+     *
      * @return object Service object.
      */
     public function setParameter($position, array $parameter)
@@ -178,20 +214,20 @@ class Service
     /**
      * Builds a service using a complex service definition.
      *
-     * @param object $di Container object.
-     * @param array $definition Service definition.
-     * @param array $params Parameters for constructor.
+     * @param object $di         Container object.
+     * @param array  $definition Service definition.
+     * @param array  $params     Parameters for constructor.
      *
      * @return object Service object.
      */
-    final protected function build(Container $di, array $definition, $params = null)
+    final protected function build(Container $di, array $definition, array $params = array())
     {
         if (empty($definition['class'])) {
             throw new Exception('Invalid service definition. Missing "class" parameter');
         }
 
         $reflection = new \ReflectionClass($definition['class']);
-        if (is_array($params)) {
+        if (!empty($params)) {
             $instance = $reflection->newInstanceArgs($params);
         } else {
             if (empty($definition['arguments'])) {
@@ -260,11 +296,11 @@ class Service
     /**
      * Resolves a constructor/call parameter.
      *
-     * @param object $di Container object.
-     * @param int $position Parameter position.
-     * @param array $argument
+     * @param object $di       Container object.
+     * @param int    $position Parameter position.
+     * @param array  $argument Parameter argument (parameter, class).
      *
-     * @return mixed 
+     * @return mixed
      */
     final protected function buildParam(Container $di, $position, array $argument)
     {
@@ -297,10 +333,10 @@ class Service
     /**
      * Resolves an array of parameters.
      *
-     * @param object $di Container object.
-     * @param array $arguments
-     * 
-     * @return array 
+     * @param object $di        Container object.
+     * @param array  $arguments Parameter arguments (parameter, class).
+     *
+     * @return array
      */
     final protected function buildParams(Container $di, array $arguments)
     {

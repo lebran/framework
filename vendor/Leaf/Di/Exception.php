@@ -2,7 +2,7 @@
 namespace Leaf\Di;
 
 /**
- * Di exception
+ * Exceptions thrown in Di will use this class.
  *
  * @package    Di
  * @version    2.1
