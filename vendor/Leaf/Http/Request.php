@@ -1,12 +1,15 @@
 <?php
 namespace Leaf\Http;
 
+use Leaf\Http\Request\File;
+
 /**
- * Реализует обертку для Http запроса с расширенным функционалом.
+ * It implements a wrapper for Http request with extended functionality.
  *
- *      - Удобный доступ к заголовкам запроса
- *      - Методы проверки типа запроса
- *      - Доступ к обработанным глобальным массивам (POST, GET)
+ *      - Easy access to request headers
+ *      - Get sanitizing values from the global arrays
+ *      - Methods of checking the type of request
+ *      -
  *
  * @package    Http
  * @version    2.1
@@ -16,139 +19,141 @@ namespace Leaf\Http;
  */
 class Request
 {
-
     /**
-     * Обработанный глобальный массив POST.
+     * Storage files.
      *
      * @var array
      */
-    protected $post;
+    protected $files = array();
 
     /**
-     * Обработанный глобальный массив GET.
-     *
-     * @var array
-     */
-    protected $get;
-
-    /**
-     * Обработанный глобальный массив SERVER.
-     *
-     * @var array
-     */
-    protected $server;
-
-    /**
-     * Метод запроса.
-     *
-     * @var string
-     */
-    protected $method;
-
-    /**
-     * Инициализация:
-     *      - обработка переданных данных, а так же Http запроса
+     * Initialisation.
      *
      * @return void
-     * @throws HttpException
      */
     public function __construct()
-    {      
+    {
+        $files = array();
+        foreach ($_FILES as $key => $file) {
+            if (!is_array($file['name'])) {
+                $files[$key] = $file;
+            } else {
+                $files[$key] = $this->smoothFiles(
+                    $file['name'],
+                    $file['type'],
+                    $file['tmp_name'],
+                    $file['size'],
+                    $file['error']
+                );
+            }
+        }
+        $this->fileHelper($files, $this->files);
         array_walk_recursive($_POST, 'trim');
         array_walk_recursive($_GET, 'trim');
         array_walk_recursive($_SERVER, 'trim');
-
-        $this->post = $_POST;
-        $this->get  = $_GET;
-        $this->server = $_SERVER;
-
-        $this->method = $_SERVER['REQUEST_METHOD'];
     }
 
     /**
-     * Если ничего не передавать, отправляет массив значений POST.
-     * При передаче ключа отправляет значение с таким ключом.
+     * If you do not pass, sends array.
+     * When sending the key, sends the value with the same key.
      *
-     * @param string $key     Ключ по которому будет идти поиск.
-     * @param mixed  $default Значение которое будет отправлено, если поиск не дал результатов.
+     * @param array  $array   Array which will return value.
+     * @param string $key     The key to which will go search.
+     * @param mixed  $default Value that will be sent if no search results.
      *
-     * @return array|string Массив POST, значение по ключу или default.
+     * @return mixed Array, the value of a key or default.
+     */
+    protected function getHelper(array $array, $key, $default)
+    {
+        return ($key)?(isset($array[$key])?$array[$key]:$default):$array;
+    }
+
+    /**
+     * If you do not pass, sends array of POST.
+     * When sending the key, sends the value with the same key.
+     *
+     * @param string $key     The key to which will go search.
+     * @param mixed  $default Value that will be sent if no search results.
+     *
+     * @return mixed An array of POST, the value of a key or default.
      */
     public function getPost($key = false, $default = false)
     {
-        return ($key)?(isset($this->post[$key])?$this->post[$key]:$default):$this->post;
+        return $this->getHelper($_POST, $key, $default);
     }
 
     /**
-     * Если ничего не передавать, отправляет массив значений GET.
-     * При передаче ключа отправляет значение с таким ключом.
+     * If you do not pass, sends array of GET.
+     * When sending the key, sends the value with the same key.
      *
-     * @param string $key     Ключ по которому будет идти поиск.
-     * @param mixed  $default Значение которое будет отправлено, если поиск не дал результатов.
+     * @param string $key     The key to which will go search.
+     * @param mixed  $default Value that will be sent if no search results.
      *
-     * @return array|string Массив GET, значение по ключу или default.
+     * @return mixed An array of GET, the value of a key or default.
      */
-    public function getGet($key = false, $default = false)
+    public function getQuery($key = false, $default = false)
     {
-        return ($key)?(isset($this->get[$key])?$this->get[$key]:$default):$this->get;
+        return $this->getHelper($_GET, $key, $default);
     }
 
     /**
-     * Если ничего не передавать, отправляет массив значений SERVER.
-     * При передаче ключа отправляет значение с таким ключом.
+     * If you do not pass, sends array of SERVER.
+     * When sending the key, sends the value with the same key.
      *
-     * @param string $key     Ключ по которому будет идти поиск.
-     * @param mixed  $default Значение которое будет отправлено, если поиск не дал результатов.
+     * @param string $key     The key to which will go search.
+     * @param mixed  $default Value that will be sent if no search results.
      *
-     * @return array|string Массив SERVER, значение по ключу или default.
+     * @return mixed An array of SERVER, the value of a key or default.
      */
     public function getServer($key = false, $default = false)
     {
-        return ($key)?(isset($this->server[$key])?$this->server[$key]:$default):$this->server;
+        return $this->getHelper($_SERVER, $key, $default);
     }
 
     /**
-     * Отправляет имя метода, полученного из заголовков запроса.
+     * Sends the name of a method derived from the request headers.
      *
      * @return string Метод запроса.
      */
     public function getMethod()
     {
-        return $this->method;
+        return $this->getServer('REQUEST_METHOD');
     }
 
     /**
-     * Отправляет значение заголовка из запроса.
+     * Sends uri from the request.
      *
-     * @param string $header Имя заголовка.
+     * @return type
+     */
+    public function getUri()
+    {
+        return trim($this->getServer('REQUEST_URI'), '/');
+    }
+
+    /**
+     * Sends header value of the request.
      *
-     * @return string|bool Значение заголовка, если поиск не дал результатов - false.
+     * @param string $header Name header.
+     *
+     * @return mixed The value of the title, if no search results - false.
      */
     public function getHeader($header)
     {
-        $temp = 'HTTP_'.strtoupper(str_replace('-', '_', $header));
-        if (isset($_SERVER[$temp])) {
-            return $_SERVER[$temp];
+        $header = strtoupper(strtr($header, "-", "_"));
+
+        if (isset($_SERVER[$header])) {
+            return $_SERVER[$header];
+        } else if (isset($_SERVER['HTTP_'.$header])) {
+            return $_SERVER['HTTP_'.$header];
+        } else {
+            return false;
         }
-        if (function_exists('apache_request_headers')) {
-            $headers = apache_request_headers();
-            if (isset($headers[$header])) {
-                return $headers[$header];
-            }
-            $header = strtolower($header);
-            foreach ($headers as $key => $value) {
-                if (strtolower($key) == $header) {
-                    return $value;
-                }
-            }
-        }
-        return null;
     }
 
     /**
-     * Проверяет, является ли post методом запроса.
+     * Checks whether the 'post' request method.
      *
-     * @return bool true, если метод POST, иначе - false
+     * @return bool true, if the method is POST, then - false
      */
     public function isPost()
     {
@@ -156,9 +161,9 @@ class Request
     }
 
     /**
-     * Проверяет, является ли get методом запроса.
+     * Checks whether the 'get' request method.
      *
-     * @return bool true, если метод GET, иначе - false.
+     * @return bool true, if the method is GET, then - false
      */
     public function isGet()
     {
@@ -166,9 +171,9 @@ class Request
     }
 
     /**
-     * Проверяет, является ли запрос асинхронным.
+     * Checks whether the request is asynchronous.
      *
-     * @return bool true, если метод XmlHttpRequest, иначе - false.
+     * @return bool true, if the method XmlHttpRequest, then - false.
      */
     public function isXMLHttpRequest()
     {
@@ -176,12 +181,86 @@ class Request
     }
 
     /**
-     * Проверяет, использовал ли пользователь защищенное соединение. (HTTPS)
+     * Checks whether the user is using a secure connection. (HTTPS)
      *
      * @return bool true, если HTTPS, иначе - false.
      */
-    public function isHTTPS()
+    public function isHttps()
     {
         return (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443;
+    }
+
+    /**
+     * It sends files obtained via the form as array of objects.
+     *
+     * @param string $name Name file or files.
+     *
+     * @return mixed An array of File objects.
+     */
+    public function getFiles($name = false)
+    {
+        return $name?$this->files[$name]:$this->files;
+    }
+
+    /**
+     * Smooth out $_FILES to have plain array with all files uploaded.
+     *
+     * @param array $names     File names.
+     * @param array $types     File types.
+     * @param array $tmp_names File tmp_names.
+     * @param array $sizes     File sizes.
+     * @param array $errors    File errors.
+     *
+     * @return array Smooth files.
+     */
+    final protected function smoothFiles(array $names, array $types, array $tmp_names, array $sizes, array $errors)
+    {
+        $files = array();
+        foreach ($names as $key => $name) {
+            if (is_string($name)) {
+                $files[$key] = array(
+                    'name'     => $name,
+                    'type'     => $types[$key],
+                    'tmp_name' => $tmp_names[$key],
+                    'size'     => $sizes[$key],
+                    'error'    => $errors[$key]
+                );
+            }
+            if (is_array($name)) {
+                $parentFiles = $this->smoothFiles(
+                    $names[$key],
+                    $types[$key],
+                    $tmp_names[$key],
+                    $sizes[$key],
+                    $errors[$key]
+                );
+                foreach ($parentFiles as $key1 => $file) {
+                    $files[$key][$key1] = $file;
+                }
+            }
+        }
+        return $files;
+    }
+
+    /**
+     * File helper
+     *
+     * @param array $file  Array of files.
+     * @param array $array Where an array of record.
+     *
+     * @return void
+     */
+    final protected function fileHelper(array $file, &$array)
+    {
+        foreach ($file as $key => $value) {
+            if (is_array($value)) {
+                $this->fileHelper($value, $array[$key]);
+            } else {
+                if (UPLOAD_ERR_OK == $file['error'] and !empty($file)) {
+                    $array = new File($file);
+                }
+                break;
+            }
+        }
     }
 }

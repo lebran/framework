@@ -2,7 +2,7 @@
 namespace Leaf;
 
 /**
- * PSR - 4 Автолоадер
+ * Autoloader implement PSR - 4.
  *
  * @version    2.1
  * @author     Roman Kritskiy <itoktor@gmail.com>
@@ -12,22 +12,22 @@ namespace Leaf;
 class Autoloader
 {
     /**
-     * Ассоциативный массив. Ключи содержат префикс пространства имён,
-     * значение — массив базовых директорий для классов в этом пространстве имён.
+     * An associative array where the key is a namespace prefix and the value
+     * is an array of base directories for classes in that namespace.
      *
      * @var array
      */
     protected $prefixes = array();
 
     /**
-     * Ассоциативный массив. Ключи содержат абсолютные имена классов, значение — пути для классов.
+     * An associative array where the key is a absolute class name and the value is a path for class.
      *
      * @var array
      */
     protected $classes = array();
 
     /**
-     * Регистрирует загрузчик в стеке загрузчиков SPL.
+     * Register loader with SPL autoloader stack.
      *
      * @return void
      */
@@ -37,7 +37,7 @@ class Autoloader
     }
 
     /**
-     * Деактивирует загрузчик в стеке загрузчиков SPL.
+     * Unregister loader with SPL autoloader stack.
      *
      * @return void
      */
@@ -47,18 +47,18 @@ class Autoloader
     }
 
     /**
-     * Добавляет базовую директорию к префиксу пространства имён.
+     * Adds a base directory for a namespace prefix.
      *
-     * @param string $prefix  Префикс пространства имён.
-     * @param string $dir     Базовая директория для файлов классов из пространства имён.
-     * @param bool   $prepend Если true, добавить базовую директорию в начало стека, иначе в конец.
+     * @param string $prefix  Namespace prefix.
+     * @param string $dir     A base directory for class files in the namespace.
+     * @param bool   $prepend If true, prepend the base directory to the stack instead of appending it.
      *
      * @return void
      */
     public function addNamespace($prefix, $dir, $prepend = false)
     {
         $prefix = trim($prefix, '\\').'\\';
-        $dir = rtrim($dir, DIRECTORY_SEPARATOR).'/';
+        $dir    = rtrim($dir, DIRECTORY_SEPARATOR).'/';
 
         if (!isset($this->prefixes[$prefix])) {
             $this->prefixes[$prefix] = array();
@@ -72,9 +72,9 @@ class Autoloader
     }
 
     /**
-     * Добавляет базовые директории к префиксам пространств имён.
+     * Adds a bases directory for a namespaces prefix.
      *
-     * @param array $namespaces Mассив: префикс => базовая директория.
+     * @param array $namespaces Array: 'prefix' => 'dir'.
      *
      * @return void
      */
@@ -86,9 +86,9 @@ class Autoloader
     }
 
     /**
-     * Возвращает массив: префикс => базовая директория.
+     * Get register prefixes.
      *
-     * @return array Массив добавленных неймспейсов.
+     * @return array 'prefix' => 'dir'.
      */
     public function getNamespaces()
     {
@@ -96,9 +96,9 @@ class Autoloader
     }
 
     /**
-     * Добавляет пути к классам. Любой добавленный класс будет сразу же загружен без поиска пути.
+     * Adds a classpath. Each class will be added immediately loaded without search path.
      *
-     * @param array $classes Mассив: неймспейс => путь.
+     * @param array $classes Array: absolute class name => path for file.
      *
      * @return void
      */
@@ -108,25 +108,11 @@ class Autoloader
     }
 
     /**
-     * Установка псевдонимов классам. Используется для перекрытия системных классов.
+     * Loads the class file for a given class name.
      *
-     * @param array $aliases Массив: оригинал => псевдоним.
+     * @param string $class The fully-qualified class name.
      *
-     * @return void
-     */
-    public function addAliases(array $aliases)
-    {
-        foreach ($aliases as $class => $alias) {
-            class_alias($class, $alias);
-        }
-    }
-
-    /**
-     * Загружает файл для заданного имени класса.
-     *
-     * @param string $class Абсолютное имя класса.
-     *
-     * @return bool Статус загрузки файла.
+     * @return mixed The mapped file name on success, or boolean false on failure.
      */
     public function loadClass($class)
     {
@@ -136,7 +122,7 @@ class Autoloader
 
         $prefix = $class;
         while (($pos = strrpos($prefix, '\\'))) {
-            $prefix = substr($class, 0, $pos + 1);
+            $prefix         = substr($class, 0, $pos + 1);
             $relative_class = substr($class, $pos + 1);
 
             if ($this->loadMappedFile($prefix, $relative_class)) {
@@ -149,12 +135,13 @@ class Autoloader
     }
 
     /**
-     * Загружает соответствующий префиксу пространства имён и относительному имени класса файл.
+     * Load the mapped file for a namespace prefix and relative class.
      *
-     * @param string $prefix         Префикс пространства имён.
-     * @param string $relative_class Относительное имя класса.
+     * @param string $prefix         The namespace prefix.
+     * @param string $relative_class The relative class name.
      *
-     * @return bool Статус загрузки файла.
+     * @return mixed Boolean false if no mapped file can be loaded, or the
+     * name of the mapped file that was loaded.
      */
     protected function loadMappedFile($prefix, $relative_class)
     {
@@ -172,11 +159,11 @@ class Autoloader
     }
 
     /**
-     * Если файл существует, загружаем его.
+     * If a file exists, require it from the file system.
      *
-     * @param string $file файл для загрузки.
+     * @param string $file The file to require.
      *
-     * @return bool true если файл существует, false если нет.
+     * @return bool True if the file exists, false if not.
      */
     protected function requireFile($file)
     {
