@@ -22,22 +22,21 @@ use Leaf\Http\Response\Exception;
  * @package    Http
  * @version    2.1
  * @author     Roman Kritskiy <itoktor@gmail.com>
- * @license    GNU Lisence
+ * @license    GNU Licence
  * @copyright  2014 - 2015 Roman Kritskiy
  */
 class Response
 {
-
     /**
-     * Описание статус кодов.
+     * Status code descriptions.
      *
      * @var array
      */
-    protected static $messages = array(
-        // Информационные 1xx
+    protected $messages = array(
+        // Information 1xx
         100 => 'Continue',
         101 => 'Switching Protocols',
-        // Успешные 2xx
+        // Success 2xx
         200 => 'OK',
         201 => 'Created',
         202 => 'Accepted',
@@ -45,7 +44,7 @@ class Response
         204 => 'No Content',
         205 => 'Reset Content',
         206 => 'Partial Content',
-        // Перенаправление 3xx
+        // Redirect 3xx
         300 => 'Multiple Choices',
         301 => 'Moved Permanently',
         302 => 'Found', // 1.1
@@ -53,7 +52,7 @@ class Response
         304 => 'Not Modified',
         305 => 'Use Proxy',
         307 => 'Temporary Redirect',
-        // Ошибка клиента 4xx
+        // Client errors 4xx
         400 => 'Bad Request',
         401 => 'Unauthorized',
         402 => 'Payment Required',
@@ -74,7 +73,7 @@ class Response
         417 => 'Expectation Failed',
         423 => 'Locked',
         429 => 'Too Many Requests',
-        // Ошибка сервера 5xx
+        // Server errors 5xx
         500 => 'Internal Server Error',
         501 => 'Not Implemented',
         502 => 'Bad Gateway',
@@ -88,126 +87,50 @@ class Response
     );
 
     /**
-     * Тело Http пакета.
+     * The Http package body.
      *
      * @var string
      */
     protected $body = '';
 
     /**
-     * Хранилище для заголовков.
+     * Storage headers.
      *
      * @var array
      */
-    protected $headers = array(
-        'Content-Type' => 'text/html; charset=utf-8'
-    );
+    protected $headers = array();
 
     /**
-     * Статус код.
+     * The Http package status code.
      *
      * @var int
      */
-    protected $status_сode = 200;
+    protected $status_сode;
 
     /**
-     * Версия Http.
+     * Http version.
      *
      * @var string
      */
     protected $version = 'HTTP/1.1';
 
     /**
-     * Отправляет тело Http пакета.
-     *
-     * @return string Тело ответа.
+     * @var
      */
-    public function getBody()
-    {
-        return $this->body;
-    }
+    protected $file;
 
     /**
-     * Устанавливает тело Http пакета.
      *
-     * @param string $body Тело ответа.
      *
-     * @return Response
+     * @param string $body
+     * @param int    $status_code
+     *
+     * @throws Exception
      */
-    public function setBody($body)
+    public function __construct($body = '', $status_code = 200)
     {
-        $this->body .= (string)$body;
-        return $this;
-    }
-
-    /**
-     * Добавляет заголовки.
-     *
-     * @param string|array $header Имя заголовка или массив: имя => тело.
-     * @param string       $value  Тело заголовка.
-     *
-     * @return Response
-     */
-    public function setHeaders($header, $value = null)
-    {
-        if (is_array($header)) {
-            foreach ($header as $name => $value) {
-                $this->headers[$name] = $value;
-            }
-        }
-        $this->headers[$header] = $value;
-        return $this;
-    }
-
-    /**
-     * Отправляет заголовки.
-     *
-     * @return Response
-     */
-    public function sendHeaders()
-    {
-        if (headers_sent()) {
-            throw new Exception('Заголовки уже были отправлены.');
-        }
-
-        $status_line = $this->version.' '.$this->status_сode.' '.self::$messages[$this->status_сode];
-        header($status_line, true, $this->status_сode);
-
-        foreach ($this->headers as $name => $value) {
-            header($name.':'.$value);
-        }
-        return $this;
-    }
-
-    /**
-     * Редирект
-     *
-     * @param string $uri  Ури редиректа.
-     * @param int    $code Статус код.
-     *
-     * @return void
-     */
-    public function redirect($uri, $code = 302)
-    {
-        $this->addHeaders('Location', trim($uri));
-        $this->setStatusCode($code);
-    }
-
-    /**
-     * Устанавливает статус код для Http пакета.
-     *
-     * @param int $status_code Статус код.
-     *
-     * @return Response
-     * @throws HttpException
-     */
-    public function setStatusCode($status_code)
-    {
-        if ($status_code >= 600 || $status_code < 100) {
-            throw new Exception('Неизвестный статус код (поддерживаются 100 ~ 599)!');
-        }
-        $this->status_сode = $status_code;
-        return $this;
+        $this->setBody($body);
+        $this->setStatusCode($status_code);
     }
 
     /**
@@ -228,12 +151,189 @@ class Response
     }
 
     /**
+     *
+     *
+     * @return string
+     */
+    public function getHttpVersion()
+    {
+        return $this->version;
+    }
+
+    /**
+     * Устанавливает статус код для Http пакета.
+     *
+     * @param int $status_code Статус код.
+     *
+     * @return Response
+     */
+    public function setStatusCode($status_code)
+    {
+        if ($status_code >= 600 || $status_code < 100) {
+            throw new Exception('Unknown status code (supports 100 ~ 599)!');
+        }
+        $this->status_сode = $status_code;
+        return $this;
+    }
+
+    /**
+     *
+     *
+     * @return int
+     */
+    public function getStatusCode()
+    {
+        return $this->status_сode;
+    }
+
+    /**
+     * Добавляет заголовки.
+     *
+     * @param mixed $headers Имя заголовка или массив: имя => тело.
+     *
+     * @return Response
+     */
+    public function setHeaders(array $headers)
+    {
+        $this->headers = array_merge($this->headers, $headers);
+        return $this;
+    }
+
+    /**
+     * Редирект
+     *
+     * @param string $uri  Ури редиректа.
+     * @param int    $code Статус код.
+     *
+     * @return void
+     */
+    public function redirect($uri, $code = 302)
+    {
+        $this->addHeaders('Location', trim($uri));
+        $this->setStatusCode($code);
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return array
+     */
+    public function getHeaders($name = null)
+    {
+        return $name?$this->headers[$name]:$this->headers;
+    }
+
+    /**
+     *
+     *
+     * @return $this
+     */
+    public function resetHeaders()
+    {
+        $this->headers = array();
+        return $this;
+    }
+
+    /**
+     * Устанавливает тело Http пакета.
+     *
+     * @param string $body Тело ответа.
+     *
+     * @return Response
+     */
+    public function setBody($body)
+    {
+        $this->body = (string)$body;
+        return $this;
+    }
+
+    public function appendBody($body)
+    {
+        $this->body .= (string)$body;
+        return $this;
+    }
+
+    /**
+     * Отправляет тело Http пакета.
+     *
+     * @return string Тело ответа.
+     */
+    public function getBody()
+    {
+        return $this->body;
+    }
+
+    /**
+     * Отправляет заголовки.
+     *
+     * @return Response
+     */
+    public function sendHeaders()
+    {
+        if (headers_sent()) {
+            throw new Exception('Заголовки уже были отправлены.');
+        }
+
+        $status_line = $this->version.' '.$this->status_сode.' '.$this->messages[$this->status_сode];
+        header($status_line, true, $this->status_сode);
+
+        foreach ($this->headers as $name => $value) {
+            header($name.':'.$value);
+        }
+        return $this;
+    }
+
+    public function send()
+    {
+        if (!empty($this->headers)) {
+            $this->sendHeaders();
+        }
+
+        if (is_string($this->file) and strlen($this->file)) {
+            readfile($this->file);
+        } else {
+            echo $this->body;
+        }
+
+        return $this;
+    }
+
+    /**
      * Отправляет тело пакета, если пытаются вывести объект.
      *
      * @return string Тело Http пакета.
      */
     public function __toString()
     {
-        return (string)$this->getBody();
+        return $this->send();
+    }
+
+    /**
+     * Sets an attached file to be sent at the end of the request
+     *
+     * @param string filePath
+     * @param string attachmentName
+     *
+     * @return asd
+     */
+    public function setFileToSend($file_path, $attachment_name = null, $attachment = true)
+    {
+        if (!is_string($attachment_name)) {
+            $attachment_name = basename($attachment_name);
+        }
+
+        if ($attachment) {
+            $this->sendHeaders(
+                array(
+                    'Content-Description'       => 'File Transfer',
+                    'Content-Type'              => 'application/octet-stream',
+                    'Content-Disposition'       => 'attachment; filename='.$attachment_name,
+                    'Content-Transfer-Encoding' => 'binary'
+                )
+            );
+        }
+
+        $this->file = $file_path;
+        return $this;
     }
 }

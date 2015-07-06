@@ -11,7 +11,7 @@ use Leaf\Utils\ArrayObject;
  * @subpackage Utils
  * @version    2.0
  * @author     Roman Kritskiy <itoktor@gmail.com>
- * @license    GNU Lisence
+ * @license    GNU Licence
  * @copyright  2014 - 2015 Roman Kritskiy
  */
 class Cookies extends ArrayObject
@@ -43,14 +43,14 @@ class Cookies extends ArrayObject
      */
     public function __construct($params = array())
     {
-        $this->array = &$_COOKIE;
+        $this->array  = &$_COOKIE;
         $this->params = $params + $this->params;
     }
 
     /**
      * Отправляет значение cookies по ключу или default, если искомое - не найдено.
      *
-     *      $cookies->get('user.about.name', 'noname');
+     *      $cookies->get('user.about.name', 'no-name');
      *
      * @param string $name    Имя cookie.
      * @param mixed  $default Значение, которое вернется, если искомое - не найдено.
@@ -59,7 +59,7 @@ class Cookies extends ArrayObject
      */
     public function get($name, $default = null)
     {
-        return ($this->offsetExists($name) === true)? $this->offsetGet($name) : $default;
+        return ($this->offsetExists($name) === true)?$this->offsetGet($name):$default;
     }
 
     /**
@@ -127,7 +127,7 @@ class Cookies extends ArrayObject
             return;
         }
 
-        if(is_array($delete)){
+        if (is_array($delete)) {
             array_walk_recursive(
                 $delete,
                 function (&$item) {
@@ -137,7 +137,7 @@ class Cookies extends ArrayObject
         } else {
             $delete = '';
         }
-        
+
         $params = array_merge($params, array('expiration' => 1));
         $this->set($name, $delete, $params);
     }
@@ -149,6 +149,6 @@ class Cookies extends ArrayObject
 
     public function offsetUnset($offset)
     {
-        return $this->delete($offset);
+        $this->delete($offset);
     }
 }

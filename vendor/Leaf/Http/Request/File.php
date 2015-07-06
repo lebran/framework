@@ -8,7 +8,7 @@ namespace Leaf\Http\Request;
  * @subpackage Request
  * @version    2.1
  * @author     Roman Kritskiy <itoktor@gmail.com>
- * @license    GNU Lisence
+ * @license    GNU Licence
  * @copyright  2014 - 2015 Roman Kritskiy
  */
 class File

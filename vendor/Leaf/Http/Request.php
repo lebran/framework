@@ -14,7 +14,7 @@ use Leaf\Http\Request\File;
  * @package    Http
  * @version    2.1
  * @author     Roman Kritskiy <itoktor@gmail.com>
- * @license    GNU Lisence
+ * @license    GNU Licence
  * @copyright  2014 - 2015 Roman Kritskiy
  */
 class Request
@@ -243,7 +243,7 @@ class Request
     }
 
     /**
-     * File helper
+     * File helper.
      *
      * @param array $file  Array of files.
      * @param array $array Where an array of record.
