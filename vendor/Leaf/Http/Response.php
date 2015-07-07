@@ -4,19 +4,19 @@ namespace Leaf\Http;
 use Leaf\Http\Response\Exception;
 
 /**
- * Реализует обертку для Http ответа. Формирует Http пакет.
+ * Implements a wrapper for the Http response. Generates Http package.
  *
  *       #####################
- *      #      Http пакет     #
+ *      #     Http package    #
  *       #####################
- *      #        Статус       #
+ *      #     Status line     #
  *      #---------------------#
  *      #                     #
- *      #       Заголовки     #
- *      #          ...        #
+ *      #       Headers       #
+ *      #         ...         #
  *      #                     #
  *      #---------------------#
- *      #         Тело        #
+ *      #         Body        #
  *       #####################
  *
  * @package    Http
@@ -94,7 +94,7 @@ class Response
     protected $body = '';
 
     /**
-     * Storage headers.
+     * Store headers.
      *
      * @var array
      */
@@ -105,55 +105,54 @@ class Response
      *
      * @var int
      */
-    protected $status_сode;
+    protected $status;
 
     /**
-     * Http version.
+     * The Http package version.
      *
      * @var string
      */
     protected $version = 'HTTP/1.1';
 
     /**
-     * @var
+     * The name of attached file.
+     *
+     * @var array
      */
     protected $file;
 
     /**
+     * Initialisation.
      *
-     *
-     * @param string $body
-     * @param int    $status_code
-     *
-     * @throws Exception
+     * @param string $body   Http package body.
+     * @param int    $status Http status code.
      */
-    public function __construct($body = '', $status_code = 200)
+    public function __construct($body = '', $status = 200)
     {
         $this->setBody($body);
-        $this->setStatusCode($status_code);
+        $this->setStatusCode($status);
     }
 
     /**
-     * Устанавливает версию протокола Http.
+     * Sets the version of the protocol Http.
      *
-     * @param string $version версия Http протокола (1.1 или 1.0).
+     * @param string $version Http protocol version (1.1 or 1.0).
      *
-     * @return Response
-     * @throws HttpException
+     * @return object Response object.
      */
     public function setHttpVersion($version)
     {
         if ($version != '1.0' || $version != '1.1') {
-            throw new Exception('Поддерживаются только 1.0 и 1.1!');
+            throw new Exception('Supports only 1.0 and 1.1!');
         }
         $this->version = 'HTTP/'.$version;
         return $this;
     }
 
     /**
+     * Gets the version of the protocol Http.
      *
-     *
-     * @return string
+     * @return string Http version.
      */
     public function getHttpVersion()
     {
@@ -161,37 +160,37 @@ class Response
     }
 
     /**
-     * Устанавливает статус код для Http пакета.
+     * Sets the status code for Http package.
      *
-     * @param int $status_code Статус код.
+     * @param int $status Http status code.
      *
-     * @return Response
+     * @return object Response object.
      */
-    public function setStatusCode($status_code)
+    public function setStatusCode($status)
     {
-        if ($status_code >= 600 || $status_code < 100) {
+        if ($status >= 600 || $status < 100) {
             throw new Exception('Unknown status code (supports 100 ~ 599)!');
         }
-        $this->status_сode = $status_code;
+        $this->status = $status;
         return $this;
     }
 
     /**
+     * Gets the status code for Http package.
      *
-     *
-     * @return int
+     * @return int Http status code.
      */
     public function getStatusCode()
     {
-        return $this->status_сode;
+        return $this->status;
     }
 
     /**
-     * Добавляет заголовки.
+     * Adds headers in the storage that will be sent.
      *
-     * @param mixed $headers Имя заголовка или массив: имя => тело.
+     * @param mixed $headers Array: header name => header body.
      *
-     * @return Response
+     * @return object Response object.
      */
     public function setHeaders(array $headers)
     {
@@ -200,23 +199,25 @@ class Response
     }
 
     /**
-     * Редирект
+     * Redirects.
      *
-     * @param string $uri  Ури редиректа.
-     * @param int    $code Статус код.
+     * @param string $uri    Redirect uri.
+     * @param int    $status Status code.
      *
      * @return void
      */
-    public function redirect($uri, $code = 302)
+    public function redirect($uri, $status = 302)
     {
         $this->addHeaders('Location', trim($uri));
-        $this->setStatusCode($code);
+        $this->setStatusCode($status);
     }
 
     /**
-     * @param string $name
+     * Gets http headers or header by key.
      *
-     * @return array
+     * @param string $name Header name.
+     *
+     * @return mixed Header or headers.
      */
     public function getHeaders($name = null)
     {
@@ -224,9 +225,9 @@ class Response
     }
 
     /**
+     * Reset all headers.
      *
-     *
-     * @return $this
+     * @return object Response object.
      */
     public function resetHeaders()
     {
@@ -235,11 +236,11 @@ class Response
     }
 
     /**
-     * Устанавливает тело Http пакета.
+     * Sets the body for Http package.
      *
-     * @param string $body Тело ответа.
+     * @param string $body Body for http package.
      *
-     * @return Response
+     * @return object Response object.
      */
     public function setBody($body)
     {
@@ -247,6 +248,28 @@ class Response
         return $this;
     }
 
+    /**
+     * Sets the json body for Http package.
+     *
+     * @param mixed $body    Json body for http package.
+     * @param int   $options Json option.
+     *
+     * @return object Response object.
+     */
+    public function setJsonBody($body, $options = 0)
+    {
+        $this->setHeaders(array('Content-Type' => 'application/json'));
+        $this->body = json_encode($body, $options);
+        return $this;
+    }
+
+    /**
+     * Adds the body for Http package.
+     *
+     * @param $body Body for http package.
+     *
+     * @return object Response object.
+     */
     public function appendBody($body)
     {
         $this->body .= (string)$body;
@@ -254,9 +277,9 @@ class Response
     }
 
     /**
-     * Отправляет тело Http пакета.
+     * Gets the body for Http package.
      *
-     * @return string Тело ответа.
+     * @return string Body for Http package.
      */
     public function getBody()
     {
@@ -264,18 +287,18 @@ class Response
     }
 
     /**
-     * Отправляет заголовки.
+     * Sends the Http package headers.
      *
-     * @return Response
+     * @return object Response object.
      */
     public function sendHeaders()
     {
         if (headers_sent()) {
-            throw new Exception('Заголовки уже были отправлены.');
+            throw new Exception('The headers have already been sent.');
         }
 
-        $status_line = $this->version.' '.$this->status_сode.' '.$this->messages[$this->status_сode];
-        header($status_line, true, $this->status_сode);
+        $status_line = $this->version.' '.$this->status.' '.$this->messages[$this->status];
+        header($status_line, true, $this->status);
 
         foreach ($this->headers as $name => $value) {
             header($name.':'.$value);
@@ -283,6 +306,11 @@ class Response
         return $this;
     }
 
+    /**
+     * Sends Http package.
+     *
+     * @return object Response object.
+     */
     public function send()
     {
         if (!empty($this->headers)) {
@@ -299,35 +327,26 @@ class Response
     }
 
     /**
-     * Отправляет тело пакета, если пытаются вывести объект.
-     *
-     * @return string Тело Http пакета.
-     */
-    public function __toString()
-    {
-        return $this->send();
-    }
-
-    /**
      * Sets an attached file to be sent at the end of the request
      *
-     * @param string filePath
-     * @param string attachmentName
+     * @param string $file_path   The path to the attached file.
+     * @param string $attach_name Name for attached file.
+     * @param bool   $attachment  Attached or not.
      *
-     * @return asd
+     * @return object Response object.
      */
-    public function setFileToSend($file_path, $attachment_name = null, $attachment = true)
+    public function setFileToSend($file_path, $attach_name = null, $attachment = true)
     {
-        if (!is_string($attachment_name)) {
-            $attachment_name = basename($attachment_name);
+        if (!is_string($attach_name)) {
+            $attach_name = basename($file_path);
         }
 
         if ($attachment) {
-            $this->sendHeaders(
+            $this->setHeaders(
                 array(
                     'Content-Description'       => 'File Transfer',
                     'Content-Type'              => 'application/octet-stream',
-                    'Content-Disposition'       => 'attachment; filename='.$attachment_name,
+                    'Content-Disposition'       => 'attachment; filename='.$attach_name,
                     'Content-Transfer-Encoding' => 'binary'
                 )
             );

@@ -28,8 +28,6 @@ class Request
 
     /**
      * Initialisation.
-     *
-     * @return void
      */
     public function __construct()
     {
@@ -77,7 +75,7 @@ class Request
      *
      * @return mixed An array of POST, the value of a key or default.
      */
-    public function getPost($key = false, $default = false)
+    public function getPost($key = null, $default = null)
     {
         return $this->getHelper($_POST, $key, $default);
     }
@@ -91,7 +89,7 @@ class Request
      *
      * @return mixed An array of GET, the value of a key or default.
      */
-    public function getQuery($key = false, $default = false)
+    public function getQuery($key = null, $default = null)
     {
         return $this->getHelper($_GET, $key, $default);
     }
@@ -105,7 +103,7 @@ class Request
      *
      * @return mixed An array of SERVER, the value of a key or default.
      */
-    public function getServer($key = false, $default = false)
+    public function getServer($key = null, $default = null)
     {
         return $this->getHelper($_SERVER, $key, $default);
     }
@@ -113,7 +111,7 @@ class Request
     /**
      * Sends the name of a method derived from the request headers.
      *
-     * @return string Метод запроса.
+     * @return string Request method.
      */
     public function getMethod()
     {
@@ -123,7 +121,7 @@ class Request
     /**
      * Sends uri from the request.
      *
-     * @return type
+     * @return string Request uri.
      */
     public function getUri()
     {
@@ -133,7 +131,7 @@ class Request
     /**
      * Sends header value of the request.
      *
-     * @param string $header Name header.
+     * @param string $header Header name.
      *
      * @return mixed The value of the title, if no search results - false.
      */
@@ -197,9 +195,9 @@ class Request
      *
      * @return mixed An array of File objects.
      */
-    public function getFiles($name = false)
+    public function getFiles($name = null)
     {
-        return $name?$this->files[$name]:$this->files;
+        return $this->getHelper($this->files, $name, false);
     }
 
     /**

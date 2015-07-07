@@ -35,7 +35,7 @@ class File
     protected $size;
 
     /**
-     * The mime typr of file.
+     * The mime type of file.
      *
      * @var string
      */
@@ -45,8 +45,6 @@ class File
      * Initialisation.
      *
      * @param array $file File parameters.
-     *
-     * @return void
      */
     public function __construct(array $file)
     {
@@ -99,7 +97,7 @@ class File
     /**
      * Checks whether the file has been uploaded via Post.
      *
-     * @return bool Was uploaded?
+     * @return bool True if uploaded, then - false.
      */
     public function isUploadedFile()
     {
@@ -107,7 +105,7 @@ class File
     }
 
     /**
-     * Moves the temporary file to a destination within the application
+     * Moves the temporary file to a destination within the application.
      *
      * @param string Directory for file.
      *
