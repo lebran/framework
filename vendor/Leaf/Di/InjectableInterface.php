@@ -19,7 +19,7 @@ interface InjectableInterface
      *
      * @return void
      */
-    public function setDi(Container $di);
+    public function setDi($di);
 
     /**
      * Returns the dependency injection container.

@@ -101,6 +101,13 @@ class Response
     protected $headers = array();
 
     /**
+     * Store cookies.
+     *
+     * @var array
+     */
+    protected $cookies = array();
+
+    /**
      * The Http package status code.
      *
      * @var int
@@ -236,6 +243,16 @@ class Response
     }
 
     /**
+     * Sets the cookies for sending.
+     *
+     * @param object $cookies Cookies object.
+     */
+    public function setCookies($cookies)
+    {
+        $this->cookies[] = $cookies;
+    }
+
+    /**
      * Sets the body for Http package.
      *
      * @param string $body Body for http package.
@@ -307,12 +324,30 @@ class Response
     }
 
     /**
+     * Sends the Cookies.
+     *
+     * @return object Response object.
+     */
+    public function sendCookies()
+    {
+        foreach($this->cookies as $cookie){
+            $cookie->send();
+        }
+
+        return $this;
+    }
+
+    /**
      * Sends Http package.
      *
      * @return object Response object.
      */
     public function send()
     {
+        if (!empty($this->cookies)) {
+            $this->sendCookies();
+        }
+
         if (!empty($this->headers)) {
             $this->sendHeaders();
         }

@@ -37,7 +37,7 @@ class Autoloader
     }
 
     /**
-     * Unregister loader with SPL autoloader stack.
+     * Un-register loader with SPL autoloader stack.
      *
      * @return void
      */

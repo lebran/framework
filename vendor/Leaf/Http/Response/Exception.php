@@ -7,7 +7,7 @@ namespace Leaf\Http\Response;
  * @package Http
  * @version    2.0
  * @author     Roman Kritskiy <itoktor@gmail.com>
- * @license    GNU Lisence
+ * @license    GNU Licence
  * @copyright  2014 - 2015 Roman Kritskiy
  */
 class Exception extends \Exception
