@@ -32,7 +32,7 @@ namespace Leaf\Di;
 class Container implements \ArrayAccess
 {
     /**
-     * Strorage services.
+     * Store services.
      *
      * @var array
      */

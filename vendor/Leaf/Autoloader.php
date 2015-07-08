@@ -116,7 +116,7 @@ class Autoloader
      */
     public function loadClass($class)
     {
-        if (!empty($this->classes[$class]) and $this->requireFile($this->classes[$class])) {
+        if (!empty($this->classes[$class]) && $this->requireFile($this->classes[$class])) {
             return true;
         }
 

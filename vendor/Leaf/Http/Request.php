@@ -9,7 +9,7 @@ use Leaf\Http\Request\File;
  *      - Easy access to request headers
  *      - Get sanitizing values from the global arrays
  *      - Methods of checking the type of request
- *      -
+ *      - Easy access to files obtained via the form as array of objects
  *
  * @package    Http
  * @version    2.1
@@ -254,7 +254,7 @@ class Request
             if (is_array($value)) {
                 $this->fileHelper($value, $array[$key]);
             } else {
-                if (UPLOAD_ERR_OK == $file['error'] and !empty($file)) {
+                if (UPLOAD_ERR_OK == $file['error'] && !empty($file)) {
                     $array = new File($file);
                 }
                 break;

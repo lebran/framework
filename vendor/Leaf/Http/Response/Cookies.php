@@ -9,7 +9,7 @@ use Leaf\Di\InjectableInterface;
  *
  * @package    Http
  * @subpackage Response
- * @version    2.0
+ * @version    2.1
  * @author     Roman Kritskiy <itoktor@gmail.com>
  * @license    GNU Licence
  * @copyright  2014 - 2015 Roman Kritskiy
@@ -160,7 +160,7 @@ class Cookies implements InjectableInterface
         $this->bag = array_merge($this->bag, $value);
 
         if (!$this->registered) {
-            if (!is_object($this->di)) {
+            if (!is_object($this->di) && !$this->di->has('response')) {
                 throw new Exception("A dependency injection object is required to access the 'response' service");
             }
             $this->di->get('response')->setCookies($this);

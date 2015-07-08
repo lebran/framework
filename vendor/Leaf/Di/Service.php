@@ -113,7 +113,7 @@ class Service
      */
     public function resolve(array $params, Container $di)
     {
-        if ($this->shared and $this->shared_instance !== null) {
+        if ($this->shared && $this->shared_instance !== null) {
             return $this->shared_instance;
         }
 
@@ -259,7 +259,7 @@ class Service
 
                 $method_call = array($instance, $method['method']);
 
-                if (empty($method['arguments']) and !is_array($method['arguments'])) {
+                if (empty($method['arguments']) && !is_array($method['arguments'])) {
                     call_user_func($method_call);
                 } else {
                     call_user_func_array($method_call, $this->buildParams($di, $method['arguments']));
