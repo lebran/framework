@@ -1,7 +1,7 @@
 <?php
-namespace Leaf\App\Middleware\Test;
+namespace Lebran\App\Middleware\Test;
 
-use Leaf\Core\Mvc\Middleware;
+use Lebran\Core\Mvc\Middleware;
 
 /**
  * Description of TestMiddlewares

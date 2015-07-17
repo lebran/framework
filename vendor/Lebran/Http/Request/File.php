@@ -1,5 +1,5 @@
 <?php
-namespace Leaf\Http\Request;
+namespace Lebran\Http\Request;
 
 /**
  * Wrapper for files sent via the form.

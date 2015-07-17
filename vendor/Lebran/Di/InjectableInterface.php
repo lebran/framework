@@ -1,5 +1,5 @@
 <?php
-namespace Leaf\Di;
+namespace Lebran\Di;
 
 /**
  * This interface must be implemented in those classes that need internal dependency injection container.

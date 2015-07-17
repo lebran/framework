@@ -1,26 +1,26 @@
 <?php
-namespace Leaf\Di;
+namespace Lebran\Di;
 
 /**
- * Leaf\Di it's a component that implements Dependency Injection/Service Location patterns.
+ * Lebran\Di it's a component that implements Dependency Injection/Service Location patterns.
  * Supports string, object, array and anonymous function definition. Allows using the array syntax.
  *
  *                              Examples
  *  <code>
- *      $di = \Leaf\Di\Container();
+ *      $di = \Lebran\Di\Container();
  *
  *      // Using string definition
- *      $di->set('test', '\Leaf\App\TestController');
+ *      $di->set('test', '\Lebran\App\TestController');
  *
  *      // Using object definition (singleton)
- *      $di->set('test',  new \Leaf\App\TestController('param1'));
+ *      $di->set('test',  new \Lebran\App\TestController('param1'));
  *
  *      // Using anonymous function definition
  *      $di->set('test',  function ($param1, $param2) {
- *          return new \Leaf\App\TestController($param1, $param2)
+ *          return new \Lebran\App\TestController($param1, $param2)
  *      });
  *
- *      // Array definition watching in \Leaf\Di\Service class
+ *      // Array definition watching in \Lebran\Di\Service class
  *  </code>
  *
  * @package    Di

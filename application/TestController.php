@@ -1,14 +1,14 @@
 <?php
-namespace Leaf\App;
+namespace Lebran\App;
 
-use Leaf\Di\Container;
+use Lebran\Di\Container;
 
 /**
  * Description of TestController
  *
  * @author Roma
  */
-class TestController //implements \Leaf\Di\InjectionInterface
+class TestController //implements \Lebran\Di\InjectionInterface
 {
     public $test = 'Privet';
 

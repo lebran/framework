@@ -1,10 +1,10 @@
 <?php
-namespace Leaf\Http\Response;
+namespace Lebran\Di;
 
 /**
- * Exceptions thrown in Response will use this class.
+ * Exceptions thrown in Di will use this class.
  *
- * @package Http
+ * @package    Di
  * @version    2.1
  * @author     Roman Kritskiy <itoktor@gmail.com>
  * @license    GNU Licence

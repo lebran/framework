@@ -1,7 +1,7 @@
 <?php
-namespace Leaf\Http\Response;
+namespace Lebran\Http\Response;
 
-use Leaf\Di\InjectableInterface;
+use Lebran\Di\InjectableInterface;
 
 /**
  * The helper class for a cookies. Supports setting of the array.

@@ -1,7 +1,7 @@
 <?php
-namespace Leaf\Http;
+namespace Lebran\Http;
 
-use Leaf\Http\Request\File;
+use Lebran\Http\Request\File;
 
 /**
  * It implements a wrapper for Http request with extended functionality.

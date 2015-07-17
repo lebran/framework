@@ -4,14 +4,14 @@
  * 
  * @var string
  */
-define('LEAF_START_TIME', microtime(true));
+define('LEBRAN_START_TIME', microtime(true));
 
 /**
  * Количество памяти выделенной PHP
  *
  * @var string
  */
-define('LEAF_START_MEM', memory_get_usage());
+define('LEBRAN_START_MEM', memory_get_usage());
 
 /**
  * Разделитель директорий ( '/', '\' ).
@@ -39,7 +39,7 @@ define( 'VENDOR_PATH', $_SERVER['DOCUMENT_ROOT'].DS.'vendor'.DS) ;
  * 
  * @var string
  */
-define( 'LEAF_PATH', VENDOR_PATH.'Leaf'.DS) ;
+define( 'LEBRAN_PATH', VENDOR_PATH.'Lebran'.DS) ;
    
 /**
  * Полный путь к директории шаблонов.
@@ -50,43 +50,43 @@ define( 'TPL_PATH', $_SERVER['DOCUMENT_ROOT'] . DS . 'templates' . DS) ;
 
 error_reporting(E_ALL);
 
-require_once LEAF_PATH.'Autoloader.php';
+require_once LEBRAN_PATH.'Autoloader.php';
 
-$autoloader = new \Leaf\Autoloader();
+$autoloader = new \Lebran\Autoloader();
 
 $autoloader->addNamespaces(
     array(
-        'Leaf' => LEAF_PATH,
-        'Leaf\\App' => APP_PATH
+        'Lebran' => LEBRAN_PATH,
+        'Lebran\\App' => APP_PATH
     )
 );
 
 $autoloader->register();
 
-$di = new Leaf\Di\Container();
+$di = new Lebran\Di\Container();
 
 $di->set('autoloader', $autoloader, true);
 
 $di->set('request', function (){
-    return new \Leaf\Http\Request();
+    return new \Lebran\Http\Request();
 }, true);
 
 $di->set('response', function (){
-    return new \Leaf\Http\Response();
+    return new \Lebran\Http\Response();
 }, true);
 
 $di->set('cookies', function (){
-    return new \Leaf\Http\Cookies();
+    return new \Lebran\Http\Cookies();
 }, true);
 
 $di->set('test', function ($param1, $param2){
-    return new \Leaf\App\TestController($param1, $param2);
+    return new \Lebran\App\TestController($param1, $param2);
 });
 $di->set('test', array(
-    'class' => '\Leaf\App\TestController',
+    'class' => '\Lebran\App\TestController',
     'arguments' => array(
-        array('type' => 'class', 'name' => '\Leaf\App\TestController', 'arguments' => array(
-            array('type' => 'class', 'name' => '\Leaf\App\TestController'),
+        array('type' => 'class', 'name' => '\Lebran\App\TestController', 'arguments' => array(
+            array('type' => 'class', 'name' => '\Lebran\App\TestController'),
             array('type' => 'class', 'name' => 'test', 'arguments' => array(
                 array('type' => 'parameter', 'value' => 'yoyoyiyyo'),
                 array('type' => 'parameter', 'value' => 'Pidari')
@@ -111,7 +111,7 @@ $di->get('test');
 
 
 /*$di->set('router', function () {
-    $router = new \Leaf\Mvc\Router();
+    $router = new \Lebran\Mvc\Router();
     $router->add('test', '(<controller>(/<action>(/<id>)))')
         ->defaults(
             array(

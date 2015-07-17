@@ -1,8 +1,8 @@
 <?php
-namespace Leaf\App\Controller;
+namespace Lebran\App\Controller;
 
-use Leaf\Core\Mvc\View;
-use Leaf\Core\Mvc\Layout;
+use Lebran\Core\Mvc\View;
+use Lebran\Core\Mvc\Layout;
 
 /**
  * Тестовый контроллер

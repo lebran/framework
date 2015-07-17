@@ -1,5 +1,5 @@
 <?php
-namespace Leaf\Di;
+namespace Lebran\Di;
 
 /**
  * Represents individually a service in the services container.
@@ -13,14 +13,14 @@ namespace Leaf\Di;
  *          public function __toString(){}
  *      }
  *
- *      $service = new \Leaf\Di\Service(
+ *      $service = new \Lebran\Di\Service(
  *          'test',
  *          array(
- *              'class'      => '\Leaf\App\TestController',  // class1
+ *              'class'      => '\Lebran\App\TestController',  // class1
  *              'arguments'  => array(
  *                  array(  // first argument for class1 construct
  *                      'type'      => 'class',
- *                      'name'      => '\Leaf\App\TestController',  // class2
+ *                      'name'      => '\Lebran\App\TestController',  // class2
  *                      'arguments' => array(
  *                          array('type' => 'parameter', 'value' => 'One'), // first argument for class2 construct
  *                          array('type' => 'parameter', 'value' => 'Two')  // second argument for class2 construct

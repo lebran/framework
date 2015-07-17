@@ -1,7 +1,7 @@
 <?php
-namespace Leaf\Http;
+namespace Lebran\Http;
 
-use Leaf\Http\Response\Exception;
+use Lebran\Http\Response\Exception;
 
 /**
  * Implements a wrapper for the Http response. Generates Http package.
