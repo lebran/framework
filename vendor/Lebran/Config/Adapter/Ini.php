@@ -1,37 +1,44 @@
 <?php
+namespace Lebran\Config\Adapter;
+
+use Lebran\Config\Adapter;
+
 /**
- * Created by PhpStorm.
- * User: mindkicker
- * Date: 15.07.15
- * Time: 14:27
+ * It's adapter for INI config files.
+ *
+ * @package    Config
+ * @subpackage Adapter
+ * @version    2.0.0
+ * @author     Roman Kritskiy <itoktor@gmail.com>
+ * @license    GNU Licence
+ * @copyright  2014 - 2015 Roman Kritskiy
  */
-
-namespace Framework\Config\Adapter;
-
-
-namespace Framework\Config\Adapter;
-
-use Framework\Config\Adapter;
-use Framework\Config\Exception;
-
 class Ini extends Adapter
 {
     /**
+     * The extension of ini configs.
      *
-     * @param $path
+     * @var string
+     */
+    protected $extension = '.ini';
+
+    /**
+     * Loads ini config file.
      *
-     * @return mixed
+     * @param string $path The path to the file.
+     *
+     * @return array Config file as array.
      */
     public function load($path)
     {
-
     }
 
     /**
+     * Writes config in file.
      *
-     * @param $path
+     * @param string $path The path to the file.
      *
-     * @return mixed
+     * @return object Adapter\Ini object.
      */
     public function write($path)
     {

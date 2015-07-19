@@ -1,184 +1,58 @@
 <?php
+namespace Lebran\Config;
+
+use Lebran\Utils\Storage;
+
 /**
- * Created by PhpStorm.
- * User: mindkicker
- * Date: 15.07.15
- * Time: 13:16
+ * Lebran\Config it's a component that provides easy access to the any configs using adapters.
+ * If you want to use other types of configs, you need to create an adapter and extends this class.
+ *
+ * @package    Config
+ * @version    2.0.0
+ * @author     Roman Kritskiy <itoktor@gmail.com>
+ * @license    GNU Licence
+ * @copyright  2014 - 2015 Roman Kritskiy
  */
-
-namespace Framework\Config;
-
-abstract class Adapter implements \ArrayAccess, \Serializable
+abstract class Adapter extends Storage
 {
     /**
-     * Массив елементов ArrayObject.
+     * The extension of configs.
      *
-     * @var array
-     */
-    protected $configs = array();
-
-    /**
      * @var string
      */
     protected $extension = '';
 
     /**
+     * Initialisation.
      *
-     * @param $path
+     * @param string $path The path to the file.
+     *
+     * @throws \Lebran\Config\Exception
      */
     public function __construct($path)
     {
         if (is_file($path.$this->extension)) {
-            $this->configs = $this->load($path);
+            parent::__construct($this->load($path));
         } else {
             throw new Exception('File "'.basename($path.$this->extension).'" not found.');
         }
     }
 
     /**
+     * Loads config file.
      *
-     * @param $path
+     * @param string $path The path to the file.
      *
-     * @return mixed
+     * @return array Config file as array.
      */
     abstract public function load($path);
 
     /**
+     * Writes config in file.
      *
-     * @param $path
+     * @param string $path The path to the file.
      *
-     * @return mixed
+     * @return object Adapter object.
      */
     abstract public function write($path);
-
-    /**
-     * @param Adapter $config
-     *
-     * @return $this
-     */
-    public function merge(Adapter $config)
-    {
-        $this->configs = array_merge_recursive($this->configs, $config->toArray());
-        return $this;
-    }
-
-    /**
-     *
-     *
-     * @return array
-     */
-    public function toArray()
-    {
-        return $this->configs;
-    }/** @noinspection PhpUndefinedClassInspection */
-
-    /**
-     * @param      $offset
-     * @param null $default
-     *
-     * @return null|type
-     */
-    public function get($offset, $default = null)
-    {
-        return $this->offsetExists($offset)?$this->offsetGet($offset):$default;
-    }
-
-    /**
-     *
-     *
-     * @param type $offset
-     *
-     * @return type
-     */
-    public function offsetExists($offset)
-    {
-        return (bool)$this->getHelper($offset);
-    }
-
-    /**
-     *
-     * @param type $offset
-     *
-     * @return type
-     */
-    public function offsetGet($offset)
-    {
-        return $this->getHelper($offset);
-    }
-
-    /**
-     *
-     * @param type $offset
-     * @param type $value
-     */
-    public function offsetSet($offset, $value)
-    {
-        $segments = explode('.', $offset);
-        $group    = &$this->configs;
-        foreach ($segments as $segment => $val) {
-            if ($segment == count($segments) - 1) {
-                $group[$val] = $value;
-            } else {
-                $group = &$group[$val];
-            }
-        }
-    }
-
-    /**
-     *
-     * @param type $offset
-     *
-     * @return type
-     */
-    public function offsetUnset($offset)
-    {
-        if($this->offsetExists($offset)) {
-            $segments = explode('.', $offset);
-            $group    = &$this->configs;
-            foreach ($segments as $segment => $value) {
-                if ($segment == count($segments) - 1) {
-                    unset($group[$value]);
-                } else {
-                    $group = &$group[$value];
-                }
-            }
-        } else {
-            throw new Exception('"'.$offset.'" cannot be removed because not found.');
-        }
-    }
-
-    /**
-     *
-     * @return type
-     */
-    public function serialize()
-    {
-        return serialize($this->configs);
-    }
-
-    /**
-     *
-     * @param type $serialized
-     */
-    public function unserialize($serialized)
-    {
-        $this->configs = unserialize($serialized);
-    }
-
-    final protected function getHelper($offset)
-    {
-        $segments = explode('.', $offset);
-        $group    = &$this->configs;
-        foreach ($segments as $segment => $value) {
-            if (isset($group[$value])) {
-                if ($segment == count($segments) - 1) {
-                    return $group[$value];
-                } else {
-                    $group = &$group[$value];
-                }
-            } else {
-                return null;
-            }
-        }
-    }
 }

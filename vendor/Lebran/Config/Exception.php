@@ -1,13 +1,15 @@
 <?php
+namespace Lebran\Config;
+
 /**
- * Created by PhpStorm.
- * User: mindkicker
- * Date: 15.07.15
- * Time: 14:09
+ * Exceptions thrown in Config component will use this class.
+ *
+ * @package    Config
+ * @version    2.0.0
+ * @author     Roman Kritskiy <itoktor@gmail.com>
+ * @license    GNU Licence
+ * @copyright  2014 - 2015 Roman Kritskiy
  */
-
-namespace Framework\Config;
-
 class Exception extends \Exception
 {
 }
