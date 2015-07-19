@@ -12,7 +12,7 @@ use Lebran\Http\Request\File;
  *      - Easy access to files obtained via the form as array of objects
  *
  * @package    Http
- * @version    2.1
+ * @version    2.0.0
  * @author     Roman Kritskiy <itoktor@gmail.com>
  * @license    GNU Licence
  * @copyright  2014 - 2015 Roman Kritskiy
@@ -24,14 +24,14 @@ class Request
      *
      * @var array
      */
-    protected $files = array();
+    protected $files = [];
 
     /**
      * Initialisation.
      */
     public function __construct()
     {
-        $files = array();
+        $files = [];
         foreach ($_FILES as $key => $file) {
             if (!is_array($file['name'])) {
                 $files[$key] = $file;
@@ -151,7 +151,7 @@ class Request
     /**
      * Checks whether the 'post' request method.
      *
-     * @return bool true, if the method is POST, then - false
+     * @return bool true, if the method is POST, then - false.
      */
     public function isPost()
     {
@@ -161,7 +161,7 @@ class Request
     /**
      * Checks whether the 'get' request method.
      *
-     * @return bool true, if the method is GET, then - false
+     * @return bool true, if the method is GET, then - false.
      */
     public function isGet()
     {
@@ -213,16 +213,16 @@ class Request
      */
     final protected function smoothFiles(array $names, array $types, array $tmp_names, array $sizes, array $errors)
     {
-        $files = array();
+        $files = [];
         foreach ($names as $key => $name) {
             if (is_string($name)) {
-                $files[$key] = array(
+                $files[$key] = [
                     'name'     => $name,
                     'type'     => $types[$key],
                     'tmp_name' => $tmp_names[$key],
                     'size'     => $sizes[$key],
                     'error'    => $errors[$key]
-                );
+                ];
             }
             if (is_array($name)) {
                 $parentFiles = $this->smoothFiles(

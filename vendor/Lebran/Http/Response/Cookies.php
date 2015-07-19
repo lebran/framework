@@ -5,11 +5,11 @@ use Lebran\Di\InjectableInterface;
 
 /**
  * The helper class for a cookies. Supports setting of the array.
- * It is used annotation point to access both multidimensional arrays.
+ * It is used notation dot to access multidimensional arrays.
  *
  * @package    Http
  * @subpackage Response
- * @version    2.1
+ * @version    2.0.0
  * @author     Roman Kritskiy <itoktor@gmail.com>
  * @license    GNU Licence
  * @copyright  2014 - 2015 Roman Kritskiy
@@ -28,7 +28,7 @@ class Cookies implements InjectableInterface
      *
      * @var array
      */
-    protected $bag = array();
+    protected $bag = [];
 
     /**
      * Registered in response or not.
@@ -42,7 +42,7 @@ class Cookies implements InjectableInterface
      *
      * @var array
      */
-    protected $params = array(
+    protected $params = [
         // The time when the term of the cookie expires
         'expiration' => 0,
         // The path to the directory on the server from which the cookie will be available
@@ -53,16 +53,16 @@ class Cookies implements InjectableInterface
         'secure'     => false,
         // If set to true, cookie will only be available via Http protocol
         'httponly'   => false
-    );
+    ];
 
     /**
      * Initialisation.
      *
-     *      $cookies = new Cookies(array('secure' => true)));
+     *      $cookies = new Cookies(['secure' => true]));
      *
      * @param array $params Cookies parameters.
      */
-    public function __construct($params = array())
+    public function __construct($params = [])
     {
         array_walk_recursive($_COOKIE, 'trim');
         $this->params = $params + $this->params;
@@ -75,8 +75,9 @@ class Cookies implements InjectableInterface
      *
      * @return void
      */
-    public function setDi($di){
-        $this->di =$di;
+    public function setDi($di)
+    {
+        $this->di = $di;
     }
 
     /**
@@ -84,7 +85,8 @@ class Cookies implements InjectableInterface
      *
      * @return object Container object.
      */
-    public function getDi(){
+    public function getDi()
+    {
         return $this->di;
     }
 
@@ -120,15 +122,16 @@ class Cookies implements InjectableInterface
     /**
      * Set the cookie(s) value or an array of key.
      *
-     *      $cookie->set('global.post', $_POST, array('expiration' => 32000));
+     *      $cookie->set('global.post', $_POST, ['expiration' => 32000]);
      *
      * @param string $name   Cookie(s) name.
      * @param mixed  $value  Cookie(s) value.
      * @param array  $params Cookie(s) parameters.
      *
      * @return object Cookies object.
+     * @throws \Lebran\Http\Response\Exception
      */
-    public function set($name, $value, $params = array())
+    public function set($name, $value, $params = [])
     {
         foreach ($this->params as $key => $val) {
             if (empty($params[$key])) {
@@ -150,18 +153,18 @@ class Cookies implements InjectableInterface
             array_walk(
                 $value,
                 function (&$item) use ($params) {
-                    $item = array('value' => $item) + $params;
+                    $item = ['value' => $item] + $params;
                 }
             );
         } else {
-            $value = array($name => array('value' => $value) + $params);
+            $value = [$name => ['value' => $value] + $params];
         }
 
         $this->bag = array_merge($this->bag, $value);
 
         if (!$this->registered) {
             if (!is_object($this->di) && !$this->di->has('response')) {
-                throw new Exception("A dependency injection object is required to access the 'response' service");
+                throw new Exception('A dependency injection object is required to access the "response" service');
             }
             $this->di->get('response')->setCookies($this);
             $this->registered = true;
@@ -178,7 +181,7 @@ class Cookies implements InjectableInterface
      *
      * @return object Cookies object.
      */
-    public function delete($name, $params = array())
+    public function delete($name, $params = [])
     {
         if ((($delete = $this->get($name)) !== null)) {
             if (is_array($delete)) {
@@ -192,7 +195,7 @@ class Cookies implements InjectableInterface
                 $delete = '';
             }
 
-            $params = array_merge($params, array('expiration' => 1));
+            $params = array_merge($params, ['expiration' => 1]);
             $this->set($name, $delete, $params);
         }
 
@@ -227,18 +230,18 @@ class Cookies implements InjectableInterface
      *      $this->setHelper('test', $test);
      *
      *      Incoming array:
-     *          array(
+     *          [
      *              "level11" => "value1",
-     *              "level12" => array(
+     *              "level12" => [
      *                  "level21" => "value2"
-     *              )
-     *          )
+     *              ]
+     *          ]
      *
      *      Outgoing array:
-     *          array(
+     *          [
      *              "test[level11]" => "value1",
      *              "test[level12][level21]" => "value2",
-     *          )
+     *          ]
      *
      * @param array  $array Convertible array.
      * @param string $name  The name that will be added at the beginning.
@@ -247,7 +250,7 @@ class Cookies implements InjectableInterface
      */
     final protected function setHelper($name, array $array)
     {
-        $temp = array();
+        $temp = [];
         foreach ($array as $key => $value) {
             $new_name = strval(($name !== '')?$name.'['.$key.']':$key);
             is_array($value)?$temp += $this->setHelper($new_name, $value):$temp[$new_name] = $value;

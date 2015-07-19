@@ -52,7 +52,7 @@ namespace Lebran\Di;
  *  </code>
  *
  * @package    Di
- * @version    2.1
+ * @version    2.0.0
  * @author     Roman Kritskiy <itoktor@gmail.com>
  * @license    GNU Licence
  * @copyright  2014 - 2015 Roman Kritskiy
@@ -93,8 +93,6 @@ class Service
      * @param string $name       Service name.
      * @param mixed  $definition Service definition.
      * @param bool   $shared     Shared or not.
-     *
-     * @return void
      */
     final public function __construct($name, $definition, $shared = false)
     {
@@ -110,8 +108,9 @@ class Service
      * @param object $di     Container object.
      *
      * @return object Service instance object.
+     * @throws \Lebran\Di\Exception
      */
-    public function resolve(array $params, Container $di)
+    public function resolve(array $params, $di)
     {
         if ($this->shared && $this->shared_instance !== null) {
             return $this->shared_instance;
@@ -195,6 +194,7 @@ class Service
      * @param array $parameter New parameter.
      *
      * @return object Service object.
+     * @throws \Lebran\Di\Exception
      */
     public function setParameter($position, array $parameter)
     {
@@ -203,7 +203,7 @@ class Service
         }
 
         if (empty($this->definition['arguments'])) {
-            $this->definition['arguments'] = array($position => $parameter);
+            $this->definition['arguments'] = [$position => $parameter];
         } else {
             $this->definition['arguments'][$position] = $parameter;
         }
@@ -219,8 +219,9 @@ class Service
      * @param array  $params     Parameters for constructor.
      *
      * @return object Service object.
+     * @throws \Lebran\Di\Exception
      */
-    final protected function build(Container $di, array $definition, array $params = array())
+    final protected function build($di, array $definition, array $params = [])
     {
         if (empty($definition['class'])) {
             throw new Exception('Invalid service definition. Missing "class" parameter');
@@ -257,7 +258,7 @@ class Service
                     throw new Exception('The method name is required on position '.$position);
                 }
 
-                $method_call = array($instance, $method['method']);
+                $method_call = [$instance, $method['method']];
 
                 if (empty($method['arguments']) && !is_array($method['arguments'])) {
                     call_user_func($method_call);
@@ -300,9 +301,10 @@ class Service
      * @param int    $position Parameter position.
      * @param array  $argument Parameter argument (parameter, class).
      *
-     * @return mixed
+     * @return mixed Built parameter.
+     * @throws \Lebran\Di\Exception
      */
-    final protected function buildParam(Container $di, $position, array $argument)
+    final protected function buildParam($di, $position, array $argument)
     {
         if (empty($argument['type'])) {
             throw new Exception('Argument at position '.$position.' must have a type');
@@ -336,11 +338,11 @@ class Service
      * @param object $di        Container object.
      * @param array  $arguments Parameter arguments (parameter, class).
      *
-     * @return array
+     * @return array Array of built parameters.
      */
-    final protected function buildParams(Container $di, array $arguments)
+    final protected function buildParams($di, array $arguments)
     {
-        $build_arguments = array();
+        $build_arguments = [];
         foreach ($arguments as $position => $argument) {
             $build_arguments[] = $this->buildParam($di, $position, $argument);
         }

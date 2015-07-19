@@ -20,7 +20,7 @@ use Lebran\Http\Response\Exception;
  *       #####################
  *
  * @package    Http
- * @version    2.1
+ * @version    2.0.0
  * @author     Roman Kritskiy <itoktor@gmail.com>
  * @license    GNU Licence
  * @copyright  2014 - 2015 Roman Kritskiy
@@ -32,7 +32,7 @@ class Response
      *
      * @var array
      */
-    protected $messages = array(
+    protected $messages = [
         // Information 1xx
         100 => 'Continue',
         101 => 'Switching Protocols',
@@ -84,7 +84,7 @@ class Response
         507 => 'Insufficient Storage',
         508 => 'Loop Detected',
         509 => 'Bandwidth Limit Exceeded'
-    );
+    ];
 
     /**
      * The Http package body.
@@ -98,14 +98,14 @@ class Response
      *
      * @var array
      */
-    protected $headers = array();
+    protected $headers = [];
 
     /**
      * Store cookies.
      *
      * @var array
      */
-    protected $cookies = array();
+    protected $cookies = [];
 
     /**
      * The Http package status code.
@@ -146,6 +146,7 @@ class Response
      * @param string $version Http protocol version (1.1 or 1.0).
      *
      * @return object Response object.
+     * @throws \Lebran\Http\Response\Exception
      */
     public function setHttpVersion($version)
     {
@@ -172,6 +173,7 @@ class Response
      * @param int $status Http status code.
      *
      * @return object Response object.
+     * @throws \Lebran\Http\Response\Exception
      */
     public function setStatusCode($status)
     {
@@ -238,7 +240,7 @@ class Response
      */
     public function resetHeaders()
     {
-        $this->headers = array();
+        $this->headers = [];
         return $this;
     }
 
@@ -275,7 +277,7 @@ class Response
      */
     public function setJsonBody($body, $options = 0)
     {
-        $this->setHeaders(array('Content-Type' => 'application/json'));
+        $this->setHeaders(['Content-Type' => 'application/json']);
         $this->body = json_encode($body, $options);
         return $this;
     }
@@ -307,6 +309,7 @@ class Response
      * Sends the Http package headers.
      *
      * @return object Response object.
+     * @throws \Lebran\Http\Response\Exception
      */
     public function sendHeaders()
     {
@@ -330,7 +333,7 @@ class Response
      */
     public function sendCookies()
     {
-        foreach($this->cookies as $cookie){
+        foreach ($this->cookies as $cookie) {
             $cookie->send();
         }
 
@@ -378,12 +381,12 @@ class Response
 
         if ($attachment) {
             $this->setHeaders(
-                array(
+                [
                     'Content-Description'       => 'File Transfer',
                     'Content-Type'              => 'application/octet-stream',
                     'Content-Disposition'       => 'attachment; filename='.$attach_name,
                     'Content-Transfer-Encoding' => 'binary'
-                )
+                ]
             );
         }
 

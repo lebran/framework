@@ -24,7 +24,7 @@ namespace Lebran\Di;
  *  </code>
  *
  * @package    Di
- * @version    2.1
+ * @version    2.0.0
  * @author     Roman Kritskiy <itoktor@gmail.com>
  * @license    GNU Licence
  * @copyright  2014 - 2015 Roman Kritskiy
@@ -36,7 +36,7 @@ class Container implements \ArrayAccess
      *
      * @var array
      */
-    protected $services = array();
+    protected $services = [];
 
     /**
      * Registers a service in the services container.
@@ -59,8 +59,9 @@ class Container implements \ArrayAccess
      * @param array  $params Parameters for service constructor.
      *
      * @return object Resolving service instance object.
+     * @throws \Lebran\Di\Exception
      */
-    public function get($name, array $params = array())
+    public function get($name, array $params = [])
     {
         if (isset($this->services[$name])) {
             $instance = $this->services[$name]->resolve($params, $this);
@@ -85,6 +86,7 @@ class Container implements \ArrayAccess
      * @param string $name Service name.
      *
      * @return object Service object.
+     * @throws \Lebran\Di\Exception
      */
     public function getService($name)
     {

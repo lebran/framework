@@ -1,10 +1,11 @@
 <?php
-namespace Lebran;
+namespace Lebran\Utils;
 
 /**
  * Autoloader implement PSR - 4.
  *
- * @version    2.1
+ * @package    Utils
+ * @version    2.0.0
  * @author     Roman Kritskiy <itoktor@gmail.com>
  * @license    GNU Licence
  * @copyright  2014 - 2015 Roman Kritskiy
@@ -17,33 +18,35 @@ class Autoloader
      *
      * @var array
      */
-    protected $prefixes = array();
+    protected $prefixes = [];
 
     /**
      * An associative array where the key is a absolute class name and the value is a path for class.
      *
      * @var array
      */
-    protected $classes = array();
+    protected $classes = [];
 
     /**
      * Register loader with SPL autoloader stack.
      *
-     * @return void
+     * @return object Autoloader object.
      */
     public function register()
     {
-        spl_autoload_register(array($this, 'loadClass'));
+        spl_autoload_register([$this, 'loadClass']);
+        return $this;
     }
 
     /**
      * Un-register loader with SPL autoloader stack.
      *
-     * @return void
+     * @return object Autoloader object.
      */
     public function unregister()
     {
-        spl_autoload_unregister(array($this, 'loadClass'));
+        spl_autoload_unregister([$this, 'loadClass']);
+        return $this;
     }
 
     /**
@@ -53,7 +56,7 @@ class Autoloader
      * @param string $dir     A base directory for class files in the namespace.
      * @param bool   $prepend If true, prepend the base directory to the stack instead of appending it.
      *
-     * @return void
+     * @return object Autoloader object.
      */
     public function addNamespace($prefix, $dir, $prepend = false)
     {
@@ -61,7 +64,7 @@ class Autoloader
         $dir    = rtrim($dir, DIRECTORY_SEPARATOR).'/';
 
         if (!isset($this->prefixes[$prefix])) {
-            $this->prefixes[$prefix] = array();
+            $this->prefixes[$prefix] = [];
         }
 
         if ($prepend) {
@@ -69,6 +72,8 @@ class Autoloader
         } else {
             array_push($this->prefixes[$prefix], $dir);
         }
+
+        return $this;
     }
 
     /**
@@ -76,13 +81,14 @@ class Autoloader
      *
      * @param array $namespaces Array: 'prefix' => 'dir'.
      *
-     * @return void
+     * @return object Autoloader object.
      */
     public function addNamespaces(array $namespaces)
     {
         foreach ($namespaces as $prefix => $dir) {
             $this->addNamespace($prefix, $dir);
         }
+        return $this;
     }
 
     /**
@@ -100,11 +106,12 @@ class Autoloader
      *
      * @param array $classes Array: absolute class name => path for file.
      *
-     * @return void
+     * @return object Autoloader object.
      */
     public function addClasses(array $classes)
     {
         $this->classes += $classes;
+        return $this;
     }
 
     /**

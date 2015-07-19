@@ -51,7 +51,7 @@ class Storage implements \ArrayAccess, \IteratorAggregate, \Countable, \Serializ
      *
      * @param Storage $storage Another storage.
      *
-     * @return $this
+     * @return object Storage object
      */
     public function merge(Storage $storage)
     {
@@ -65,7 +65,7 @@ class Storage implements \ArrayAccess, \IteratorAggregate, \Countable, \Serializ
      * @param mixed $key   The key to set.
      * @param mixed $value The value to set.
      *
-     * @return $this
+     * @return object Storage object
      */
     public function set($key, $value)
     {
@@ -128,7 +128,7 @@ class Storage implements \ArrayAccess, \IteratorAggregate, \Countable, \Serializ
      *
      * @param mixed $key The key to remove.
      *
-     * @return $this
+     * @return object Storage object
      */
     public function remove($key)
     {
