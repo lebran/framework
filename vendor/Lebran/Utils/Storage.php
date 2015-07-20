@@ -78,6 +78,7 @@ class Storage implements \ArrayAccess, \IteratorAggregate, \Countable, \Serializ
                 if ($segment == count($segments) - 1) {
                     $group[$val] = $value;
                 } else {
+                    !(isset($group[$val]) && !is_array($group[$val]))?:$group[$val] = [];
                     $group = &$group[$val];
                 }
             }
