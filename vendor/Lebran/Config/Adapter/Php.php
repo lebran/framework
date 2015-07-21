@@ -24,21 +24,22 @@ class Php extends Adapter
     protected $extension = '.php';
 
     /**
-     * Loads php config file.
+     * Loads php config file and saves it to storage.
      *
      * @param string $path The path to the file.
      *
-     * @return array Config file as array.
+     * @return object Adapter\Php object.
      * @throws \Lebran\Config\Exception
      */
     public function load($path)
     {
-        $config = include $path.$this->extension;
+        $config = require $path.$this->extension;
         if (is_array($config)) {
-            return $config;
+            $this->storage = array_merge_recursive($this->storage, $config);
         } else {
-            throw new Exception('File "'.basename($path.$this->extension).'" must contain array.');
+            throw new Exception('Configuration file "'.basename($path.$this->extension).'" must contain array.');
         }
+        return $this;
     }
 
     /**
@@ -54,7 +55,7 @@ class Php extends Adapter
         if (!is_dir(dirname($path))) {
             throw new Exception('Folder "'.dirname($path).'" not exists.');
         }
-        $config = "<?php\n    return ".$this->writeHelper($this->storage, 2).";";
+        $config = "<?php".PHP_EOL."    return ".$this->writeHelper($this->storage, 2).";";
         file_put_contents($path.$this->extension, $config);
         return $this;
     }
@@ -69,7 +70,7 @@ class Php extends Adapter
      */
     final protected function writeHelper(array $array, $level = 0)
     {
-        $string = "[\n";
+        $string = "[".PHP_EOL;
         $keys   = array_keys($array);
         foreach ($array as $key => $value) {
             $string .= str_repeat('    ', $level)
@@ -77,7 +78,7 @@ class Php extends Adapter
                 .(is_array($value)?
                     $this->writeHelper($value, $level + 1):
                     "'".(string)$value."'")
-                .((end($keys) === $key)?'':',')."\n";
+                .((end($keys) === $key)?'':',').PHP_EOL;
         }
         $string .= str_repeat('    ', $level - 1)."]";
         return $string;

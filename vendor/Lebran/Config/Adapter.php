@@ -29,17 +29,13 @@ abstract class Adapter extends Storage
      *
      * @throws \Lebran\Config\Exception
      */
-    public function __construct($path)
+    public function __construct($path = null)
     {
-        if (is_file($path.$this->extension)) {
-            parent::__construct($this->load($path));
-        } else {
-            throw new Exception('File "'.basename($path.$this->extension).'" not found.');
-        }
+        is_null($path)?: $this->load($path);
     }
 
     /**
-     * Loads config file.
+     * Loads config file and saves it to storage.
      *
      * @param string $path The path to the file.
      *
