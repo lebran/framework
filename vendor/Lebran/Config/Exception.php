@@ -1,10 +1,10 @@
 <?php
-namespace Lebran\Http\Response;
+namespace Lebran\Config;
 
 /**
- * Exceptions thrown in Response will use this class.
+ * Exceptions thrown in Config component will use this class.
  *
- * @package    Http
+ * @package    Config
  * @version    2.0.0
  * @author     Roman Kritskiy <itoktor@gmail.com>
  * @license    GNU Licence

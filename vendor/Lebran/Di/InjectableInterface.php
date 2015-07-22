@@ -5,7 +5,7 @@ namespace Lebran\Di;
  * This interface must be implemented in those classes that need internal dependency injection container.
  *
  * @package    Di
- * @version    2.1
+ * @version    2.0.0
  * @author     Roman Kritskiy <itoktor@gmail.com>
  * @license    GNU Licence
  * @copyright  2014 - 2015 Roman Kritskiy
