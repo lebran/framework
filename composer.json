@@ -1,0 +1,21 @@
+{
+  "name": "lebran/framework",
+  "description": "Аll you need for your little Projects.",
+  "homepage": "https://vk.com/id126790791",
+  "license": "GNU Licence",
+  "support": {
+    "issues": "https://github.com/lebran/framework/issues",
+    "source": "https://github.com/lebran/framework"
+  },
+  "authors": [
+    {
+      "email": "itoktor@gmail.com",
+      "name": "Roman Kritskiy",
+      "role": "Lead"
+    }
+  ],
+  "autoload": {
+    "psr-4": { "Lebran\\": "src/" }
+  },
+  "type": "library"
+}
