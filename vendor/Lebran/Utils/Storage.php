@@ -19,7 +19,7 @@ namespace Lebran\Utils;
  * @license    GNU Licence
  * @copyright  2014 - 2015 Roman Kritskiy
  */
-class Storage implements \ArrayAccess, \IteratorAggregate, \Countable, \Serializable, \JsonSerializable
+class Storage implements \ArrayAccess, \IteratorAggregate, \Countable, \Serializable
 {
 
     /**
@@ -238,16 +238,6 @@ class Storage implements \ArrayAccess, \IteratorAggregate, \Countable, \Serializ
     public function count()
     {
         return count($this->storage);
-    }
-
-    /**
-     * Specify data which should be serialized to Json.
-     *
-     * @return mixed Data which can be serialized by json_encode.
-     */
-    public function jsonSerialize()
-    {
-        return json_encode($this->storage);
     }
 
     /**
