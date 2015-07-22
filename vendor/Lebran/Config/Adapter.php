@@ -31,7 +31,7 @@ abstract class Adapter extends Storage
      */
     public function __construct($path = null)
     {
-        is_null($path)?: $this->load($path);
+        is_null($path)?:$this->load($path);
     }
 
     /**
@@ -39,7 +39,7 @@ abstract class Adapter extends Storage
      *
      * @param string $path The path to the file.
      *
-     * @return array Config file as array.
+     * @return object Adapter object.
      */
     abstract public function load($path);
 

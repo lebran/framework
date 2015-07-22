@@ -72,9 +72,11 @@ class Ini extends Adapter
      * Sets parse sections or not.
      *
      * @param bool $sections Parse sections or not.
+     *
      * @return object Adapter\Ini object.
      */
-    public function sections($sections = false){
+    public function sections($sections = false)
+    {
         $this->sections = $sections;
         return $this;
     }
@@ -89,12 +91,12 @@ class Ini extends Adapter
     public function write($path)
     {
         $config = '';
-        foreach($this->storage as $sec_key => $sec_value){
-            if(is_array($sec_value)){
+        foreach ($this->storage as $sec_key => $sec_value) {
+            if (is_array($sec_value)) {
                 $name = '';
-                $this->sections? $config .= '['.$sec_key.']'.PHP_EOL: $name .= $sec_key;
+                $this->sections?$config .= '['.$sec_key.']'.PHP_EOL:$name .= $sec_key;
 
-                foreach($this->writeHelper($name, $sec_value) as $key => $value){
+                foreach ($this->writeHelper($name, $sec_value) as $key => $value) {
                     $config .= $key.'="'.(string)$value.'"'.PHP_EOL;
                 }
             } else {
