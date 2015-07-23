@@ -2,19 +2,58 @@
 namespace Lebran\Mvc;
 
 use Lebran\Mvc\Router\Route;
+use Lebran\Di\InjectableInterface;
 
 /**
  * Description of Router
  *
  * @author Roma
  */
-class Router
+class Router implements InjectableInterface
 {
-    protected $routes = array();
+    protected $routes = [];
 
-    public function add($name, $pattern)
+    protected $di;
+
+    protected $uri;
+
+    protected $matched = null;
+
+    protected $not_found = null;
+
+    protected $controller;
+
+    protected $action;
+
+    protected $directory = null;
+
+    protected $params;
+
+    /**
+     * Sets the dependency injection container.
+     *
+     * @param object $di Container object.
+     *
+     * @return void
+     */
+    public function setDi($di)
     {
-        $route = new Route($name, $pattern);
+        $this->di = $di;
+    }
+
+    /**
+     * Returns the dependency injection container.
+     *
+     * @return object Container object.
+     */
+    public function getDi()
+    {
+        return $this->di;
+    }
+
+    public function add($pattern, array $default = [], array $regex = [])
+    {
+        $route = new Route($pattern, $default, $regex);
         array_unshift($this->routes, $route);
         return $route;
     }
@@ -27,17 +66,22 @@ class Router
      *
      * @return boolean|array Если uri соответствует правилу - сегменты uri, нет - false.
      */
-    public function handle($uri = false)
+    public function handle($uri = null)
     {
-        $this->uri = ($uri)? $uri : $_SERVER['REQUEST_URI'];
+
+        $this->uri = ($uri)?$uri:$this->di['request']->getUri();
+
+        $params = [];
 
         foreach ($this->routes as $route) {
-            $matches = array();
-            $params = array();
-
-            if (!preg_match($route->compile(), $this->uri, $matches)) {
+            if ($route->getMethods() && !in_array($this->di['request']->getMethod(), $route->getMethods())) {
                 continue;
             }
+
+            if (!preg_match($route->getCompiledPattern(), $this->uri, $matches)) {
+                continue;
+            }
+
 
             foreach ($matches as $key => $value) {
                 if (is_int($key)) {
@@ -51,34 +95,35 @@ class Router
                 continue;
             }
 
-            foreach ($route->getCallbacks() as $part => $callback){
-                $params[$part] = call_user_func($callback, $part);
+            foreach ($route->getCallbacks() as $part => $callback) {
+                $params[$part] = call_user_func($callback, $params[$part]);
             }
-     
-            $this->was_matched = true;
+
+            $this->matched = $route;
             break;
         }
 
-        if (!$this->was_matched and $this->not_found) {
+        if (!$this->matched and $this->not_found) {
             $params = $this->not_found;
-            $this->was_matched = true;
         }
 
-        if($this->was_matched){
+        if ($this->matched or $this->not_found) {
             $this->controller = $params['controller'];
             unset($params['controller']);
             $this->action = $params['action'];
             unset($params['action']);
 
-            if(!empty($params['directory'])){
+            if (!empty($params['directory'])) {
                 $this->directory = $params['directory'];
                 unset($params['directory']);
             }
 
             $this->params = $params;
 
-            $this->matched_route = $route;
-        }     
+            return true;
+        }
+
+        return false;
     }
 
 }

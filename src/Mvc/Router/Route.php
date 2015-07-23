@@ -53,13 +53,6 @@ class Route
      *
      * @var array
      */
-    public $name;
-
-    /**
-     * Хранилище правил маршрутизации.
-     *
-     * @var array
-     */
     public $pattern;
 
     /**
@@ -67,69 +60,68 @@ class Route
      *
      * @var array
      */
-    protected $defaults = array();
+    protected $defaults;
 
     /**
      * Хранилище правил маршрутизации.
      *
      * @var array
      */
-    protected $regex = false;
+    protected $regex = null;
+
+    protected $methods = [];
 
     /**
      * Хранилище правил маршрутизации.
      *
      * @var array
      */
-    protected $middlewares = false;
+    protected $middlewares = null;
 
     /**
      * Хранилище правил маршрутизации.
      *
      * @var array
      */
-    protected $callbacks = array();
+    protected $callbacks = [];
 
     /**
      * Компилирует и сохраняет правила маршрутизации, если таких еще нет.
      *
      * @param array $routes Массив правил маршрутизации.
-     *
-     * @return void
      */
-    public function __construct($name ,$pattern)
+    public function __construct($pattern, array $defaults = [], array $regex = [])
     {
-        $this->name = $name;
-        $this->pattern = $pattern;
-        /*foreach ($routes as $name => $value) {
-            if (is_array($value) and array_key_exists('rout', $value) and empty(self::$routes[$name])) {
-                $value['regex'] = empty($value['regex'])?null:$value['regex'];
-                $rout           = $this->compile($value['rout'], $value['regex']);
-
-                $default             = array_key_exists('default', $value)?$value['default']:null;
-                self::$routes[$name] = array(
-                    'rout'    => $rout,
-                    'default' => $default
-                );
+        if (is_array($pattern)) {
+            if(empty($pattern['pattern'])){
+                throw new Exception('Route must contain pattern.');
             }
-        }*/
-    }
-
-    public function defaults(array $defaults)
-    {
+            $this->pattern = $pattern['pattern'];
+            unset($pattern['pattern']);
+            foreach($pattern as $key =>$value){
+                $this->{$key}($value);
+            }
+        } else {
+            $this->pattern = $pattern;
+        }
         $this->defaults = $defaults;
-        return $this;
+        $this->regex = $regex;
+        $this->compiled = $this->compile();
     }
 
-    public function regex(array $regex)
+    public function methods($method)
     {
-        $this->regex = $regex;
+        if(is_array($method)){
+            $this->methods = array_merge($this->methods, $method);
+        } else {
+            $this->methods[] = $method;
+        }
         return $this;
     }
 
     public function middlewares(array $middlewares)
     {
-        $this->middlewares = $middlewares;
+        $this->middlewares += $middlewares;
         return $this;
     }
 
@@ -176,9 +168,14 @@ class Route
         return $this->defaults;
     }
 
-    public function getRegex()
+    public function getCompiledPattern()
     {
-        return $this->regex;
+        return $this->compiled;
+    }
+
+    public function getMethods()
+    {
+        return $this->methods;
     }
 
     public function getMiddlewares()
@@ -186,6 +183,9 @@ class Route
         return $this->middlewares;
     }
 
+    /**
+     * @return array
+     */
     public function getCallbacks()
     {
         return $this->callbacks;
