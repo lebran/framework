@@ -24,125 +24,148 @@ namespace Lebran\Mvc\Router;
  *          - admin/yoyoy
  *          - admin
  *
- * @package    Core
- * @subpackage Http
- * @version    2.0
+ * @package    Mvc
+ * @subpackage Router
+ * @version    2.0.0
  * @author     Roman Kritskiy <itoktor@gmail.com>
  * @license    GNU Licence
  * @copyright  2014 - 2015 Roman Kritskiy
  */
 class Route
 {
-
     /**
-     * Что может быть частью (сегмента).
+     * What could be a part (segment).
      *
      * @var string
      */
     const REGEX_SEGMENT = '[^/.,;?\n]++';
 
     /**
-     * Что должно быть экранировано.
+     * What should be escaped.
      *
      * @var string
      */
     const REGEX_ESCAPE = '[.\\+*?[^\\]${}=!|]';
 
     /**
-     * Хранилище правил маршрутизации.
+     * The compiled rule.
      *
-     * @var array
+     * @var string
      */
     public $pattern;
 
     /**
-     * Хранилище правил маршрутизации.
+     * The parameters of defaults.
      *
      * @var array
      */
-    protected $defaults;
+    protected $defaults = [];
 
     /**
-     * Хранилище правил маршрутизации.
+     * Regular expression for parameters.
      *
      * @var array
      */
-    protected $regex = null;
-
-    protected $methods = [];
+    protected $regex;
 
     /**
-     * Хранилище правил маршрутизации.
+     * An array of satisfying methods.
+     *
+     * @var array
+     */
+    protected $methods =  null;
+
+    /**
+     * Storage for middlewares.
      *
      * @var array
      */
     protected $middlewares = null;
 
     /**
-     * Хранилище правил маршрутизации.
+     * Storage for callbacks.
      *
      * @var array
      */
     protected $callbacks = [];
 
     /**
-     * Компилирует и сохраняет правила маршрутизации, если таких еще нет.
+     * Initialisation.
      *
-     * @param array $routes Массив правил маршрутизации.
+     * @param mixed $pattern  Routing rule or array of route.
+     * @param array $defaults Default parameters.
+     * @param array $regex    Regular expression for parameters.
+     *
+     * @throws \Lebran\Mvc\Router\Exception
      */
     public function __construct($pattern, array $defaults = [], array $regex = [])
     {
         if (is_array($pattern)) {
-            if(empty($pattern['pattern'])){
+            if (empty($pattern['pattern'])) {
                 throw new Exception('Route must contain pattern.');
             }
-            $this->pattern = $pattern['pattern'];
+            $this->pattern = $this->compile($pattern['pattern']);
             unset($pattern['pattern']);
-            foreach($pattern as $key =>$value){
+            foreach ($pattern as $key => $value) {
                 $this->{$key}($value);
             }
         } else {
-            $this->pattern = $pattern;
+            $this->pattern = $this->compile($pattern);
         }
         $this->defaults = $defaults;
-        $this->regex = $regex;
-        $this->compiled = $this->compile();
+        $this->regex    = $regex;
     }
 
-    public function methods($method)
+    /**
+     * Adds satisfying methods.
+     *
+     * @param array $methods An array of satisfying methods.
+     *
+     * @return object Route object.
+     */
+    public function methods(array $methods)
     {
-        if(is_array($method)){
-            $this->methods = array_merge($this->methods, $method);
-        } else {
-            $this->methods[] = $method;
-        }
+        $this->methods = $methods;
         return $this;
     }
 
+    /**
+     * Adds middlewares.
+     *
+     * @param array $middlewares An array of middlewares.
+     *
+     * @return object Route object.
+     */
     public function middlewares(array $middlewares)
     {
-        $this->middlewares += $middlewares;
+        $this->middlewares = $middlewares;
         return $this;
     }
 
+    /**
+     * Adds callback for parameter.
+     *
+     * @param string   $part     Parameter name.
+     * @param \Closure $callback Anonymous function for parameter.
+     *
+     * @return object Route object.
+     */
     public function callback($part, \Closure $callback)
     {
         $this->callbacks[$part] = $callback;
         return $this;
     }
 
-
     /**
-     * Компилирует правило маршрутизации(превращает в регулярное выражения).
+     * Compiles routing rule (turns into a regular expression).
      *
-     * @param string $rout  Правило маршрутизации.
-     * @param array  $regex Регулярные выражения.
+     * @param string $pattern The rule of routing.
      *
-     * @return string Скомпилированное правило.
+     * @return string The compiled rule.
      */
-    public function compile()
+    protected function compile($pattern)
     {
-        $expression = preg_replace('#'.self::REGEX_ESCAPE.'#', '\\\\$0', $this->pattern);
+        $expression = preg_replace('#'.self::REGEX_ESCAPE.'#', '\\\\$0', $pattern);
 
         if (strpos($expression, '(') !== false) {
             $expression = str_replace(array('(', ')'), array('(?:', ')?'), $expression);
@@ -150,7 +173,7 @@ class Route
 
         $expression = str_replace(array('<', '>'), array('(?P<', '>'.self::REGEX_SEGMENT.')'), $expression);
 
-        if (is_array($this->regex)) {
+        if (!empty($this->regex)) {
             $search = $replace = array();
             foreach ($this->regex as $key => $value) {
                 $search[]  = "<$key>".self::REGEX_SEGMENT;
@@ -163,28 +186,50 @@ class Route
         return '#^'.$expression.'$#uD';
     }
 
+    /**
+     * Gets default parameters.
+     *
+     * @return array An array of defaults.
+     */
     public function getDefaults()
     {
         return $this->defaults;
     }
 
+    /**
+     * Gets compiled pattern.
+     *
+     * @return string Compiled pattern.
+     */
     public function getCompiledPattern()
     {
-        return $this->compiled;
+        return $this->pattern;
     }
 
+    /**
+     * Gets satisfying methods.
+     *
+     * @return array An array of methods.
+     */
     public function getMethods()
     {
         return $this->methods;
     }
 
+    /**
+     * Gets middlewares.
+     *
+     * @return array An array of middlewares.
+     */
     public function getMiddlewares()
     {
         return $this->middlewares;
     }
 
     /**
-     * @return array
+     * Gets callbacks.
+     *
+     * @return array An array of callbacks.
      */
     public function getCallbacks()
     {

@@ -1,18 +1,12 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: mindkicker
- * Date: 23.07.15
- * Time: 15:51
- */
-
 namespace Lebran\Mvc\Router;
 
 
 /**
- * Exceptions thrown in Response will use this class.
+ * Exceptions thrown in Router will use this class.
  *
  * @package    Http
+ * @subpackage Router
  * @version    2.0.0
  * @author     Roman Kritskiy <itoktor@gmail.com>
  * @license    GNU Licence

@@ -11,21 +11,19 @@ use Lebran\Di\InjectableInterface;
  */
 class Router implements InjectableInterface
 {
-    protected $routes = [];
-
     protected $di;
+
+    protected $routes = [];
 
     protected $uri;
 
     protected $matched = null;
 
-    protected $not_found = null;
+    protected $directory = null;
 
     protected $controller;
 
     protected $action;
-
-    protected $directory = null;
 
     protected $params;
 
@@ -58,7 +56,6 @@ class Router implements InjectableInterface
         return $route;
     }
 
-
     /**
      * Проверяет соответствует ли uri правилам маршрутизации.
      *
@@ -78,16 +75,14 @@ class Router implements InjectableInterface
                 continue;
             }
 
-            if (!preg_match($route->getCompiledPattern(), $this->uri, $matches)) {
+            if (!preg_match($route->getCompiledPattern(), $this->uri, $params)) {
                 continue;
             }
 
-
-            foreach ($matches as $key => $value) {
+            foreach ($params as $key => $value) {
                 if (is_int($key)) {
-                    continue;
+                    unset($params[$key]);
                 }
-                $params[$key] = $value;
             }
             $params += $route->getDefaults();
 
@@ -96,34 +91,29 @@ class Router implements InjectableInterface
             }
 
             foreach ($route->getCallbacks() as $part => $callback) {
-                $params[$part] = call_user_func($callback, $params[$part]);
+                $params[$part] = call_user_func_array($callback, [$params[$part]]);
             }
 
             $this->matched = $route;
             break;
         }
 
-        if (!$this->matched and $this->not_found) {
-            $params = $this->not_found;
+        if (!$this->matched) {
+            return false;
         }
 
-        if ($this->matched or $this->not_found) {
-            $this->controller = $params['controller'];
-            unset($params['controller']);
-            $this->action = $params['action'];
-            unset($params['action']);
+        $this->controller = $params['controller'];
+        unset($params['controller']);
+        $this->action = $params['action'];
+        unset($params['action']);
 
-            if (!empty($params['directory'])) {
-                $this->directory = $params['directory'];
-                unset($params['directory']);
-            }
-
-            $this->params = $params;
-
-            return true;
+        if (!empty($params['directory'])) {
+            $this->directory = $params['directory'];
+            unset($params['directory']);
         }
 
-        return false;
+        $this->params = $params;
+        return true;
     }
 
 }
