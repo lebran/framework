@@ -115,13 +115,12 @@ class Manager
 
         $names = [$name];
         while (($pos = strrpos($name, '.'))) {
-            $name = $listeners[] = substr($name, 0, $pos);
+            $name = $names[] = substr($name, 0, $pos);
         }
         $params = [$object];
         if ($data) {
             $params[] = $data;
         }
-
         foreach ($names as $name) {
             if ($this->hasListeners($name)) {
                 foreach ($this->listeners[$name] as $listener) {

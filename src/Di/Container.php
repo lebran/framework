@@ -1,6 +1,9 @@
 <?php
 namespace Lebran\Di;
 
+use Lebran\Event\EventableInterface;
+use Lebran\Event\Manager;
+
 /**
  * Lebran\Di it's a component that implements Dependency Injection/Service Location patterns.
  * Supports string, object, array and anonymous function definition. Allows using the array syntax.
@@ -29,7 +32,7 @@ namespace Lebran\Di;
  * @license    GNU Licence
  * @copyright  2014 - 2015 Roman Kritskiy
  */
-class Container implements \ArrayAccess
+class Container implements \ArrayAccess, EventableInterface
 {
     /**
      * Store services.
@@ -37,6 +40,35 @@ class Container implements \ArrayAccess
      * @var array
      */
     protected $services = [];
+
+    /**
+     * Storage for internal event manager.
+     *
+     * @var object
+     */
+    protected $em;
+
+    /**
+     * Sets the events manager.
+     *
+     * @param object $em Event manager object.
+     *
+     * @return void
+     */
+    public function setEventManager($em)
+    {
+        $this->em = $em;
+    }
+
+    /**
+     * Gets the internal event manager
+     *
+     * @return object Manager object.
+     */
+    public function getEventManager()
+    {
+        return $this->em;
+    }
 
     /**
      * Registers a service in the services container.
@@ -63,6 +95,10 @@ class Container implements \ArrayAccess
      */
     public function get($name, array $params = [])
     {
+        if (is_object($this->em)) {
+            $this->em->fire('before.di.serviceResolve', $this, ['name' => $name, 'params' => $params]);
+        }
+
         if (isset($this->services[$name])) {
             $instance = $this->services[$name]->resolve($params, $this);
         } else {
@@ -70,11 +106,19 @@ class Container implements \ArrayAccess
                 throw new Exception('Service "'.$name.'" wasn\'t found in the dependency injection container');
             }
             $reflection = new \ReflectionClass($name);
-            $instance = $reflection->newInstanceArgs($params);
+            $instance   = $reflection->newInstanceArgs($params);
         }
 
         if ($instance instanceof InjectableInterface) {
             $instance->setDi($this);
+        }
+
+        if (is_object($this->em)) {
+            $this->em->fire(
+                'after.di.serviceResolve',
+                $this,
+                ['name' => $name, 'params' => $params, 'instance' => $instance]
+            );
         }
 
         return $instance;

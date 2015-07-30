@@ -15,11 +15,11 @@ interface EventableInterface
     /**
      * Sets the events manager.
      *
-     * @param Manager $em Event manager object.
+     * @param object $em Event manager object.
      *
      * @return void
      */
-    public function setEventManager(Manager $em);
+    public function setEventManager($em);
 
     /**
      * Gets the internal event manager
