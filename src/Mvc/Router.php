@@ -1,77 +1,114 @@
 <?php
 namespace Lebran\Mvc;
 
-use Lebran\Mvc\Router\Route;
+use Lebran\Mvc\Router\Collection;
 use Lebran\Di\InjectableInterface;
+use Lebran\Event\EventableInterface;
 
 /**
- * Description of Router
+ * Lebran\Mvc\Router is the standard framework router. Routing is the process of
+ * taking a URI endpoint (that part of the URI which comes after the base URL) and
+ * decomposing it into parameters to determine which module, controller, and
+ * action of that controller should receive the request.
  *
- * @author Roma
+ *                                  Example
+ * <code>
+ *      $router = new Router();
+ *
+ *      $router->add("[<controller>[/<action>[/<id \d+>]]]", 'Test::index');
+ *
+ *      $router->handle();
+ *
+ *      echo $router->getController();
+ * </code>
+ *
+ * @package    Mvc
+ * @subpackage Router
+ * @version    2.0.0
+ * @author     Roman Kritskiy <itoktor@gmail.com>
+ * @license    GNU Licence
+ * @copyright  2014 - 2015 Roman Kritskiy
  */
-class Router implements InjectableInterface
+class Router extends Collection implements InjectableInterface, EventableInterface
 {
+    /**
+     * Store for di container.
+     *
+     * @var
+     */
     protected $di;
 
-    protected $routes = [];
+    /**
+     * Storage for internal event manager.
+     *
+     * @var object
+     */
+    protected $em;
 
+    /**
+     * Current uri.
+     *
+     * @var
+     */
     protected $uri;
 
+    /**
+     * Current matched route.
+     *
+     * @var object
+     */
     protected $matched = null;
 
-    protected $directory = null;
+    /**
+     * Current module if given.
+     *
+     * @var string
+     */
+    protected $module = null;
 
+    /**
+     * Current controller.
+     *
+     * @var string
+     */
     protected $controller;
 
+    /**
+     * Current action.
+     *
+     * @var string
+     */
     protected $action;
 
+    /**
+     * Current parameters.
+     *
+     * @var array
+     */
     protected $params;
 
     /**
-     * Sets the dependency injection container.
+     * Handles routing information received from the rewrite engine.
      *
-     * @param object $di Container object.
+     * @param string $uri Uniform resource identifier.
      *
-     * @return void
-     */
-    public function setDi($di)
-    {
-        $this->di = $di;
-    }
-
-    /**
-     * Returns the dependency injection container.
-     *
-     * @return object Container object.
-     */
-    public function getDi()
-    {
-        return $this->di;
-    }
-
-    public function add($pattern, array $default = [], array $regex = [])
-    {
-        $route = new Route($pattern, $default, $regex);
-        array_unshift($this->routes, $route);
-        return $route;
-    }
-
-    /**
-     * Проверяет соответствует ли uri правилам маршрутизации.
-     *
-     * @param string $uri Адрес запроса.
-     *
-     * @return boolean|array Если uri соответствует правилу - сегменты uri, нет - false.
+     * @return boolean True if matched, then - false.
      */
     public function handle($uri = null)
     {
-
         $this->uri = ($uri)?$uri:$this->di['request']->getUri();
 
-        $params = [];
+        if (is_object($this->em)) {
+            $this->em->fire('router.before.checkRoutes', $this, ['uri' => $this->uri]);
+        }
 
+        $params = [];
         foreach ($this->routes as $route) {
-            if ($route->getMethods() && !in_array($this->di['request']->getMethod(), $route->getMethods())) {
+            if (is_object($this->em)) {
+                $this->em->fire('router.checkRoute', $this, ['route' => $route]);
+            }
+
+            if ($route->getMethods() && !in_array(strtolower($this->di['request']->getMethod()), $route->getMethods())) {
                 continue;
             }
 
@@ -98,6 +135,10 @@ class Router implements InjectableInterface
             break;
         }
 
+        if (is_object($this->em)) {
+            $this->em->fire('router.after.checkRoutes', $this, ['matched' => $this->matched]);
+        }
+
         if (!$this->matched) {
             return false;
         }
@@ -107,15 +148,103 @@ class Router implements InjectableInterface
         $this->action = $params['action'];
         unset($params['action']);
 
-        if (!empty($params['directory'])) {
-            $this->directory = $params['directory'];
-            unset($params['directory']);
+        if (!empty($params['module'])) {
+            $this->module = $params['module'];
+            unset($params['module']);
         }
 
         $this->params = $params;
         return true;
     }
 
+    /**
+     * Gets the name of module if given.
+     *
+     * @return string Module name.
+     */
+    public function getModule(){
+        return $this->module;
+    }
+
+    /**
+     * Gets the name of controller.
+     *
+     * @return string Controller name.
+     */
+    public function getController(){
+        return $this->controller;
+    }
+
+    /**
+     * Gets the name of action.
+     *
+     * @return string Action name.
+     */
+    public function getAction(){
+        return $this->action;
+    }
+
+    /**
+     * Gets parameter or parameters.
+     *
+     * @return mixed An array of params or param.
+     */
+    public function getParams($name = null){
+        return $name? $this->params[$name]:$this->params;
+    }
+
+    /**
+     * Gets matched route.
+     *
+     * @return object Route object.
+     */
+    public function getMatchedRoute(){
+        return $this->matched;
+    }
+
+    /**
+     * Sets the dependency injection container.
+     *
+     * @param object $di Container object.
+     *
+     * @return void
+     */
+    public function setDi($di)
+    {
+        $this->di = $di;
+    }
+
+    /**
+     * Returns the dependency injection container.
+     *
+     * @return object Container object.
+     */
+    public function getDi()
+    {
+        return $this->di;
+    }
+
+    /**
+     * Sets the events manager.
+     *
+     * @param object $em Event manager object.
+     *
+     * @return void
+     */
+    public function setEventManager($em)
+    {
+        $this->em = $em;
+    }
+
+    /**
+     * Gets the internal event manager
+     *
+     * @return object Manager object.
+     */
+    public function getEventManager()
+    {
+        return $this->em;
+    }
 }
 
 

@@ -2,21 +2,38 @@
 namespace Lebran\Mvc\Router;
 
 /**
- * Маршрутизатор. Обрабатывает переданные правила. Отправляет сегменты uri.
+ * This class represents every route added to the router or collection.
  *
- *                      ПРИМЕР
- *      'admin' => array(
- *              'rout' => 'admin/(<controller>(/<action>(/<id>)))',
- *              'default' => array(
- *                      'directory' => 'admin',
- *                      'controller' => 'register',
- *                      'action' => 'logout'
- *              ),
- *              'regex' => array(
- *                      'action' = 'login|logout|register',
- *                      'id' => '\d+'
- *              )
- *      )
+ *                      Example
+ * <code>
+ *      $route = new Route(
+ *          '<lang \w{2}>[-<sublang \w{2}>]/<controller>[/<action>]',
+ *          [
+ *              'defaults' => [
+ *                  'lang' => 'en',
+ *                  'controller' => 'news'
+ *              ],
+ *              'middlewares' => [
+ *                  'auth',
+ *                  'cache'
+ *              ],
+ *              'callbacks' => [
+ *                  'controller' => function($controller){
+ *                      return $controller.'Controller';
+ *                   },
+ *                  'action' => function($action){
+ *                      return $action.'Action';
+ *                   }
+ *              ]
+ *          ],
+ *          [
+ *              'post',
+ *              'get'
+ *          ]
+ *      );
+ *
+ *      $router = new Router($route);
+ * </code>
  *
  *      Примеры подходящих ссылок:
  *          - admin/register/login/2005
@@ -34,7 +51,7 @@ namespace Lebran\Mvc\Router;
 class Route
 {
     /**
-     * What could be a part (segment).
+     * What could not be a part of segment.
      *
      * @var string
      */
@@ -45,14 +62,21 @@ class Route
      *
      * @var string
      */
-    const REGEX_ESCAPE = '[.\\+*?[^\\]${}=!|]';
+    const REGEX_ESCAPE = '[.\\+*?(^\\)${}=!|]';
 
     /**
      * The compiled rule.
      *
      * @var string
      */
-    public $pattern;
+    protected $pattern;
+
+    /**
+     * The name of route.
+     *
+     * @var string
+     */
+    protected $name = null;
 
     /**
      * The parameters of defaults.
@@ -62,25 +86,18 @@ class Route
     protected $defaults = [];
 
     /**
-     * Regular expression for parameters.
-     *
-     * @var array
-     */
-    protected $regex;
-
-    /**
      * An array of satisfying methods.
      *
      * @var array
      */
-    protected $methods =  null;
+    protected $methods = [];
 
     /**
      * Storage for middlewares.
      *
      * @var array
      */
-    protected $middlewares = null;
+    protected $middlewares = [];
 
     /**
      * Storage for callbacks.
@@ -92,28 +109,59 @@ class Route
     /**
      * Initialisation.
      *
-     * @param mixed $pattern  Routing rule or array of route.
-     * @param array $defaults Default parameters.
-     * @param array $regex    Regular expression for parameters.
+     * @param string $pattern    The rule of routing.
+     * @param mixed  $definition The route definition(string or array).
+     * @param mixed  $methods    Satisfying method(s).
      *
      * @throws \Lebran\Mvc\Router\Exception
      */
-    public function __construct($pattern, array $defaults = [], array $regex = [])
+    public function __construct($pattern, $definition = null, $methods = null)
     {
-        if (is_array($pattern)) {
-            if (empty($pattern['pattern'])) {
-                throw new Exception('Route must contain pattern.');
+        if (is_string($definition)) {
+            if (strpos($definition, '::') !== false) {
+                $defaults = explode('::', $definition);
+                $this->defaults(['controller' => $defaults[0], 'action' => $defaults[1]]);
+            } else {
+                throw new Exception('A string definition of route should be type of "controller::action"');
             }
-            $this->pattern = $this->compile($pattern['pattern']);
-            unset($pattern['pattern']);
-            foreach ($pattern as $key => $value) {
+        } else if (is_array($definition)) {
+            foreach ($definition as $key => $value) {
                 $this->{$key}($value);
             }
-        } else {
-            $this->pattern = $this->compile($pattern);
+        } else if (!is_null($definition)) {
+            throw new Exception('The route definition should be string or array.');
         }
-        $this->defaults = $defaults;
-        $this->regex    = $regex;
+
+        if (!is_null($methods)) {
+            $this->methods($methods);
+        }
+        $this->pattern = $this->compile($pattern);
+    }
+
+    /**
+     * Sets name of route for generation urls.
+     *
+     * @param string $name The name of route.
+     *
+     * @return object Route object.
+     */
+    public function name($name)
+    {
+        $this->name = $name;
+        return $this;
+    }
+
+    /**
+     * Adds satisfying methods.
+     *
+     * @param array $defaults An array of satisfying methods.
+     *
+     * @return object Route object.
+     */
+    public function defaults(array $defaults)
+    {
+        $this->defaults += $defaults;
+        return $this;
     }
 
     /**
@@ -123,9 +171,13 @@ class Route
      *
      * @return object Route object.
      */
-    public function methods(array $methods)
+    public function methods($methods)
     {
-        $this->methods = $methods;
+        if (is_array($methods)) {
+            $this->methods += array_map('strtolower', $methods);
+        } else {
+            $this->methods[] = strtolower($methods);
+        }
         return $this;
     }
 
@@ -143,16 +195,22 @@ class Route
     }
 
     /**
-     * Adds callback for parameter.
+     * Adds callbacks for parameters.
      *
-     * @param string   $part     Parameter name.
-     * @param \Closure $callback Anonymous function for parameter.
+     * @param array $callbacks An array of anonymous function for parameter.
      *
      * @return object Route object.
+     * @throws \Lebran\Mvc\Router\Exception
      */
-    public function callback($part, \Closure $callback)
+    public function callbacks(array $callbacks)
     {
-        $this->callbacks[$part] = $callback;
+        foreach ($callbacks as $section => $callback) {
+            if (is_callable($callback)) {
+                $this->callbacks[$section] = $callback;
+            } else {
+                throw new Exception('The value of array cell should be callable');
+            }
+        }
         return $this;
     }
 
@@ -165,35 +223,34 @@ class Route
      */
     protected function compile($pattern)
     {
-        $expression = preg_replace('#'.self::REGEX_ESCAPE.'#', '\\\\$0', $pattern);
+        $regex      = [];
+        $expression = preg_replace_callback(
+            '#<(\S[^<>]+) (\S[^<>]+)>#',
+            function ($matches) use (&$regex) {
+                $regex[$matches[1]] = $matches[2];
+                return '<'.$matches[1].'>';
+            },
+            $pattern
+        );
 
-        if (strpos($expression, '(') !== false) {
-            $expression = str_replace(array('(', ')'), array('(?:', ')?'), $expression);
+        $expression = preg_replace('#'.self::REGEX_ESCAPE.'#', '\\\\$0', $expression);
+
+        if (strpos($expression, '[') !== false) {
+            $expression = str_replace(array('[', ']'), array('(?:', ')?'), $expression);
         }
-
         $expression = str_replace(array('<', '>'), array('(?P<', '>'.self::REGEX_SEGMENT.')'), $expression);
 
-        if (!empty($this->regex)) {
+        if (!empty($regex)) {
             $search = $replace = array();
-            foreach ($this->regex as $key => $value) {
-                $search[]  = "<$key>".self::REGEX_SEGMENT;
-                $replace[] = "<$key>$value";
+            foreach ($regex as $key => $value) {
+                $search[]  = '<'.$key.'>'.self::REGEX_SEGMENT;
+                $replace[] = '<'.$key.'>'.$value;
             }
 
             $expression = str_replace($search, $replace, $expression);
         }
 
         return '#^'.$expression.'$#uD';
-    }
-
-    /**
-     * Gets default parameters.
-     *
-     * @return array An array of defaults.
-     */
-    public function getDefaults()
-    {
-        return $this->defaults;
     }
 
     /**
@@ -204,6 +261,16 @@ class Route
     public function getCompiledPattern()
     {
         return $this->pattern;
+    }
+
+    /**
+     * Gets default parameters.
+     *
+     * @return array An array of defaults.
+     */
+    public function getDefaults()
+    {
+        return $this->defaults;
     }
 
     /**
@@ -234,5 +301,15 @@ class Route
     public function getCallbacks()
     {
         return $this->callbacks;
+    }
+
+    /**
+     * Gets name of route.
+     *
+     * @return string The name of route.
+     */
+    public function getName()
+    {
+        return $this->name;
     }
 }
