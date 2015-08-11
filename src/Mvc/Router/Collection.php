@@ -71,11 +71,11 @@ class Collection
      */
     public function collection($definition, $collection)
     {
-        if (is_object($collection)) {
-            $group = $collection;
-        } else if (is_callable($collection)) {
+        if (is_callable($collection)) {
             $group = new Collection();
             call_user_func_array($collection, [$group]);
+        } else if (is_object($collection)) {
+            $group = $collection;
         } else {
             throw new Exception('Collection should be object or callable.');
         }
