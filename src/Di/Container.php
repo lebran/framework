@@ -2,7 +2,6 @@
 namespace Lebran\Di;
 
 use Lebran\Event\EventableInterface;
-use Lebran\Event\Manager;
 
 /**
  * Lebran\Di it's a component that implements Dependency Injection/Service Location patterns.
@@ -96,7 +95,7 @@ class Container implements \ArrayAccess, EventableInterface
     public function get($name, array $params = [])
     {
         if (is_object($this->em)) {
-            $this->em->fire('before.di.serviceResolve', $this, ['name' => $name, 'params' => $params]);
+            $this->em->fire('di.before.serviceResolve', $this, ['name' => $name, 'params' => $params]);
         }
 
         if (isset($this->services[$name])) {
@@ -115,7 +114,7 @@ class Container implements \ArrayAccess, EventableInterface
 
         if (is_object($this->em)) {
             $this->em->fire(
-                'after.di.serviceResolve',
+                'di.after.serviceResolve',
                 $this,
                 ['name' => $name, 'params' => $params, 'instance' => $instance]
             );

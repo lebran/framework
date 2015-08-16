@@ -108,7 +108,11 @@ class Router extends Collection implements InjectableInterface, EventableInterfa
                 $this->em->fire('router.checkRoute', $this, ['route' => $route]);
             }
 
-            if ($route->getMethods() && !in_array(strtolower($this->di['request']->getMethod()), $route->getMethods())) {
+            if ($route->getMethods() && !in_array(
+                    strtolower($this->di['request']->getMethod()),
+                    $route->getMethods()
+                )
+            ) {
                 continue;
             }
 
@@ -162,7 +166,8 @@ class Router extends Collection implements InjectableInterface, EventableInterfa
      *
      * @return string Module name.
      */
-    public function getModule(){
+    public function getModule()
+    {
         return $this->module;
     }
 
@@ -171,7 +176,8 @@ class Router extends Collection implements InjectableInterface, EventableInterfa
      *
      * @return string Controller name.
      */
-    public function getController(){
+    public function getController()
+    {
         return $this->controller;
     }
 
@@ -180,17 +186,21 @@ class Router extends Collection implements InjectableInterface, EventableInterfa
      *
      * @return string Action name.
      */
-    public function getAction(){
+    public function getAction()
+    {
         return $this->action;
     }
 
     /**
      * Gets parameter or parameters.
      *
+     * @param string $name Parameter name.
+     *
      * @return mixed An array of params or param.
      */
-    public function getParams($name = null){
-        return $name? $this->params[$name]:$this->params;
+    public function getParams($name = null)
+    {
+        return $name?$this->params[$name]:$this->params;
     }
 
     /**
@@ -198,7 +208,8 @@ class Router extends Collection implements InjectableInterface, EventableInterfa
      *
      * @return object Route object.
      */
-    public function getMatchedRoute(){
+    public function getMatchedRoute()
+    {
         return $this->matched;
     }
 
