@@ -109,7 +109,7 @@ class Router extends Collection implements InjectableInterface, EventableInterfa
             }
 
             if ($route->getMethods() && !in_array(
-                    strtolower($this->di['request']->getMethod()),
+                    $this->di['request']->getMethod(),
                     $route->getMethods()
                 )
             ) {

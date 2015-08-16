@@ -174,9 +174,9 @@ class Route
     public function methods($methods)
     {
         if (is_array($methods)) {
-            $this->methods += array_map('strtolower', $methods);
+            $this->methods += array_map('strtoupper', $methods);
         } else {
-            $this->methods[] = strtolower($methods);
+            $this->methods[] = strtoupper($methods);
         }
         return $this;
     }

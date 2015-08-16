@@ -149,13 +149,25 @@ class Request
     }
 
     /**
+     * Checks whether the request method.
+     *
+     * @param string $method The name of method.
+     *
+     * @return bool True if it's request method, then - false.
+     */
+    public function isMethod($method)
+    {
+        return strtoupper($method) == $this->getMethod();
+    }
+
+    /**
      * Checks whether the 'post' request method.
      *
      * @return bool true, if the method is POST, then - false.
      */
     public function isPost()
     {
-        return 'POST' == $this->getMethod();
+        return $this->isMethod('POST');
     }
 
     /**
@@ -165,7 +177,7 @@ class Request
      */
     public function isGet()
     {
-        return 'GET' == $this->getMethod();
+        return $this->isMethod('GET');
     }
 
     /**
