@@ -1,8 +1,11 @@
 <?php
 namespace Lebran\Mvc;
 
-use Lebran\Mvc\Router\Collection;
+
+use Lebran\Di\Injectable;
 use Lebran\Di\InjectableInterface;
+use Lebran\Mvc\Router\Collection;
+use Lebran\Event\Eventable;
 use Lebran\Event\EventableInterface;
 
 /**
@@ -31,19 +34,7 @@ use Lebran\Event\EventableInterface;
  */
 class Router extends Collection implements InjectableInterface, EventableInterface
 {
-    /**
-     * Store for di container.
-     *
-     * @var
-     */
-    protected $di;
-
-    /**
-     * Storage for internal event manager.
-     *
-     * @var object
-     */
-    protected $em;
+    use Injectable, Eventable;
 
     /**
      * Current uri.
@@ -212,50 +203,6 @@ class Router extends Collection implements InjectableInterface, EventableInterfa
     public function getMatchedRoute()
     {
         return $this->matched;
-    }
-
-    /**
-     * Sets the dependency injection container.
-     *
-     * @param object $di Container object.
-     *
-     * @return void
-     */
-    public function setDi($di)
-    {
-        $this->di = $di;
-    }
-
-    /**
-     * Returns the dependency injection container.
-     *
-     * @return object Container object.
-     */
-    public function getDi()
-    {
-        return $this->di;
-    }
-
-    /**
-     * Sets the events manager.
-     *
-     * @param object $em Event manager object.
-     *
-     * @return void
-     */
-    public function setEventManager($em)
-    {
-        $this->em = $em;
-    }
-
-    /**
-     * Gets the internal event manager
-     *
-     * @return object Manager object.
-     */
-    public function getEventManager()
-    {
-        return $this->em;
     }
 }
 

@@ -1,6 +1,7 @@
 <?php
 namespace Lebran\Http\Response;
 
+use Lebran\Di\Injectable;
 use Lebran\Di\InjectableInterface;
 
 /**
@@ -16,12 +17,7 @@ use Lebran\Di\InjectableInterface;
  */
 class Cookies implements InjectableInterface
 {
-    /**
-     * Store for di container.
-     *
-     * @var
-     */
-    protected $di;
+    use Injectable;
 
     /**
      * Store cookies.
@@ -66,28 +62,6 @@ class Cookies implements InjectableInterface
     {
         array_walk_recursive($_COOKIE, 'trim');
         $this->params = array_merge($this->params, $params);
-    }
-
-    /**
-     * Sets the dependency injection container.
-     *
-     * @param object $di Container object.
-     *
-     * @return void
-     */
-    public function setDi($di)
-    {
-        $this->di = $di;
-    }
-
-    /**
-     * Returns the dependency injection container.
-     *
-     * @return object Container object.
-     */
-    public function getDi()
-    {
-        return $this->di;
     }
 
     /**

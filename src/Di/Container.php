@@ -1,6 +1,7 @@
 <?php
 namespace Lebran\Di;
 
+use Lebran\Event\Eventable;
 use Lebran\Event\EventableInterface;
 
 /**
@@ -33,41 +34,14 @@ use Lebran\Event\EventableInterface;
  */
 class Container implements \ArrayAccess, EventableInterface
 {
+    use Eventable;
+
     /**
      * Store services.
      *
      * @var array
      */
     protected $services = [];
-
-    /**
-     * Storage for internal event manager.
-     *
-     * @var object
-     */
-    protected $em;
-
-    /**
-     * Sets the events manager.
-     *
-     * @param object $em Event manager object.
-     *
-     * @return void
-     */
-    public function setEventManager($em)
-    {
-        $this->em = $em;
-    }
-
-    /**
-     * Gets the internal event manager
-     *
-     * @return object Manager object.
-     */
-    public function getEventManager()
-    {
-        return $this->em;
-    }
 
     /**
      * Registers a service in the services container.
