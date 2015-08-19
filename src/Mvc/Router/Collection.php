@@ -82,7 +82,7 @@ class Collection
 
         foreach ($group->getRoutes() as $route) {
             foreach ($definition as $key => $value) {
-                $route->{$key}($value);
+                $route->{'set'.strtoupper($key)}($value);
             }
             $this->add($route);
         }
@@ -100,7 +100,7 @@ class Collection
     public function getRouteByName($name)
     {
         foreach ($this->routes as $key => $route) {
-            if ($route->getName() == $name) {
+            if ($route->getName() === $name) {
                 return $route;
             }
         }

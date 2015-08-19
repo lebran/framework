@@ -63,7 +63,11 @@ class Request
      */
     protected function getHelper(array $array, $key, $default)
     {
-        return ($key)?(isset($array[$key])?$array[$key]:$default):$array;
+        if ($key) {
+            return array_key_exists($key, $array)?$array[$key]:$default;
+        } else {
+            return $array;
+        }
     }
 
     /**
@@ -137,11 +141,11 @@ class Request
      */
     public function getHeader($header)
     {
-        $header = strtoupper(strtr($header, "-", "_"));
+        $header = strtoupper(str_replace('-', '_', $header));
 
-        if (isset($_SERVER[$header])) {
+        if (array_key_exists($header, $_SERVER)) {
             return $_SERVER[$header];
-        } else if (isset($_SERVER['HTTP_'.$header])) {
+        } else if (array_key_exists('HTTP_'.$header, $_SERVER)) {
             return $_SERVER['HTTP_'.$header];
         } else {
             return false;
@@ -157,7 +161,7 @@ class Request
      */
     public function isMethod($method)
     {
-        return strtoupper($method) == $this->getMethod();
+        return strtoupper($method) === $this->getMethod();
     }
 
     /**
@@ -187,7 +191,7 @@ class Request
      */
     public function isXMLHttpRequest()
     {
-        return 'XMLHttpRequest' == $this->getHeader('X_REQUESTED_WITH');
+        return 'XMLHttpRequest' === $this->getHeader('X_REQUESTED_WITH');
     }
 
     /**
@@ -197,7 +201,7 @@ class Request
      */
     public function isHttps()
     {
-        return (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443;
+        return (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] === '443';
     }
 
     /**
@@ -266,7 +270,7 @@ class Request
             if (is_array($value)) {
                 $this->fileHelper($value, $array[$key]);
             } else {
-                if (UPLOAD_ERR_OK == $file['error'] && !empty($file)) {
+                if (0 !== count($file) && UPLOAD_ERR_OK === $file['error']) {
                     $array = new File($file);
                 }
                 break;

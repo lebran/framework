@@ -62,10 +62,10 @@ class Cookies implements InjectableInterface
      *
      * @param array $params Cookies parameters.
      */
-    public function __construct($params = [])
+    public function __construct(array $params = [])
     {
         array_walk_recursive($_COOKIE, 'trim');
-        $this->params = $params + $this->params;
+        $this->params = array_merge($this->params, $params);
     }
 
     /**
@@ -107,8 +107,8 @@ class Cookies implements InjectableInterface
         $group    = $_COOKIE;
 
         foreach ($segments as $segment => $value) {
-            if (isset($group[$value]) && is_array($group)) {
-                if ($segment == count($segments) - 1) {
+            if (is_array($group) && array_key_exists($value, $group)) {
+                if ($segment === count($segments) - 1) {
                     return $group[$value];
                 } else {
                     $group = $group[$value];
@@ -131,20 +131,20 @@ class Cookies implements InjectableInterface
      * @return object Cookies object.
      * @throws \Lebran\Http\Response\Exception
      */
-    public function set($name, $value, $params = [])
+    public function set($name, $value, array $params = [])
     {
         foreach ($this->params as $key => $val) {
             if (empty($params[$key])) {
                 $params[$key] = $val;
             }
         }
-        if ($params['expiration'] != 0) {
+        if ($params['expiration'] !== 0) {
             $params['expiration'] += time();
         }
 
         $temp_name = explode('.', trim($name));
         $name      = array_shift($temp_name);
-        if (!empty($temp_name)) {
+        if (0 === count($temp_name)) {
             $name = $name.'['.implode('][', $temp_name).']';
         }
 
@@ -153,11 +153,11 @@ class Cookies implements InjectableInterface
             array_walk(
                 $value,
                 function (&$item) use ($params) {
-                    $item = ['value' => $item] + $params;
+                    $item = array_merge($params, ['value' => $item]);
                 }
             );
         } else {
-            $value = [$name => ['value' => $value] + $params];
+            $value = [$name => array_merge($params, ['value' => $value])];
         }
 
         $this->bag = array_merge($this->bag, $value);
@@ -180,8 +180,9 @@ class Cookies implements InjectableInterface
      * @param array  $params Parameters which announces cookie(s).
      *
      * @return object Cookies object.
+     * @throws \Lebran\Http\Response\Exception
      */
-    public function delete($name, $params = [])
+    public function delete($name, array $params = [])
     {
         if ((($delete = $this->get($name)) !== null)) {
             if (is_array($delete)) {
@@ -252,8 +253,12 @@ class Cookies implements InjectableInterface
     {
         $temp = [];
         foreach ($array as $key => $value) {
-            $new_name = strval(($name !== '')?$name.'['.$key.']':$key);
-            is_array($value)?$temp += $this->setHelper($new_name, $value):$temp[$new_name] = $value;
+            $new_name = (string)(($name !== '')?$name.'['.$key.']':$key);
+            if (is_array($value)) {
+                $temp = array_merge($temp, $this->setHelper($new_name, $value));
+            } else {
+                $temp[$new_name] = $value;
+            }
         }
         return $temp;
     }

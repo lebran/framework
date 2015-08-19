@@ -57,14 +57,14 @@ class Router extends Collection implements InjectableInterface, EventableInterfa
      *
      * @var object
      */
-    protected $matched = null;
+    protected $matched;
 
     /**
      * Current module if given.
      *
      * @var string
      */
-    protected $module = null;
+    protected $module;
 
     /**
      * Current controller.
@@ -96,7 +96,7 @@ class Router extends Collection implements InjectableInterface, EventableInterfa
      */
     public function handle($uri = null)
     {
-        $this->uri = ($uri)?$uri:$this->di['request']->getUri();
+        $this->uri = ($uri)?:$this->di['request']->getUri();
 
         if (is_object($this->em)) {
             $this->em->fire('router.before.checkRoutes', $this, ['uri' => $this->uri]);
@@ -110,7 +110,8 @@ class Router extends Collection implements InjectableInterface, EventableInterfa
 
             if ($route->getMethods() && !in_array(
                     $this->di['request']->getMethod(),
-                    $route->getMethods()
+                    $route->getMethods(),
+                    true
                 )
             ) {
                 continue;

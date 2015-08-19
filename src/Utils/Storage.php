@@ -69,13 +69,13 @@ class Storage implements \ArrayAccess, \IteratorAggregate, \Countable, \Serializ
      */
     public function set($key, $value)
     {
-        if (is_null($key)) {
+        if (null === $key) {
             $this->storage[] = $value;
         } else {
             $segments = explode($this->delimiter, $key);
             $group    = &$this->storage;
             foreach ($segments as $segment => $val) {
-                if ($segment == count($segments) - 1) {
+                if ($segment === count($segments) - 1) {
                     $group[$val] = $value;
                 } else {
                     !(isset($group[$val]) && !is_array($group[$val]))?:$group[$val] = [];
@@ -100,7 +100,7 @@ class Storage implements \ArrayAccess, \IteratorAggregate, \Countable, \Serializ
         $group    = &$this->storage;
         foreach ($segments as $segment => $value) {
             if (isset($group[$value])) {
-                if ($segment == count($segments) - 1) {
+                if ($segment === count($segments) - 1) {
                     return $group[$value];
                 } else {
                     $group = &$group[$value];
@@ -121,7 +121,7 @@ class Storage implements \ArrayAccess, \IteratorAggregate, \Countable, \Serializ
      */
     public function has($key)
     {
-        return is_null($this->get($key))?false:true;
+        return null !== $this->get($key);
     }
 
     /**
@@ -137,7 +137,7 @@ class Storage implements \ArrayAccess, \IteratorAggregate, \Countable, \Serializ
         $group    = &$this->storage;
         foreach ($segments as $segment => $value) {
             if (isset($group[$value])) {
-                if ($segment == count($segments) - 1) {
+                if ($segment === count($segments) - 1) {
                     unset($group[$value]);
                 } else {
                     $group = &$group[$value];

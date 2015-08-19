@@ -76,7 +76,7 @@ class Route
      *
      * @var string
      */
-    protected $name = null;
+    protected $name;
 
     /**
      * The parameters of defaults.
@@ -120,20 +120,20 @@ class Route
         if (is_string($definition)) {
             if (strpos($definition, '::') !== false) {
                 $defaults = explode('::', $definition);
-                $this->defaults(['controller' => $defaults[0], 'action' => $defaults[1]]);
+                $this->setDefaults(['controller' => $defaults[0], 'action' => $defaults[1]]);
             } else {
                 throw new Exception('A string definition of route should be type of "controller::action"');
             }
         } else if (is_array($definition)) {
             foreach ($definition as $key => $value) {
-                $this->{$key}($value);
+                $this->{'set'.strtoupper($key)}($value);
             }
-        } else if (!is_null($definition)) {
+        } else if (null !== $definition) {
             throw new Exception('The route definition should be string or array.');
         }
 
-        if (!is_null($methods)) {
-            $this->methods($methods);
+        if (null !== $methods) {
+            $this->setMethods($methods);
         }
         $this->pattern = $this->compile($pattern);
     }
@@ -145,7 +145,7 @@ class Route
      *
      * @return object Route object.
      */
-    public function name($name)
+    public function setName($name)
     {
         $this->name = $name;
         return $this;
@@ -158,9 +158,9 @@ class Route
      *
      * @return object Route object.
      */
-    public function defaults(array $defaults)
+    public function setDefaults(array $defaults)
     {
-        $this->defaults += $defaults;
+        $this->defaults = array_merge($this->defaults, $defaults);
         return $this;
     }
 
@@ -171,10 +171,10 @@ class Route
      *
      * @return object Route object.
      */
-    public function methods($methods)
+    public function setMethods($methods)
     {
         if (is_array($methods)) {
-            $this->methods += array_map('strtoupper', $methods);
+            $this->methods = array_merge($this->methods, array_map('strtoupper', $methods));
         } else {
             $this->methods[] = strtoupper($methods);
         }
@@ -188,7 +188,7 @@ class Route
      *
      * @return object Route object.
      */
-    public function middlewares(array $middlewares)
+    public function setMiddlewares(array $middlewares)
     {
         $this->middlewares = $middlewares;
         return $this;
@@ -202,7 +202,7 @@ class Route
      * @return object Route object.
      * @throws \Lebran\Mvc\Router\Exception
      */
-    public function callbacks(array $callbacks)
+    public function setCallbacks(array $callbacks)
     {
         foreach ($callbacks as $section => $callback) {
             if (is_callable($callback)) {
@@ -240,7 +240,7 @@ class Route
         }
         $expression = str_replace(array('<', '>'), array('(?P<', '>'.self::REGEX_SEGMENT.')'), $expression);
 
-        if (!empty($regex)) {
+        if (0 !== count($regex)) {
             $search = $replace = array();
             foreach ($regex as $key => $value) {
                 $search[]  = '<'.$key.'>'.self::REGEX_SEGMENT;

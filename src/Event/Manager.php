@@ -125,7 +125,7 @@ class Manager
             if ($this->hasListeners($name)) {
                 foreach ($this->listeners[$name] as $listener) {
                     $response = call_user_func_array($listener, $params);
-                    if (!is_null($response)) {
+                    if (null !== $response) {
                         if ($response === false) {
                             break;
                         } else {
@@ -147,7 +147,7 @@ class Manager
      */
     public function hasListeners($name)
     {
-        return isset($this->listeners[$name]);
+        return array_key_exists($name, $this->listeners);
     }
 
     /**
@@ -159,7 +159,11 @@ class Manager
      */
     public function getListeners($name = null)
     {
-        return $name?($this->hasListeners($name)?$this->listeners[$name]:null):$this->listeners;
+        if($name){
+            return $this->hasListeners($name)?$this->listeners[$name]:null;
+        }else {
+            return $this->listeners;
+        }
     }
 
     /**

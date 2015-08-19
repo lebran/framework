@@ -63,14 +63,14 @@ class Autoloader
         $prefix = trim($prefix, '\\').'\\';
         $dir    = rtrim($dir, DIRECTORY_SEPARATOR).'/';
 
-        if (!isset($this->prefixes[$prefix])) {
+        if (!array_key_exists($prefix, $this->prefixes)) {
             $this->prefixes[$prefix] = [];
         }
 
         if ($prepend) {
             array_unshift($this->prefixes[$prefix], $dir);
         } else {
-            array_push($this->prefixes[$prefix], $dir);
+            $this->prefixes[$prefix][] = $dir;
         }
 
         return $this;
@@ -110,7 +110,7 @@ class Autoloader
      */
     public function addClasses(array $classes)
     {
-        $this->classes += $classes;
+        $this->classes = array_merge($this->classes, $classes);
         return $this;
     }
 
@@ -152,7 +152,7 @@ class Autoloader
      */
     protected function loadMappedFile($prefix, $relative_class)
     {
-        if (!isset($this->prefixes[$prefix])) {
+        if (!array_key_exists($prefix, $this->prefixes)) {
             return false;
         }
 

@@ -35,6 +35,8 @@ class Ini extends Adapter
      *
      * @param string $path
      * @param bool   $sections
+     *
+     * @throws \Lebran\Config\Exception
      */
     public function __construct($path = null, $sections = false)
     {
@@ -75,7 +77,7 @@ class Ini extends Adapter
      *
      * @return object Adapter\Ini object.
      */
-    public function sections($sections = false)
+    public function parseSections($sections = false)
     {
         $this->sections = $sections;
         return $this;
@@ -107,7 +109,25 @@ class Ini extends Adapter
         return $this;
     }
 
-    /*
+    /**
+     * Recursively converts into a single array.
+     *
+     *      $this->setHelper('test', $test);
+     *
+     *      Incoming array:
+     *          [
+     *              "level11" => "value1",
+     *              "level12" => [
+     *                  "level21" => "value2"
+     *              ]
+     *          ]
+     *
+     *      Outgoing array:
+     *          [
+     *              "test.level11" => "value1",
+     *              "test.level12.level21" => "value2",
+     *          ]
+     *
      * @param array  $array Convertible array.
      * @param string $name  The name that will be added at the beginning.
      *
@@ -117,8 +137,12 @@ class Ini extends Adapter
     {
         $temp = [];
         foreach ($array as $key => $value) {
-            $new_name = strval(($name !== '')?$name.$this->delimiter.$key:$key);
-            is_array($value)?$temp += $this->writeHelper($new_name, $value):$temp[$new_name] = $value;
+            $new_name = (string)(($name !== '')?$name.$this->delimiter.$key:$key);
+            if (is_array($value)) {
+                $temp = array_merge($temp, $this->writeHelper($new_name, $value));
+            } else {
+                $temp[$new_name] = $value;
+            }
         }
         return $temp;
     }

@@ -55,7 +55,7 @@ class Php extends Adapter
         if (!is_dir(dirname($path))) {
             throw new Exception('Folder "'.dirname($path).'" not exists.');
         }
-        $config = "<?php".PHP_EOL."    return ".$this->writeHelper($this->storage, 2).";";
+        $config = '<?php'.PHP_EOL.'    return '.$this->writeHelper($this->storage, 2).';';
         file_put_contents($path.$this->extension, $config);
         return $this;
     }
@@ -70,17 +70,17 @@ class Php extends Adapter
      */
     final protected function writeHelper(array $array, $level = 0)
     {
-        $string = "[".PHP_EOL;
+        $string = '['.PHP_EOL;
         $keys   = array_keys($array);
         foreach ($array as $key => $value) {
             $string .= str_repeat('    ', $level)
-                .(is_int($key)?$key:"'$key'")." => "
+                .(is_int($key)?$key:"'$key'").' => '
                 .(is_array($value)?
                     $this->writeHelper($value, $level + 1):
                     "'".(string)$value."'")
                 .((end($keys) === $key)?'':',').PHP_EOL;
         }
-        $string .= str_repeat('    ', $level - 1)."]";
+        $string .= str_repeat('    ', $level - 1).']';
         return $string;
     }
 

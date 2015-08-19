@@ -32,7 +32,7 @@ class Response
      *
      * @var array
      */
-    protected $messages = [
+    protected static $messages = [
         // Information 1xx
         100 => 'Continue',
         101 => 'Switching Protocols',
@@ -133,6 +133,8 @@ class Response
      *
      * @param string $body   Http package body.
      * @param int    $status Http status code.
+     *
+     * @throws \Lebran\Http\Response\Exception
      */
     public function __construct($body = '', $status = 200)
     {
@@ -150,7 +152,7 @@ class Response
      */
     public function setHttpVersion($version)
     {
-        if ($version != '1.0' || $version != '1.1') {
+        if ($version !== '1.0' || $version !== '1.1') {
             throw new Exception('Supports only 1.0 and 1.1!');
         }
         $this->version = 'HTTP/'.$version;
@@ -214,10 +216,11 @@ class Response
      * @param int    $status Status code.
      *
      * @return void
+     * @throws \Lebran\Http\Response\Exception
      */
     public function redirect($uri, $status = 302)
     {
-        $this->addHeaders('Location', trim($uri));
+        $this->setHeaders(['Location', trim($uri)]);
         $this->setStatusCode($status);
     }
 
@@ -285,7 +288,7 @@ class Response
     /**
      * Adds the body for Http package.
      *
-     * @param $body Body for http package.
+     * @param string $body Body for http package.
      *
      * @return object Response object.
      */
@@ -317,7 +320,7 @@ class Response
             throw new Exception('The headers have already been sent.');
         }
 
-        $status_line = $this->version.' '.$this->status.' '.$this->messages[$this->status];
+        $status_line = $this->version.' '.$this->status.' '.self::$messages[$this->status];
         header($status_line, true, $this->status);
 
         foreach ($this->headers as $name => $value) {
@@ -344,14 +347,15 @@ class Response
      * Sends Http package.
      *
      * @return object Response object.
+     * @throws \Lebran\Http\Response\Exception
      */
     public function send()
     {
-        if (!empty($this->cookies)) {
+        if (0 !== count($this->cookies)) {
             $this->sendCookies();
         }
 
-        if (!empty($this->headers)) {
+        if (0 !== count($this->headers)) {
             $this->sendHeaders();
         }
 

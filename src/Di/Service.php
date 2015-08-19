@@ -228,7 +228,7 @@ class Service
         }
 
         $reflection = new \ReflectionClass($definition['class']);
-        if (!empty($params)) {
+        if (0 === count($params)) {
             $instance = $reflection->newInstanceArgs($params);
         } else {
             if (empty($definition['arguments'])) {
@@ -339,6 +339,7 @@ class Service
      * @param array  $arguments Parameter arguments (parameter, class).
      *
      * @return array Array of built parameters.
+     * @throws \Lebran\Di\Exception
      */
     final protected function buildParams($di, array $arguments)
     {

@@ -15,23 +15,20 @@ use Lebran\Utils\Storage;
  */
 abstract class Adapter extends Storage
 {
-    /**
-     * The extension of configs.
-     *
-     * @var string
-     */
-    protected $extension = '';
 
     /**
      * Initialisation.
      *
      * @param string $path The path to the file.
-     *
-     * @throws \Lebran\Config\Exception
+     * @param array  $data The data for storage.
      */
-    public function __construct($path = null)
+    public function __construct($path = null, array $data = [])
     {
-        is_null($path)?:$this->load($path);
+        parent::__construct($data);
+
+        if (!$path) {
+            $this->load($path);
+        }
     }
 
     /**

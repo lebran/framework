@@ -98,7 +98,7 @@ class Container implements \ArrayAccess, EventableInterface
             $this->em->fire('di.before.serviceResolve', $this, ['name' => $name, 'params' => $params]);
         }
 
-        if (isset($this->services[$name])) {
+        if (array_key_exists($name, $this->services)) {
             $instance = $this->services[$name]->resolve($params, $this);
         } else {
             if (!class_exists($name)) {
@@ -133,10 +133,10 @@ class Container implements \ArrayAccess, EventableInterface
      */
     public function getService($name)
     {
-        if (isset($this->services[$name])) {
+        if (array_key_exists($name, $this->services)) {
             return $this->services[$name];
         } else {
-            throw new Exception("Service '".$name."' wasn't found in the dependency injection container");
+            throw new Exception('Service "'.$name.'" wasn\'t found in the dependency injection container');
         }
     }
 
@@ -161,7 +161,7 @@ class Container implements \ArrayAccess, EventableInterface
      */
     public function has($name)
     {
-        return isset($this->services[$name]);
+        return array_key_exists($name, $this->services);
     }
 
     /**
@@ -183,6 +183,7 @@ class Container implements \ArrayAccess, EventableInterface
      * @param string $name Service name.
      *
      * @return object Resolving service instance object.
+     * @throws \Lebran\Di\Exception
      */
     public function offsetGet($name)
     {

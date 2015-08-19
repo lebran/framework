@@ -107,7 +107,7 @@ class File
     /**
      * Moves the temporary file to a destination within the application.
      *
-     * @param string Directory for file.
+     * @param string $directory TШhe directory of file.
      *
      * @return bool Status.
      */
