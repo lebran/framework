@@ -15,15 +15,15 @@ namespace Lebran\Mvc\Router;
  *          'defaults' => [
  *              'module' => 'admin'
  *          ]
- *      ], function($collection){
- *          $collection->add('news/add', 'News::add');
- *          $collection->add('news/update', 'News::update');
+ *      ], function(){
+ *          $this->add('news/add', 'News::add');
+ *          $this->add('news/update', 'News::update');
  *
- *          $collection->collection([
+ *          $this->collection([
  *              'methods' => 'post'
- *          ], function($collection){
- *              $collection->add('news/add', 'NewsPost::add');
- *              $collection->add('news/update', 'NewsPost::update');
+ *          ], function(){
+ *              $this->add('news/add', 'NewsPost::add');
+ *              $this->add('news/update', 'NewsPost::update');
  *          });
  *      });
  * </code>
@@ -71,13 +71,13 @@ class Collection
      */
     public function collection($definition, $collection)
     {
-        if (is_callable($collection)) {
+        if ($collection instanceof \Closure) {
             $group = new Collection();
-            call_user_func_array($collection, [$group]);
+            call_user_func($collection->bindTo($group, $group));
         } else if (is_object($collection)) {
             $group = $collection;
         } else {
-            throw new Exception('Collection should be object or callable.');
+            throw new Exception('Collection should be object or closure.');
         }
 
         foreach ($group->getRoutes() as $route) {

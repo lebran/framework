@@ -122,13 +122,14 @@ class Service
         if (is_string($this->definition)) {
             if (class_exists($this->definition)) {
                 $reflection = new \ReflectionClass($this->definition);
-                $instance = $reflection->newInstanceArgs($params);
+                $instance   = $reflection->newInstanceArgs($params);
             } else {
                 $found = false;
             }
         } else if (is_object($this->definition)) {
             if ($this->definition instanceof \Closure) {
-                $instance = call_user_func_array($this->definition, $params);
+                $definition = $this->definition->bindTo($di, $di);
+                $instance   = call_user_func_array($definition, $params);
             } else {
                 $instance = $this->definition;
             }
