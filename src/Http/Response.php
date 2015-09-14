@@ -292,7 +292,7 @@ class Response
      *
      * @return object Response object.
      */
-    public function appendBody($body)
+    public function addBody($body)
     {
         $this->body .= (string)$body;
         return $this;

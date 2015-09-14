@@ -72,6 +72,13 @@ class Route
     protected $pattern;
 
     /**
+     * Query handler.
+     *
+     * @var \Closure
+     */
+    protected $handler;
+
+    /**
      * The name of route.
      *
      * @var string
@@ -128,6 +135,8 @@ class Route
             foreach ($definition as $key => $value) {
                 $this->{'set'.strtoupper($key)}($value);
             }
+        } else if($definition instanceof \Closure){
+            $this->handler = $definition;
         } else if (null !== $definition) {
             throw new Exception('The route definition should be string or array.');
         }
@@ -261,6 +270,16 @@ class Route
     public function getCompiledPattern()
     {
         return $this->pattern;
+    }
+
+    /**
+     * Gets query handler.
+     *
+     * @return \Closure
+     */
+    public function getHandler()
+    {
+        return $this->handler;
     }
 
     /**

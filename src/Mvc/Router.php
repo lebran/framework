@@ -1,7 +1,6 @@
 <?php
 namespace Lebran\Mvc;
 
-
 use Lebran\Di\Injectable;
 use Lebran\Di\InjectableInterface;
 use Lebran\Mvc\Router\Collection;
@@ -88,6 +87,7 @@ class Router extends Collection implements InjectableInterface, EventableInterfa
     public function handle($uri = null)
     {
         $this->uri = ($uri)?:$this->di['request']->getUri();
+        $this->matched = null;
 
         if (is_object($this->em)) {
             $this->em->fire('router.before.checkRoutes', $this, ['uri' => $this->uri]);
@@ -119,7 +119,7 @@ class Router extends Collection implements InjectableInterface, EventableInterfa
             }
             $params += $route->getDefaults();
 
-            if (empty($params['controller']) or empty($params['action'])) {
+            if ((empty($params['controller']) or empty($params['action'])) && !$route->getHandler()) {
                 continue;
             }
 
@@ -139,14 +139,16 @@ class Router extends Collection implements InjectableInterface, EventableInterfa
             return false;
         }
 
-        $this->controller = $params['controller'];
-        unset($params['controller']);
-        $this->action = $params['action'];
-        unset($params['action']);
+        if(!$this->matched->getHandler()) {
+            $this->controller = $params['controller'];
+            unset($params['controller']);
+            $this->action = $params['action'];
+            unset($params['action']);
 
-        if (!empty($params['module'])) {
-            $this->module = $params['module'];
-            unset($params['module']);
+            if (!empty($params['module'])) {
+                $this->module = $params['module'];
+                unset($params['module']);
+            }
         }
 
         $this->params = $params;
