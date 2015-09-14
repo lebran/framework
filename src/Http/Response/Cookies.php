@@ -1,6 +1,7 @@
 <?php
 namespace Lebran\Http\Response;
 
+use Lebran\Utils\Storage;
 use Lebran\Di\Injectable;
 use Lebran\Di\InjectableInterface;
 
@@ -15,7 +16,7 @@ use Lebran\Di\InjectableInterface;
  * @license    GNU Licence
  * @copyright  2014 - 2015 Roman Kritskiy
  */
-class Cookies implements InjectableInterface
+class Cookies extends Storage implements InjectableInterface
 {
     use Injectable;
 
@@ -61,36 +62,8 @@ class Cookies implements InjectableInterface
     public function __construct(array $params = [])
     {
         array_walk_recursive($_COOKIE, 'trim');
+        parent::__construct($_COOKIE);
         $this->params = array_merge($this->params, $params);
-    }
-
-    /**
-     * Gets the value of cookies by key or default, if not found.
-     * Use spot annotation.
-     *
-     *      $cookies->get('user.about.name', 'no-name');
-     *
-     * @param string $name    Cookie(s) name.
-     * @param mixed  $default The value to return if required not found.
-     *
-     * @return mixed Value by key or default.
-     */
-    public function get($name, $default = null)
-    {
-        $segments = explode('.', $name);
-        $group    = $_COOKIE;
-
-        foreach ($segments as $segment => $value) {
-            if (is_array($group) && array_key_exists($value, $group)) {
-                if ($segment === count($segments) - 1) {
-                    return $group[$value];
-                } else {
-                    $group = $group[$value];
-                }
-            } else {
-                return $default;
-            }
-        }
     }
 
     /**
@@ -118,7 +91,7 @@ class Cookies implements InjectableInterface
 
         $temp_name = explode('.', trim($name));
         $name      = array_shift($temp_name);
-        if (0 === count($temp_name)) {
+        if (0 !== count($temp_name)) {
             $name = $name.'['.implode('][', $temp_name).']';
         }
 

@@ -131,7 +131,7 @@ class Storage implements \ArrayAccess, \IteratorAggregate, \Countable, \Serializ
      *
      * @return object Storage object
      */
-    public function remove($key)
+    public function delete($key)
     {
         $segments = explode($this->delimiter, $key);
         $group    = &$this->storage;
