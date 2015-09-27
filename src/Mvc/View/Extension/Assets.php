@@ -1,5 +1,5 @@
 <?php
-namespace Lebran\Mvc\View;
+namespace Lebran\Mvc\View\Extension;
 
 /**
  * Class Assets

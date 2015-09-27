@@ -1,5 +1,5 @@
 <?php
-namespace Lebran\Mvc\View;
+namespace Lebran\Mvc\View\Extension;
 
 /**
  * By combining layouts and blocks, allows you to “build up” your pages using predefined blocks.

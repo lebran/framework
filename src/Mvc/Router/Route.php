@@ -234,7 +234,7 @@ class Route
     {
         $regex      = [];
         $expression = preg_replace_callback(
-            '#<(\S[^<>]+) (\S[^<>]+)>#',
+            '#<(\S[^<>]*) (\S[^<>]*)>#',
             function ($matches) use (&$regex) {
                 $regex[$matches[1]] = $matches[2];
                 return '<'.$matches[1].'>';

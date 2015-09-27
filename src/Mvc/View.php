@@ -3,7 +3,7 @@ namespace Lebran\Mvc;
 
 use Lebran\Utils\Storage;
 use Lebran\Mvc\View\Exception;
-use Lebran\Mvc\View\ExtensionInterface;
+use Lebran\Mvc\View\Extension\ExtensionInterface;
 
 /**
  * Lebran\Mvc\View is a native PHP template system that's fast and easy to extend.
