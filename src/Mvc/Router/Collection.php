@@ -48,7 +48,7 @@ class Collection
      * Adds new route.
      *
      * @param string $pattern    The rule of routing
-     * @param mixed  $definition The route definition(string or array).
+     * @param mixed  $definition The route definition(string, array or closure).
      * @param mixed  $methods    Satisfying method(s).
      *
      * @return object Route object.
@@ -58,6 +58,58 @@ class Collection
         $route = is_object($pattern)?$pattern:new Route($pattern, $definition, $methods);
         array_unshift($this->routes, $route);
         return $route;
+    }
+
+    /**
+     * Adds new GET route.
+     *
+     * @param string $pattern    The rule of routing
+     * @param mixed  $definition The route definition(string, array or closure).
+     *
+     * @return object Route object.
+     */
+    public function get($pattern, $definition = null)
+    {
+        $this->add($pattern, $definition, 'get');
+    }
+
+    /**
+     * Adds new POST route.
+     *
+     * @param string $pattern    The rule of routing
+     * @param mixed  $definition The route definition(string, array or closure).
+     *
+     * @return object Route object.
+     */
+    public function post($pattern, $definition = null)
+    {
+        $this->add($pattern, $definition, 'post');
+    }
+
+    /**
+     * Adds new PUT route.
+     *
+     * @param string $pattern    The rule of routing
+     * @param mixed  $definition The route definition(string, array or closure).
+     *
+     * @return object Route object.
+     */
+    public function put($pattern, $definition = null)
+    {
+        $this->add($pattern, $definition, 'put');
+    }
+
+    /**
+     * Adds new DELETE route.
+     *
+     * @param string $pattern    The rule of routing
+     * @param mixed  $definition The route definition(string, array or closure).
+     *
+     * @return object Route object.
+     */
+    public function delete($pattern, $definition = null)
+    {
+        $this->add($pattern, $definition, 'delete');
     }
 
     /**
