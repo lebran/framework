@@ -148,7 +148,7 @@ class Container implements \ArrayAccess, EventableInterface
      */
     public function offsetSet($name, $definition)
     {
-        return $this->set($name, $definition, true);
+        return $this->set($name, $definition);
     }
 
     /**
@@ -184,6 +184,55 @@ class Container implements \ArrayAccess, EventableInterface
      * @return bool True if exists, false - not.
      */
     public function offsetExists($name)
+    {
+        return $this->has($name);
+    }
+
+    /**
+     * Allows to register a shared service using the array syntax.
+     *
+     * @param string $name       Service name.
+     * @param mixed  $definition Service definition.
+     *
+     * @return object Service object.
+     */
+    public function __set($name, $definition){
+        $this->set($name, $definition, true);
+    }
+
+    /**
+     * Allows to obtain a shared service using the array syntax
+     *
+     * @param string $name Service name.
+     *
+     * @return object Resolving service instance object.
+     * @throws \Lebran\Di\Exception
+     */
+    public function __get($name)
+    {
+        return $this->get($name);
+    }
+
+    /**
+     * Removes a service from the services container using the array syntax.
+     *
+     * @param string $name Service name.
+     *
+     * @return void
+     */
+    public function __unset($name)
+    {
+        $this->remove($name);
+    }
+
+    /**
+     * Check if a service is registered using the array syntax.
+     *
+     * @param string $name Service name.
+     *
+     * @return bool True if exists, false - not.
+     */
+    public function __isset($name)
     {
         return $this->has($name);
     }

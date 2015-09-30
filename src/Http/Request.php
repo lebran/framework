@@ -129,7 +129,7 @@ class Request
      */
     public function getUri()
     {
-        return trim($this->getServer('REQUEST_URI'), '/');
+        return trim(trim($this->getServer('REQUEST_URI')), '/');
     }
 
     /**

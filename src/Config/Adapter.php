@@ -26,7 +26,7 @@ abstract class Adapter extends Storage
     {
         parent::__construct($data);
 
-        if (!$path) {
+        if (is_string($path)) {
             $this->load($path);
         }
     }

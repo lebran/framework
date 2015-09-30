@@ -144,7 +144,7 @@ class Route
         if (null !== $methods) {
             $this->setMethods($methods);
         }
-        $this->pattern = $this->compile($pattern);
+        $this->pattern = $this->compile(trim(trim($pattern), '/'));
     }
 
     /**

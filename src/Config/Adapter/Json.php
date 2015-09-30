@@ -1,11 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: mindkicker
- * Date: 22.07.15
- * Time: 14:15
- */
-
 namespace Lebran\Config\Adapter;
 
 use Lebran\Config\Adapter;
