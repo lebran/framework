@@ -112,7 +112,7 @@ class Response
      *
      * @var int
      */
-    protected $status;
+    protected $status = 200;
 
     /**
      * The Http package version.
@@ -220,7 +220,7 @@ class Response
      */
     public function redirect($uri, $status = 302)
     {
-        $this->setHeaders(['Location', trim($uri)]);
+        $this->setHeaders(['Location' => '/'.trim(trim($uri), '/')]);
         $this->setStatusCode($status);
     }
 
