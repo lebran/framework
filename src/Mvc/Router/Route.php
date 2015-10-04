@@ -127,15 +127,23 @@ class Route
         if (is_string($definition)) {
             if (strpos($definition, '::') !== false) {
                 $defaults = explode('::', $definition);
-                $this->setDefaults(['controller' => $defaults[0], 'action' => $defaults[1]]);
+                if (count($defaults) === 2) {
+                    $this->setDefaults(['controller' => $defaults[0], 'action' => $defaults[1]]);
+                } else {
+                    $this->setDefaults(
+                        ['module' => $defaults[0], 'controller' => $defaults[1], 'action' => $defaults[2]]
+                    );
+                }
             } else {
-                throw new Exception('A string definition of route should be type of "controller::action"');
+                throw new Exception(
+                    'A string definition of route should be type of "module::controller::action" or "controller::action"'
+                );
             }
         } else if (is_array($definition)) {
             foreach ($definition as $key => $value) {
                 $this->{'set'.strtoupper($key)}($value);
             }
-        } else if($definition instanceof \Closure){
+        } else if ($definition instanceof \Closure) {
             $this->handler = $definition;
         } else if (null !== $definition) {
             throw new Exception('The route definition should be string or array.');

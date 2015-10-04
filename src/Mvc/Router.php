@@ -87,7 +87,7 @@ class Router extends Collection implements InjectableInterface, EventableInterfa
     public function handle($uri = null)
     {
         $this->uri = trim(trim($uri?:$this->di['request']->getUri()), '/');
-        $this->matched = null;
+        $this->matched = $this->controller = $this->module = $this->action = $this->params = null;
 
         if (is_object($this->em)) {
             $this->em->fire('router.before.checkRoutes', $this, ['uri' => $this->uri]);

@@ -134,7 +134,7 @@ class Application
                 $segment = ucfirst($router->getController()).self::CONTROLLER_POSTFIX;
                 if (array_key_exists($module, $this->namespaces)) {
                     if (class_exists($this->namespaces[$module].$segment)) {
-                        $controller = $this->namespaces.$segment;
+                        $controller = $this->namespaces[$module].$segment;
                     }
                 } else {
                     foreach ($this->namespaces as $name => $value) {
