@@ -24,11 +24,12 @@ trait Eventable
      *
      * @param object $em Event manager object.
      *
-     * @return void
+     * @return object
      */
     public function setEventManager($em)
     {
         $this->em = $em;
+        return $this;
     }
 
     /**

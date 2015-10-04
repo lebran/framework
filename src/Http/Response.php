@@ -215,13 +215,14 @@ class Response
      * @param string $uri    Redirect uri.
      * @param int    $status Status code.
      *
-     * @return void
+     * @return object Response object.
      * @throws \Lebran\Http\Response\Exception
      */
     public function redirect($uri, $status = 302)
     {
         $this->setHeaders(['Location' => '/'.trim(trim($uri), '/')]);
         $this->setStatusCode($status);
+        return $this;
     }
 
     /**
@@ -251,10 +252,13 @@ class Response
      * Sets the cookies for sending.
      *
      * @param object $cookies Cookies object.
+     *
+     * @return object Response object.
      */
     public function setCookies($cookies)
     {
         $this->cookies[] = $cookies;
+        return $this;
     }
 
     /**

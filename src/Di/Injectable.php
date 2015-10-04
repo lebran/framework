@@ -24,11 +24,12 @@ trait Injectable
      *
      * @param object $di Container object.
      *
-     * @return void
+     * @return object
      */
     public function setDi($di)
     {
         $this->di = $di;
+        return $this;
     }
 
     /**
