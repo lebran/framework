@@ -116,35 +116,6 @@ class View extends Storage
     }
 
     /**
-     *
-     *
-     * @return object View object.
-     */
-    public function enableShortTags()
-    {
-        foreach ($this->methods as $name => $value) {
-            $this->set(
-                $name,
-                function (...$parameters) use ($value) {
-                    return $value[0]->{$value[1]}(...$parameters);
-                }
-            );
-        }
-
-        $_this = $this;
-        foreach (['layout', 'import', 'content'] as $method) {
-            $this->set(
-                $method,
-                function (...$parameters) use ($_this, $method) {
-                    return $_this->{$method}(...$parameters);
-                }
-            );
-        }
-
-        return $this;
-    }
-
-    /**
      * Generates path for view.
      *
      * @return string Resolved path.

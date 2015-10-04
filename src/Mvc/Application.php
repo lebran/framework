@@ -80,7 +80,7 @@ class Application
             if (is_string($handler) || $handler instanceof \Closure) {
                 $this->modules[$name] = $handler;
             } else {
-                throw new Exception('');
+                throw new Exception('Handler must be string name of class or closure');
             }
         }
         $this->namespaces[$name] = $namespace;
@@ -170,8 +170,8 @@ class Application
                 throw new Exception('It must be at least one module: [name => namespace]');
             }
         }
-
-        return $this->handleMiddlewares($middlewares);
+        $response = $this->handleMiddlewares($middlewares);
+        return $this->prepareResponse($response);
     }
 
     /**
@@ -182,9 +182,8 @@ class Application
      */
     final public function call()
     {
-        $resolved = $this->resolveParameters(...$this->handler);
-        $response = call_user_func_array(array_shift($this->handler), $resolved);
-        return $this->prepareResponse($response);
+        $resolved = $this->resolveParameters($this->handler[0], $this->handler[1]);
+        return call_user_func_array($this->handler[0], $resolved);
     }
 
     /**
