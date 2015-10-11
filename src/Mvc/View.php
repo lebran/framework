@@ -116,21 +116,23 @@ class View extends Storage
     }
 
     /**
-     * Generates path for view.
+     * Generates path for template.
+     *
+     * @param string $template The name of template.
      *
      * @return string Resolved path.
      * @throws \Lebran\Mvc\View\Exception
      */
-    protected function path()
+    protected function resolvePath($template)
     {
-        $parts = explode('::', $this->template);
+        $parts = explode('::', $template);
         if (count($parts) === 1) {
             foreach ($this->folders as $folder) {
                 if (is_file($folder.$parts[0].'.php')) {
                     return $folder.$parts[0].'.php';
                 }
             }
-        } elseif (count($parts) === 2 && is_file($this->folders[$parts[0]].$parts[1].'.php')) {
+        } else if (count($parts) === 2 && is_file($this->folders[$parts[0]].$parts[1].'.php')) {
             return $this->folders[$parts[0]].$parts[1].'.php';
         }
 
@@ -157,7 +159,7 @@ class View extends Storage
         extract($this->storage);
         ob_start();
 
-        include $this->path();
+        include $this->resolvePath($this->template);
 
         if (0 === count($this->layouts)) {
             return ob_get_clean();
@@ -202,7 +204,6 @@ class View extends Storage
         }
     }
 
-
     /**
      * Set the template's layout.
      *
@@ -228,15 +229,15 @@ class View extends Storage
     /**
      * Include view.
      *
-     * @param string $view The name of view.
+     * @param string $template The name of template.
      *
      * @return void
      * @throws \Lebran\Mvc\View\Exception
      */
-    protected function import($view)
+    protected function import($template)
     {
-        $this->template = $view;
+        $this->template = $template;
         extract($this->storage);
-        include $this->path();
+        include $this->resolvePath($this->template);
     }
 }
