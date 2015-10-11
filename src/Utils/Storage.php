@@ -47,15 +47,26 @@ class Storage implements \ArrayAccess, \IteratorAggregate, \Countable, \Serializ
     }
 
     /**
-     * Merge of storages.
+     * Merge array to storage.
      *
-     * @param Storage $storage Another storage.
+     * @param array $storage An array to merge.
      *
-     * @return object Storage object
+     * @return object Storage object.
      */
-    public function merge(Storage $storage)
+    public function merge(array $storage)
     {
-        $this->storage = array_merge_recursive($this->storage, $storage->toArray());
+        $this->storage = array_merge_recursive($this->storage, $storage);
+        return $this;
+    }
+
+    /**
+     * Remove all elements.
+     *
+     * @return object Storage object.
+     */
+    public function clear()
+    {
+        $this->storage = [];
         return $this;
     }
 

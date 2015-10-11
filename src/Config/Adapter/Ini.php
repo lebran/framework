@@ -28,21 +28,7 @@ class Ini extends Adapter
      *
      * @var bool
      */
-    protected $sections;
-
-    /**
-     * Initialisation.
-     *
-     * @param string $path
-     * @param bool   $sections
-     *
-     * @throws \Lebran\Config\Exception
-     */
-    public function __construct($path = null, $sections = false)
-    {
-        $this->sections = $sections;
-        parent::__construct($path);
-    }
+    protected $sections = false;
 
     /**
      * Loads ini config file and saves it to storage.
@@ -77,7 +63,7 @@ class Ini extends Adapter
      *
      * @return object Adapter\Ini object.
      */
-    public function parseSections($sections = false)
+    public function parseSections($sections = true)
     {
         $this->sections = $sections;
         return $this;
