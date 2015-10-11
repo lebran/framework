@@ -359,9 +359,7 @@ class Response
             $this->sendCookies();
         }
 
-        if (0 !== count($this->headers)) {
-            $this->sendHeaders();
-        }
+        $this->sendHeaders();
 
         if (is_string($this->file) and strlen($this->file)) {
             readfile($this->file);

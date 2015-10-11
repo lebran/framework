@@ -100,14 +100,14 @@ class Manager
     /**
      * Executes attached listeners for this event.
      *
-     * @param string $name   The name of event.
-     * @param object $object Which it was caused by an object event.
-     * @param array  $data   Additional information.
+     * @param string             $name   The name of event.
+     * @param EventableInterface $object Which it was caused by an object event.
+     * @param array              $data   Additional information.
      *
-     * @return object Manager object.
+     * @return array Event response.
      * @throws \Lebran\Event\Exception
      */
-    public function fire($name, $object, array $data = null)
+    public function fire($name, EventableInterface $object, array $data = null)
     {
         if (!is_object($object)) {
             throw new Exception('Argument "object" must be object where fire event.');
@@ -123,7 +123,8 @@ class Manager
         }
         foreach ($names as $name) {
             if ($this->hasListeners($name)) {
-                foreach ($this->listeners[$name] as $listener) {
+                $listeners = clone $this->listeners[$name];
+                foreach ($listeners as $listener) {
                     $response = call_user_func_array($listener, $params);
                     if (null !== $response) {
                         if ($response === false) {
@@ -135,7 +136,7 @@ class Manager
                 }
             }
         }
-        return $this;
+        return empty($this->responses[$name])?:$this->responses[$name];
     }
 
     /**
@@ -159,9 +160,9 @@ class Manager
      */
     public function getListeners($name = null)
     {
-        if($name){
-            return $this->hasListeners($name)?$this->listeners[$name]:null;
-        }else {
+        if ($name) {
+            return !$this->hasListeners($name)?:$this->listeners[$name];
+        } else {
             return $this->listeners;
         }
     }
