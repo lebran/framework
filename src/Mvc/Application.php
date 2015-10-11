@@ -39,7 +39,7 @@ class Application
     /**
      * @var array Storage for module namespaces.
      */
-    protected $namespaces;
+    protected $namespaces = [];
 
     /**
      * @var callable Request handler.
@@ -124,13 +124,14 @@ class Application
         }
         $params      = $router->getParams();
         $current     = $router->getMatchedRoute();
+        $module      = $router->getModule();
         $middlewares = $current->getMiddlewares();
 
         if ($current->getHandler()) {
+            !$module?:$this->handleModule($module);
             $this->handler = [$current->getHandler()->bindTo($this->di, $this), $params];
         } else {
-            if (is_array($this->namespaces)) {
-                $module  = $router->getModule();
+            if (0 !== count($this->namespaces)) {
                 $segment = ucfirst($router->getController()).self::CONTROLLER_POSTFIX;
                 if (array_key_exists($module, $this->namespaces)) {
                     if (class_exists($this->namespaces[$module].$segment)) {
@@ -151,13 +152,7 @@ class Application
                 }
 
                 $action = $router->getAction().self::ACTION_POSTFIX;
-                if (array_key_exists($module, $this->modules)) {
-                    if (is_string($this->modules[$module])) {
-                        new $this->modules[$module]($this->di);
-                    } else {
-                        call_user_func($this->modules[$module]->bindTo($this->di, $this));
-                    }
-                }
+                $this->handleModule($module);
 
                 $controller = new $controller($this->di);
                 if (method_exists($controller, $action)) {
@@ -167,7 +162,7 @@ class Application
                     throw new Exception('Method "'.$action.'" not exists', 404);
                 }
             } else {
-                throw new Exception('It must be at least one module: [name => namespace]');
+                throw new Exception('It must be at least one module: addModule(name, namespace)');
             }
         }
         $response = $this->handleMiddlewares($middlewares);
@@ -184,6 +179,32 @@ class Application
     {
         $resolved = $this->resolveParameters($this->handler[0], $this->handler[1]);
         return call_user_func_array($this->handler[0], $resolved);
+    }
+
+    /**
+     * Handle module if exists.
+     *
+     * @param string $module The name of module.
+     *
+     * @return void
+     * @throws \Lebran\Mvc\Application\Exception
+     */
+    protected function handleModule($module)
+    {
+        if (is_object($this->em)) {
+            $this->em->fire('application.runModule', $this, ['module' => $module]);
+        }
+
+        if (array_key_exists($module, $this->modules)) {
+            $module = $this->modules[$module];
+            if (is_string($module)) {
+                new $module($this->di);
+            } else if ($module instanceof \Closure) {
+                call_user_func($module->bindTo($this->di, $this));
+            } else {
+                throw new Exception('The definition of module supports only string or closure.');
+            }
+        }
     }
 
     /**
