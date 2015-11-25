@@ -2,7 +2,7 @@
   "name": "lebran/framework",
   "description": "Аll you need for your little Projects.",
   "homepage": "https://vk.com/id126790791",
-  "license": "GNU Licence",
+  "license": "MIT Licence",
   "support": {
     "issues": "https://github.com/lebran/framework/issues",
     "source": "https://github.com/lebran/framework"
@@ -16,6 +16,9 @@
   ],
   "autoload": {
     "psr-4": { "Lebran\\": "src/" }
+  },
+  "require": {
+    "lebran/utils": "dev-master"
   },
   "type": "library"
 }

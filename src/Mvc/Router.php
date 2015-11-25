@@ -119,7 +119,7 @@ class Router extends Collection implements InjectableInterface, EventableInterfa
             }
             $params += $route->getDefaults();
 
-            if ((empty($params['controller']) or empty($params['action'])) && !$route->getHandler()) {
+            if ((empty($params['controller']) || empty($params['action'])) && !$route->getHandler()) {
                 continue;
             }
 

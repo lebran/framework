@@ -361,7 +361,7 @@ class Response
 
         $this->sendHeaders();
 
-        if (is_string($this->file) and strlen($this->file)) {
+        if (is_string($this->file) && strlen($this->file)) {
             readfile($this->file);
         } else {
             echo $this->body;
